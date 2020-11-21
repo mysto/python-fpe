@@ -68,7 +68,7 @@ In the spec, it says that the radix and minimum length (minLen) of the message s
 
 Regarding how the "tweak" is used as input: the tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden of in each `Encrypt` and `Decrypt` call. This usage makes it is similar to passing an IV or nonce once when creating an encryptor object.
 
-##To-do
+## To-do
 
 Implement FF3-1 changes
 
