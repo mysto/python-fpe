@@ -64,9 +64,9 @@ The django.utils.baseconv module supports base 62 and could be used to increase 
 
 The cryptographic primitive used is the [Python Cryptography Toolkit (pycrypto)](https://pypi.org/project/pycrypto) for AES encryption. It uses a single-block with an IV of 0, which is effectively ECB mode. AES is also the only block cipher function that works at the moment, and the only allowed block cipher to be used for FF3, as per the spec.
 
-In the spec, it says that the radix and minimum length (minLen) of the message should be such that `radix^minLen >= 100`. In FF3-1, this was revised to  radix^minLen >= 1,000,000. In `ff3.py` there is a `const` called `FEISTEL_MIN` that can be changed to a sufficient value (like 1,000,000), but by default, it only follows the original spec.
+In the spec, it says that the radix and minimum length (minLen) of the message should be such that `radix^minLen >= 100`. In FF3-1, this was revised to  radix^minLen >= 1,000,000. In `ff3.py` there is a `const` called `FEISTEL_MIN` that can be changed to a sufficient value (like 1,000,000), the current default follows the original spec.
 
-Regarding how the "tweak" is used as input: the tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden of in each `Encrypt` and `Decrypt` call. This usage makes it is similar to passing an IV or nonce once when creating an encryptor object.
+Regarding how the "tweak" is used as input: the tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden of in each `Encrypt` and `Decrypt` call. This usage makes it similar to passing an IV or nonce when creating an encryptor object.
 
 ## To-do
 
