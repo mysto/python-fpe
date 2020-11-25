@@ -6,7 +6,8 @@ An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 al
 
 This follows the FF3 schemes for Format Preserving Encryption outlined in the NIST Recommendation, released in March 2016. 
 
-A note about FF3: There was some [recent cryptanalysis](https://csrc.nist.gov/News/2017/Recent-Cryptanalysis-of-FF3) about the FF3 algorithm. NIST has published on Feburary 28th, 2020 an updated algorithum, FF3-1.  This implementiton has not yet been updated to FF3-1.
+NIST published on Feburary 28th, 2020 an update to the standard, FF3-1.  These changes to minimum domain size and revised tweak length have not
+yet been updated here to FF3-1.
 
 ## Requires
 
@@ -16,7 +17,7 @@ This project was built and tested with Python 3.7.  It requires the pycrypto 2.6
 
 ## Testing
 
-There are  official [test vectors](http://csrc.nist.gov/groups/ST/toolkit/examples.html) for FF3 provided by NIST, which are used for testing in this package.
+There are official [test vectors](http://csrc.nist.gov/groups/ST/toolkit/examples.html) for FF3 provided by NIST, which are used for testing in this package.
 
 To run unit tests on this implementation with all test vectors from the NIST link above, run the unit tests:
 
