@@ -22,7 +22,7 @@ See the License for the specific language governing permissions and limitations 
 import logging
 import math
 from Crypto.Cipher import AES
-from hexdump import hexdump
+# from hexdump import hexdump
 
 FEISTEL_MIN  = 100 # 1M is currently recommended
 NUM_ROUNDS   = 8
@@ -100,7 +100,7 @@ class FF3Cipher:
 	Let u = [n/2]
 	Let v = n - u
 	Let A = X[1..u]
-    Let B = X[u+1,n]
+	Let B = X[u+1,n]
 	Let T(L) = T[0..31] and T(R) = T[32..63]
 	for i <- 0 to 6 do
 		If is even, let m = u and W = T(R) Else let m = v and W = T(L)
