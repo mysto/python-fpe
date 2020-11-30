@@ -1,4 +1,4 @@
-# fpe - Format Preserving Encryption Implementation in Python
+# fpe - Format Preserving Encryption in Python
 
 An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 algorithm in Python.
 

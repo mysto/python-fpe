@@ -24,18 +24,20 @@ import math
 from Crypto.Cipher import AES
 # from hexdump import hexdump
 
-FEISTEL_MIN  = 100 # 1M is currently recommended
-NUM_ROUNDS   = 8
-BLOCK_SIZE   = 16 # aes.BlockSize
-TWEAK_LEN    = 8
+FEISTEL_MIN =  100  # 1M is currently recommended
+NUM_ROUNDS =   8
+BLOCK_SIZE =   16  # aes.BlockSize
+TWEAK_LEN =    8
 HALF_TWEAK_LEN = TWEAK_LEN // 2
-MAX_RADIX   = 36 # python int supports radix 2..26
+MAX_RADIX =    36  # python int supports radix 2..26
+
 
 def reverseString(aString):
     return aString[::-1]
 
 #
-# FF3 can encode an arbritary length string. This implementation uses an alternating Feistel with the following parameters:
+# FF3 can encode an arbritary length string. This implementation uses an alternating Feistel with the
+# following parameters:
 #	128 bit key length
 #	Cipher Block Chain (CBC-MAC) round function
 #	64-bit tweak
@@ -49,342 +51,344 @@ def reverseString(aString):
 
 # FF3Cipher initializes a new FF3 Cipher for encryption or decryption with radix, key and tweak parameters.
 
+
 class FF3Cipher:
-	def __init__(self, radix, key, tweak):
+    def __init__(self, radix, key, tweak):
 
-		self.radix = radix 
-		self.key = bytes.fromhex(key)
-		self.tweak = tweak
+        self.radix = radix
+        self.key = bytes.fromhex(key)
+        self.tweak = tweak
 
-		# Calculate min domain, minLength, per spec, radix^minLength >= 100.
-		self.minLen = (math.ceil(math.log(FEISTEL_MIN) / math.log(float(radix))))
-		self.maxLen = (math.floor((192 / math.log2(float(radix)))))
+        # Calculate min domain, minLength, per spec, radix^minLength >= 100.
+        self.minLen = (math.ceil(math.log(FEISTEL_MIN) / math.log(float(radix))))
+        self.maxLen = (math.floor((192 / math.log2(float(radix)))))
 
-		keyLen = len(self.key)
+        keyLen = len(self.key)
 
-		# Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
-		if (keyLen != 16) and (keyLen != 24) and (keyLen != 32):
-			raise ValueError("key length is " + str(keyLen) + " but must be 128, 192, or 256 bits")
+        # Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
+        if (keyLen != 16) and (keyLen != 24) and (keyLen != 32):
+            raise ValueError("key length is " + str(keyLen) + " but must be 128, 192, or 256 bits")
 
-		# While FF3 allows radices in [2, 2^16], there is a practical limit to 36 (alphanumeric) because the 
-		# int supports up to base 36.
-		if (radix < 2) or (radix > MAX_RADIX):
-			raise ValueError("radix must be between 2 and 36, inclusive")
+        # While FF3 allows radices in [2, 2^16], there is a practical limit to 36 (alphanumeric) because the
+        # int supports up to base 36.
+        if (radix < 2) or (radix > MAX_RADIX):
+            raise ValueError("radix must be between 2 and 36, inclusive")
 
-		# Make sure 2 <= minLength <= maxLength < 2*floor(log base radix of 2^96) is satisfied
-		if (self.minLen < 2) or (self.maxLen < self.minLen) or (float(self.maxLen) > (192 / math.log2(float(radix)))):
-			raise ValueError("minLen or maxLen invalid, adjust your radix")
+        # Make sure 2 <= minLength <= maxLength < 2*floor(log base radix of 2^96) is satisfied
+        if (self.minLen < 2) or (self.maxLen < self.minLen) or (float(self.maxLen) > (192 / math.log2(float(radix)))):
+            raise ValueError("minLen or maxLen invalid, adjust your radix")
 
-		# aes.NewCipher automatically returns the correct block based on the length of the key passed in
-		# Always use the reversed key since Encrypt and Decrypt call ciph expecting that
+        # aes.NewCipher automatically returns the correct block based on the length of the key passed in
+        # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
-		self.aesBlock = AES.AESCipher(reverseString(self.key))
+        self.aesBlock = AES.AESCipher(reverseString(self.key))
 
-	def encrypt(self, plaintext):
-		return self.encryptWithTweak(plaintext, self.tweak)
+    def encrypt(self, plaintext):
+        return self.encryptWithTweak(plaintext, self.tweak)
 
-	"""
-	Fiestel structure
+    """
+    Fiestel structure
 
-		 	u length |  v length
+            u length |  v length
 
-		    A block  |  B block
+            A block  |  B block
 
-				C = modulo function
+                C = modulo function
 
-			B' <- C    | A' <- B
+            B' <- C    | A' <- B
 
 
-	Steps:
+    Steps:
 
-	Let u = [n/2]
-	Let v = n - u
-	Let A = X[1..u]
-	Let B = X[u+1,n]
-	Let T(L) = T[0..31] and T(R) = T[32..63]
-	for i <- 0 to 6 do
-		If is even, let m = u and W = T(R) Else let m = v and W = T(L)
-		Let P = REV([NUM<radix>(Rev(B))]^12 || W ⊗ REV(i^4)
-		Let Y = CIPH(P)
-		Let y = NUM<2>(REV(Y))
-		Let c = (NUM<radix>(REV(A)) + y) mod radix^m
-		Let C = REV(STR<radix>^m(c))
-		Let A = B
-		Let B = C
-	end for
-	Return A || B
+    Let u = [n/2]
+    Let v = n - u
+    Let A = X[1..u]
+    Let B = X[u+1,n]
+    Let T(L) = T[0..31] and T(R) = T[32..63]
+    for i <- 0 to 6 do
+        If is even, let m = u and W = T(R) Else let m = v and W = T(L)
+        Let P = REV([NUM<radix>(Rev(B))]^12 || W ⊗ REV(i^4)
+        Let Y = CIPH(P)
+        Let y = NUM<2>(REV(Y))
+        Let c = (NUM<radix>(REV(A)) + y) mod radix^m
+        Let C = REV(STR<radix>^m(c))
+        Let A = B
+        Let B = C
+    end for
+    Return A || B
 
-	* Where REV(X) reverses the order of characters in the character string X
+    * Where REV(X) reverses the order of characters in the character string X
 
-	See spec and examples:
+    See spec and examples:
 
-	https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf
-	https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/FF3samples.pdf
-	"""
+    https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf
+    https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/FF3samples.pdf
+    """
 
-	# EncryptWithTweak allows a parameter tweak instead of the current Cipher's tweak
+    # EncryptWithTweak allows a parameter tweak instead of the current Cipher's tweak
 
-	def encryptWithTweak(self, plaintext, tweak):
-		tweakBytes = bytes.fromhex(tweak)
+    def encryptWithTweak(self, plaintext, tweak):
+        tweakBytes = bytes.fromhex(tweak)
 
-		n = len(plaintext)
+        n = len(plaintext)
 
-		# Check if message length is within minLength and maxLength bounds
-		# TODO: when n==c.maxLen, it breaks. For now, changing the 
-		# input check to >= instead of only >
+        # Check if message length is within minLength and maxLength bounds
+        # TODO: when n==c.maxLen, it breaks. For now, changing the
+        # input check to >= instead of only >
 
-		if (n < self.minLen) or (n >= self.maxLen):
-			raise ValueError("message length is not within min and max bounds")
+        if (n < self.minLen) or (n >= self.maxLen):
+            raise ValueError("message length is not within min and max bounds")
 
-		# Make sure the given the length of tweak in bits is 64
-		if len(tweakBytes) != TWEAK_LEN: 
-			raise ValueError("tweak length invalid: tweak must be 8 bytes, or 64 bits")
+        # Make sure the given the length of tweak in bits is 64
+        if len(tweakBytes) != TWEAK_LEN:
+            raise ValueError("tweak length invalid: tweak must be 8 bytes, or 64 bits")
 
-		# Check if the plaintext message is formatted in the current radix
-		x = int(plaintext, self.radix)
-		if x == 0:
-			print(plaintext + ': ' + str(self.radix))
-			raise ValueError("plaintext string is not within base/radix")
+        # Check if the plaintext message is formatted in the current radix
+        x = int(plaintext, self.radix)
+        if x == 0:
+            print(plaintext + ': ' + str(self.radix))
+            raise ValueError("plaintext string is not within base/radix")
 
-		# Calculate split point
-		u = (math.ceil(float(n) / 2))
-		v = n - u
-	
-		# Split the message
-		A = plaintext[:u]
-		B = plaintext[u:]
+        # Calculate split point
+        u = (math.ceil(float(n) / 2))
+        v = n - u
 
-		# Split the tweak
-		Tl = tweakBytes[:HALF_TWEAK_LEN]
-		Tr = tweakBytes[HALF_TWEAK_LEN:]
+        # Split the message
+        A = plaintext[:u]
+        B = plaintext[u:]
 
-		logging.debug("Tweak: " + tweak)
-		logging.debug(tweakBytes)
-		# hexdump(tweakBytes)
+        # Split the tweak
+        Tl = tweakBytes[:HALF_TWEAK_LEN]
+        Tr = tweakBytes[HALF_TWEAK_LEN:]
 
-		# P is always 16 bytes
-		P = bytearray(BLOCK_SIZE)
+        logging.debug("Tweak: " + tweak)
+        logging.debug(tweakBytes)
+        # hexdump(tweakBytes)
 
-		# Pre-calculate the modulus since it's only one of 2 values,
-		# depending on whether i is even or odd
+        # P is always 16 bytes
+        P = bytearray(BLOCK_SIZE)
 
-		modU = self.radix ** u
-		modV = self.radix ** v
-		logging.debug("modU: " + str(modU) + " modV: " + str(modV))
+        # Pre-calculate the modulus since it's only one of 2 values,
+        # depending on whether i is even or odd
 
-		# Main Feistel Round, 8 times
+        modU = self.radix ** u
+        modV = self.radix ** v
+        logging.debug("modU: " + str(modU) + " modV: " + str(modV))
 
-		for i in range (NUM_ROUNDS):
+        # Main Feistel Round, 8 times
 
-			logging.debug("-------- Round " + str(i))
-			# Determine alternating Feistel round side
-			if i%2 == 0:
-				m = u
-				W = Tr
-			else:
-				m = v
-				W = Tl
+        for i in range(NUM_ROUNDS):
+            logging.debug("-------- Round " + str(i))
+            # Determine alternating Feistel round side
+            if i % 2 == 0:
+                m = u
+                W = Tr
+            else:
+                m = v
+                W = Tl
 
-			# Calculate P by XORing W, i into the first 4 bytes of P
-			# i only requires 1 byte, rest are 0 padding bytes
-			# Anything XOR 0 is itself, so only need to XOR the last byte
+            # Calculate P by XORing W, i into the first 4 bytes of P
+            # i only requires 1 byte, rest are 0 padding bytes
+            # Anything XOR 0 is itself, so only need to XOR the last byte
 
-			P[0] = W[0]
-			P[1] = W[1]
-			P[2] = W[2]
-			P[3] = W[3] ^ int(i)
+            P[0] = W[0]
+            P[1] = W[1]
+            P[2] = W[2]
+            P[3] = W[3] ^ int(i)
 
-			# The remaining 12 bytes of P are for rev(B) with padding
+            # The remaining 12 bytes of P are for rev(B) with padding
 
-			numB = reverseString(B)
-			numBBytes = int(numB,self.radix).to_bytes(12,"big")
+            numB = reverseString(B)
+            numBBytes = int(numB, self.radix).to_bytes(12, "big")
 
-			logging.debug("B: " + str(B) + " numB:" + numB + " numBBytes:" + numBBytes.hex())
+            logging.debug("B: " + str(B) + " numB:" + numB + " numBBytes:" + numBBytes.hex())
 
-			P[BLOCK_SIZE-len(numBBytes):] = numBBytes
+            P[BLOCK_SIZE-len(numBBytes):] = numBBytes
 
-			# print("P:    ", end='')
-			# hexdump(P)
+            # print("P:    ", end='')
+            # hexdump(P)
 
-			# Calculate S by operating on P in place
-			revP = reverseString(P)
-	
-			# print("revP: ", end='')
-			# hexdump(revP)
+            # Calculate S by operating on P in place
+            revP = reverseString(P)
 
-			# P is fixed-length 16 bytes
-			revP = self.aesBlock.encrypt(bytes(revP))
+            # print("revP: ", end='')
+            # hexdump(revP)
 
-			S = reverseString(revP)
-			# print("S:    ", end='')
-			# hexdump(S)
+            # P is fixed-length 16 bytes
+            revP = self.aesBlock.encrypt(bytes(revP))
 
-			y = int.from_bytes(S,byteorder='big')
+            S = reverseString(revP)
+            # print("S:    ", end='')
+            # hexdump(S)
 
-			# Calculate c
-			c = int(reverseString(A), self.radix)
+            y = int.from_bytes(S, byteorder='big')
 
-			if c == 0:
-				raise ValueError("string A is not within base/radix")
+            # Calculate c
+            c = int(reverseString(A), self.radix)
 
-			c = c + y
-	
-			if i%2 == 0:
-				c = c % modU
-			else:
-				c = c % modV
+            if c == 0:
+                raise ValueError("string A is not within base/radix")
 
-			logging.debug("m: " + str(m) + " A: " + A + " c: " + str(c) + " y:" + str(y))
+            c = c + y
 
-			C = base_repr(c, base=self.radix)
+            if i % 2 == 0:
+                c = c % modU
+            else:
+                c = c % modV
 
-			# Need to pad the text with leading 0s first to make sure it's the correct length
-			while len(C) < int(m):
-				C = "0" + C
+            logging.debug("m: " + str(m) + " A: " + A + " c: " + str(c) + " y:" + str(y))
 
-			C = reverseString(C)
+            C = base_repr(c, base=self.radix)
 
-			# Final steps
-			A = B
-			B = C
+            # Need to pad the text with leading 0s first to make sure it's the correct length
+            while len(C) < int(m):
+                C = "0" + C
 
-			logging.debug("A: " + A + "   B: " + B)
+            C = reverseString(C)
 
-		return A + B
+            # Final steps
+            A = B
+            B = C
 
-	def decrypt(self, ciphertext):
-		return self.decryptWithTweak(ciphertext, self.tweak)
+            logging.debug("A: " + A + "   B: " + B)
 
-	def decryptWithTweak(self, ciphertext, tweak):
-		tweakBytes = bytes.fromhex(tweak)
+        return A + B
 
-		n = len(ciphertext)
+    def decrypt(self, ciphertext):
+        return self.decryptWithTweak(ciphertext, self.tweak)
 
-		# Check if message length is within minLength and maxLength bounds
-		# TODO: when n==c.maxLen, it breaks. For now, check >= instead of only >
+    def decryptWithTweak(self, ciphertext, tweak):
+        tweakBytes = bytes.fromhex(tweak)
 
-		if (n < self.minLen) or (n >= self.maxLen):
-			raise ValueError("message length is not within min and max bounds")
+        n = len(ciphertext)
 
-		# Make sure the given the length of tweak in bits is 64
-		if len(tweakBytes) != TWEAK_LEN: 
-			raise ValueError("tweak length invalid: tweak must be 8 bytes, or 64 bits")
+        # Check if message length is within minLength and maxLength bounds
+        # TODO: when n==c.maxLen, it breaks. For now, check >= instead of only >
 
-		# Check if the ciphertext message is formatted in the current radix
-		x = int(ciphertext, self.radix)
-		if x == 0:
-			print(ciphertext + ': ' + str(self.radix))
-			raise ValueError("ciphertext string is not within base/radix")
+        if (n < self.minLen) or (n >= self.maxLen):
+            raise ValueError("message length is not within min and max bounds")
 
-		# Calculate split point
-		u = (math.ceil(float(n) / 2))
-		v = n - u
-	
-		# Split the message
-		A = ciphertext[:u]
-		B = ciphertext[u:]
+        # Make sure the given the length of tweak in bits is 64
+        if len(tweakBytes) != TWEAK_LEN:
+            raise ValueError("tweak length invalid: tweak must be 8 bytes, or 64 bits")
 
-		# Split the tweak
-		Tl = tweakBytes[:HALF_TWEAK_LEN]
-		Tr = tweakBytes[HALF_TWEAK_LEN:]
+        # Check if the ciphertext message is formatted in the current radix
+        x = int(ciphertext, self.radix)
+        if x == 0:
+            print(ciphertext + ': ' + str(self.radix))
+            raise ValueError("ciphertext string is not within base/radix")
 
-		logging.debug("Tweak: " + tweak)
-		logging.debug(tweakBytes)
-		# hexdump(tweakBytes)
+        # Calculate split point
+        u = (math.ceil(float(n) / 2))
+        v = n - u
 
-		# P is always 16 bytes
-		P = bytearray(BLOCK_SIZE)
+        # Split the message
+        A = ciphertext[:u]
+        B = ciphertext[u:]
 
-		# Pre-calculate the modulus since it's only one of 2 values,
-		# depending on whether i is even or odd
+        # Split the tweak
+        Tl = tweakBytes[:HALF_TWEAK_LEN]
+        Tr = tweakBytes[HALF_TWEAK_LEN:]
 
-		modU = self.radix ** u
-		modV = self.radix ** v
-		logging.debug("modU: " + str(modU) + " modV: " + str(modV))
+        logging.debug("Tweak: " + tweak)
+        logging.debug(tweakBytes)
+        # hexdump(tweakBytes)
 
-		# Main Feistel Round, 8 times
+        # P is always 16 bytes
+        P = bytearray(BLOCK_SIZE)
 
-		for i in reversed(range (NUM_ROUNDS)):
+        # Pre-calculate the modulus since it's only one of 2 values,
+        # depending on whether i is even or odd
 
-			logging.debug("-------- Round " + str(i))
-			# Determine alternating Feistel round side
-			if i%2 == 0:
-				m = u
-				W = Tr
-			else:
-				m = v
-				W = Tl
+        modU = self.radix ** u
+        modV = self.radix ** v
+        logging.debug("modU: " + str(modU) + " modV: " + str(modV))
 
-			# Calculate P by XORing W, i into the first 4 bytes of P
-			# i only requires 1 byte, rest are 0 padding bytes
-			# Anything XOR 0 is itself, so only need to XOR the last byte
+        # Main Feistel Round, 8 times
 
-			P[0] = W[0]
-			P[1] = W[1]
-			P[2] = W[2]
-			P[3] = W[3] ^ int(i)
+        for i in reversed(range(NUM_ROUNDS)):
 
-			# The remaining 12 bytes of P are for rev(A) with padding
+            logging.debug("-------- Round " + str(i))
+            # Determine alternating Feistel round side
+            if i % 2 == 0:
+                m = u
+                W = Tr
+            else:
+                m = v
+                W = Tl
 
-			numA = reverseString(A)
-			numABytes = int(numA,self.radix).to_bytes(12,"big")
+            # Calculate P by XORing W, i into the first 4 bytes of P
+            # i only requires 1 byte, rest are 0 padding bytes
+            # Anything XOR 0 is itself, so only need to XOR the last byte
 
-			logging.debug("A: " + str(A) + " numA:" + numA + " numABytes:" + numABytes.hex())
+            P[0] = W[0]
+            P[1] = W[1]
+            P[2] = W[2]
+            P[3] = W[3] ^ int(i)
 
-			P[BLOCK_SIZE-len(numABytes):] = numABytes
+            # The remaining 12 bytes of P are for rev(A) with padding
 
-			# print("P:    ", end='')
-			# hexdump(P)
+            numA = reverseString(A)
+            numABytes = int(numA, self.radix).to_bytes(12, "big")
 
-			# Calculate S by operating on P in place
-			revP = reverseString(P)
-	
-			# print("revP: ", end='')
-			# hexdump(revP)
+            logging.debug("A: " + str(A) + " numA:" + numA + " numABytes:" + numABytes.hex())
 
-			# P is fixed-length 16 bytes
-			revP = self.aesBlock.encrypt(bytes(revP))
+            P[BLOCK_SIZE-len(numABytes):] = numABytes
 
-			S = reverseString(revP)
-			# print("S:    ", end='')
-			# hexdump(S)
+            # print("P:    ", end='')
+            # hexdump(P)
 
-			y = int.from_bytes(S,byteorder='big')
+            # Calculate S by operating on P in place
+            revP = reverseString(P)
 
-			# Calculate c
-			c = int(reverseString(B), self.radix)
+            # print("revP: ", end='')
+            # hexdump(revP)
 
-			if c == 0:
-				raise ValueError("string A is not within base/radix")
+            # P is fixed-length 16 bytes
+            revP = self.aesBlock.encrypt(bytes(revP))
 
-			c = c - y
-	
-			if i%2 == 0:
-				c = c % modU
-			else:
-				c = c % modV
+            S = reverseString(revP)
+            # print("S:    ", end='')
+            # hexdump(S)
 
-			logging.debug("m: " + str(m) + " A: " + A + " c: " + str(c) + " y:" + str(y))
+            y = int.from_bytes(S, byteorder='big')
 
-			C = base_repr(c, base=self.radix)
+            # Calculate c
+            c = int(reverseString(B), self.radix)
 
-			# Need to pad the text with leading 0s first to make sure it's the correct length
-			while len(C) < int(m):
-				C = "0" + C
+            if c == 0:
+                raise ValueError("string A is not within base/radix")
 
-			C = reverseString(C)
+            c = c - y
 
-			# Final steps
-			B = A
-			A = C
+            if i % 2 == 0:
+                c = c % modU
+            else:
+                c = c % modV
 
-			logging.debug("A: " + A + "   B: " + B)
+            logging.debug("m: " + str(m) + " A: " + A + " c: " + str(c) + " y:" + str(y))
 
-		return A + B
+            C = base_repr(c, base=self.radix)
+
+            # Need to pad the text with leading 0s first to make sure it's the correct length
+            while len(C) < int(m):
+                C = "0" + C
+
+            C = reverseString(C)
+
+            # Final steps
+            B = A
+            A = C
+
+            logging.debug("A: " + A + "   B: " + B)
+
+        return A + B
+
 
 '''
 numpy's base_repr has been adjusted here to provide lower-case alphabet for 10..36 
 '''
+
 
 def base_repr(number, base=2, padding=0):
     """
