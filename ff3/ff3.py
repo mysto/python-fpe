@@ -1,4 +1,4 @@
-'''
+"""
 
 SPDX-Copyright: Copyright (c) Schoening Consulting, LLC
 SPDX-License-Identifier: Apache-2.0
@@ -15,7 +15,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 
-'''
+"""
 
 # Package ff3 implements the FF3 format-preserving encryption algorithm/scheme
 
@@ -35,21 +35,22 @@ MAX_RADIX =    36  # python int supports radix 2..26
 def reverseString(aString):
     return aString[::-1]
 
-#
-# FF3 can encode an arbritary length string. This implementation uses an alternating Feistel with the
-# following parameters:
-#	128 bit key length
-#	Cipher Block Chain (CBC-MAC) round function
-#	64-bit tweak
-#	eight (8) rounds
-#	Modulo addition
-#
-#
-# An encoded string representation of x in the given base. Base must be between 2 and 36, inclusive. The result
-# uses the uses the lower-case letters 'a' to 'z' for digit values 10 to 3.  Currently unimplemented, the
-# upper-case letters 'A' to 'Z' would represent digit values 36 to 61.
 
-# FF3Cipher initializes a new FF3 Cipher for encryption or decryption with radix, key and tweak parameters.
+"""
+FF3 can encode an arbritary length string. This implementation uses an alternating Feistel with the
+following parameters:
+    128 bit key length
+    Cipher Block Chain (CBC-MAC) round function
+    64-bit tweak
+    eight (8) rounds
+    Modulo addition
+
+An encoded string representation of x in the given base. Base must be between 2 and 36, inclusive. The result
+uses the uses the lower-case letters 'a' to 'z' for digit values 10 to 3.  Currently unimplemented, the
+upper-case letters 'A' to 'Z' would represent digit values 36 to 61.
+
+FF3Cipher initializes a new FF3 Cipher for encryption or decryption with radix, key and tweak parameters.
+"""
 
 
 class FF3Cipher:
