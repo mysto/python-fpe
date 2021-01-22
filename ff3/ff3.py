@@ -46,10 +46,10 @@ following parameters:
     Modulo addition
 
 An encoded string representation of x in the given base. Base must be between 2 and 36, inclusive. The result
-uses the uses the lower-case letters 'a' to 'z' for digit values 10 to 3.  Currently unimplemented, the
+uses the uses the lower-case letters 'a' to 'z' for digit values 10 to 35.  Currently unimplemented, the
 upper-case letters 'A' to 'Z' would represent digit values 36 to 61.
 
-FF3Cipher initializes a new FF3 Cipher for encryption or decryption with radix, key and tweak parameters.
+FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with radix, key and tweak parameters.
 """
 
 
