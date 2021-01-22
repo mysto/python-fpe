@@ -29,7 +29,7 @@ NUM_ROUNDS =   8
 BLOCK_SIZE =   16  # aes.BlockSize
 TWEAK_LEN =    8
 HALF_TWEAK_LEN = TWEAK_LEN // 2
-MAX_RADIX =    36  # python int supports radix 2..26
+MAX_RADIX =    36  # python int supports radix 2..36
 
 
 def reverseString(aString):
