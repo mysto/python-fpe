@@ -138,7 +138,7 @@ class FF3Cipher:
         # input check to >= instead of only >
 
         if (n < self.minLen) or (n >= self.maxLen):
-            raise ValueError("message length is not within min and max bounds")
+            raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
 
         # Make sure the given the length of tweak in bits is 64
         if len(tweakBytes) != TWEAK_LEN:
