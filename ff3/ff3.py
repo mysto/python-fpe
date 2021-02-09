@@ -68,7 +68,7 @@ class FF3Cipher:
 
         # Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
         if (keyLen != 16) and (keyLen != 24) and (keyLen != 32):
-            raise ValueError("key length is " + str(keyLen) + " but must be 128, 192, or 256 bits")
+            raise ValueError(f"key length is {keyLen} but must be 128, 192, or 256 bits")
 
         # While FF3 allows radices in [2, 2^16], there is a practical limit to 36 (alphanumeric) because the
         # int supports up to base 36.
@@ -142,7 +142,7 @@ class FF3Cipher:
 
         # Make sure the given the length of tweak in bits is 64
         if len(tweakBytes) != TWEAK_LEN:
-            raise ValueError("tweak length invalid: tweak must be 8 bytes, or 64 bits")
+            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
 
         # Check if the plaintext message is formatted in the current radix
         x = int(plaintext, self.radix)
@@ -267,11 +267,11 @@ class FF3Cipher:
         # TODO: when n==c.maxLen, it breaks. For now, check >= instead of only >
 
         if (n < self.minLen) or (n >= self.maxLen):
-            raise ValueError("message length is not within min and max bounds")
+             raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
 
         # Make sure the given the length of tweak in bits is 64
         if len(tweakBytes) != TWEAK_LEN:
-            raise ValueError("tweak length invalid: tweak must be 8 bytes, or 64 bits")
+            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
 
         # Check if the ciphertext message is formatted in the current radix
         x = int(ciphertext, self.radix)
