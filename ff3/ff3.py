@@ -37,8 +37,8 @@ def reverseString(aString):
 
 
 """
-FF3 can encode an arbritary length string. This implementation uses an alternating Feistel with the
-following parameters:
+FF3 can encode a string within a range of minLen..maxLen. This implementation uses an alternating Feistel
+with the following parameters:
     128 bit key length
     Cipher Block Chain (CBC-MAC) round function
     64-bit tweak
@@ -60,9 +60,12 @@ class FF3Cipher:
         self.key = bytes.fromhex(key)
         self.tweak = tweak
 
-        # Calculate min domain, minLength, per spec, radix^minLength >= 100.
-        self.minLen = (math.ceil(math.log(FEISTEL_MIN) / math.log(float(radix))))
-        self.maxLen = (math.floor((192 / math.log2(float(radix)))))
+        # Calculate range of supported message lengths [minLen..maxLen]
+        # per original spec, radix^minLength >= 100.
+        self.minLen = (math.ceil(math.log(FEISTEL_MIN) / math.log(radix)))
+
+        # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
+        self.maxLen = 2 * math.floor(96/math.log2(radix))
 
         keyLen = len(self.key)
 
@@ -134,10 +137,7 @@ class FF3Cipher:
         n = len(plaintext)
 
         # Check if message length is within minLength and maxLength bounds
-        # TODO: when n==c.maxLen, it breaks. For now, changing the
-        # input check to >= instead of only >
-
-        if (n < self.minLen) or (n >= self.maxLen):
+        if (n < self.minLen) or (n > self.maxLen):
             raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
 
         # Make sure the given the length of tweak in bits is 64
@@ -151,7 +151,7 @@ class FF3Cipher:
             raise ValueError("plaintext string is not within base/radix")
 
         # Calculate split point
-        u = (math.ceil(float(n) / 2))
+        u = math.ceil(n / 2)
         v = n - u
 
         # Split the message
@@ -264,9 +264,7 @@ class FF3Cipher:
         n = len(ciphertext)
 
         # Check if message length is within minLength and maxLength bounds
-        # TODO: when n==c.maxLen, it breaks. For now, check >= instead of only >
-
-        if (n < self.minLen) or (n >= self.maxLen):
+        if (n < self.minLen) or (n > self.maxLen):
              raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
 
         # Make sure the given the length of tweak in bits is 64
