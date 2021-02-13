@@ -31,8 +31,8 @@ TWEAK_LEN =    8
 HALF_TWEAK_LEN = TWEAK_LEN // 2
 MAX_RADIX =    36  # python int supports radix 2..36
 
-
-def reverseString(aString):
+def reverse_string(aString):
+    "func defined for clarity"
     return aString[::-1]
 
 
@@ -54,6 +54,7 @@ FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with 
 
 
 class FF3Cipher:
+    """Class FF3Cipher implements the FF3 format-preserving encryption algorithm"""
     def __init__(self, radix, key, tweak):
 
         self.radix = radix
@@ -70,25 +71,27 @@ class FF3Cipher:
         keyLen = len(self.key)
 
         # Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
-        if (keyLen != 16) and (keyLen != 24) and (keyLen != 32):
+        if keyLen not in (16, 24, 32):
             raise ValueError(f"key length is {keyLen} but must be 128, 192, or 256 bits")
 
-        # While FF3 allows radices in [2, 2^16], there is a practical limit to 36 (alphanumeric) because the
-        # int supports up to base 36.
+        # While FF3 allows radices in [2, 2^16], there is a practical limit to 36 (alphanumeric)
+        # because python int only supports up to base 36.
         if (radix < 2) or (radix > MAX_RADIX):
             raise ValueError("radix must be between 2 and 36, inclusive")
 
         # Make sure 2 <= minLength <= maxLength < 2*floor(log base radix of 2^96) is satisfied
-        if (self.minLen < 2) or (self.maxLen < self.minLen) or (float(self.maxLen) > (192 / math.log2(float(radix)))):
+        if ((self.minLen < 2) or (self.maxLen < self.minLen) or
+                (float(self.maxLen) > (192 / math.log2(float(radix))))):
             raise ValueError("minLen or maxLen invalid, adjust your radix")
 
-        # aes.NewCipher automatically returns the correct block based on the length of the key passed in
+        # aes.NewCipher automatically returns the correct block based on the length of the key
         # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
-        self.aesBlock = AES.AESCipher(reverseString(self.key))
+        self.aesBlock = AES.AESCipher(reverse_string(self.key))
 
     def encrypt(self, plaintext):
-        return self.encryptWithTweak(plaintext, self.tweak)
+        """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
+        return self.encrypt_with_tweak(plaintext, self.tweak)
 
     """
     Fiestel structure
@@ -131,7 +134,8 @@ class FF3Cipher:
 
     # EncryptWithTweak allows a parameter tweak instead of the current Cipher's tweak
 
-    def encryptWithTweak(self, plaintext, tweak):
+    def encrypt_with_tweak(self, plaintext, tweak):
+        """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
         tweakBytes = bytes.fromhex(tweak)
 
         n = len(plaintext)
@@ -147,8 +151,7 @@ class FF3Cipher:
         # Check if the plaintext message is formatted in the current radix
         x = int(plaintext, self.radix)
         if x == 0:
-            print(plaintext + ': ' + str(self.radix))
-            raise ValueError("plaintext string is not within base/radix")
+            raise ValueError("plaintext string is not within base/radix {self.radix}")
 
         # Calculate split point
         u = math.ceil(n / 2)
@@ -162,7 +165,7 @@ class FF3Cipher:
         Tl = tweakBytes[:HALF_TWEAK_LEN]
         Tr = tweakBytes[HALF_TWEAK_LEN:]
 
-        logging.debug("Tweak: " + tweak)
+        logging.debug("Tweak: %s", tweak)
         logging.debug(tweakBytes)
         # hexdump(tweakBytes)
 
@@ -174,12 +177,12 @@ class FF3Cipher:
 
         modU = self.radix ** u
         modV = self.radix ** v
-        logging.debug("modU: " + str(modU) + " modV: " + str(modV))
+        logging.debug("modU: {modUI} modV: {modV}")
 
         # Main Feistel Round, 8 times
 
         for i in range(NUM_ROUNDS):
-            logging.debug("-------- Round " + str(i))
+            logging.debug("-------- Round {i}")
             # Determine alternating Feistel round side
             if i % 2 == 0:
                 m = u
@@ -199,7 +202,7 @@ class FF3Cipher:
 
             # The remaining 12 bytes of P are for rev(B) with padding
 
-            numB = reverseString(B)
+            numB = reverse_string(B)
             numBBytes = int(numB, self.radix).to_bytes(12, "big")
 
             logging.debug("B: " + str(B) + " numB:" + numB + " numBBytes:" + numBBytes.hex())
@@ -210,7 +213,7 @@ class FF3Cipher:
             # hexdump(P)
 
             # Calculate S by operating on P in place
-            revP = reverseString(P)
+            revP = reverse_string(P)
 
             # print("revP: ", end='')
             # hexdump(revP)
@@ -218,14 +221,14 @@ class FF3Cipher:
             # P is fixed-length 16 bytes
             revP = self.aesBlock.encrypt(bytes(revP))
 
-            S = reverseString(revP)
+            S = reverse_string(revP)
             # print("S:    ", end='')
             # hexdump(S)
 
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = int(reverseString(A), self.radix)
+            c = int(reverse_string(A), self.radix)
 
             if c == 0:
                 raise ValueError("string A is not within base/radix")
@@ -237,7 +240,7 @@ class FF3Cipher:
             else:
                 c = c % modV
 
-            logging.debug("m: " + str(m) + " A: " + A + " c: " + str(c) + " y:" + str(y))
+            logging.debug("m: {m} A: {A} c: {c} y: {y}")
 
             C = base_repr(c, base=self.radix)
 
@@ -245,7 +248,7 @@ class FF3Cipher:
             while len(C) < int(m):
                 C = "0" + C
 
-            C = reverseString(C)
+            C = reverse_string(C)
 
             # Final steps
             A = B
@@ -256,16 +259,18 @@ class FF3Cipher:
         return A + B
 
     def decrypt(self, ciphertext):
-        return self.decryptWithTweak(ciphertext, self.tweak)
+        """Decrypts the ciphertext string and returns a plaintext of the same length and format"""
+        return self.decrypt_with_tweak(ciphertext, self.tweak)
 
-    def decryptWithTweak(self, ciphertext, tweak):
+    def decrypt_with_tweak(self, ciphertext, tweak):
+        """Decrypts the ciphertext string and returns a plaintext of the same length and format"""
         tweakBytes = bytes.fromhex(tweak)
 
         n = len(ciphertext)
 
         # Check if message length is within minLength and maxLength bounds
         if (n < self.minLen) or (n > self.maxLen):
-             raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
+            raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
 
         # Make sure the given the length of tweak in bits is 64
         if len(tweakBytes) != TWEAK_LEN:
@@ -274,8 +279,7 @@ class FF3Cipher:
         # Check if the ciphertext message is formatted in the current radix
         x = int(ciphertext, self.radix)
         if x == 0:
-            print(ciphertext + ': ' + str(self.radix))
-            raise ValueError("ciphertext string is not within base/radix")
+            raise ValueError("ciphertext string is not within base/radix {self.radix}")
 
         # Calculate split point
         u = (math.ceil(float(n) / 2))
@@ -289,7 +293,7 @@ class FF3Cipher:
         Tl = tweakBytes[:HALF_TWEAK_LEN]
         Tr = tweakBytes[HALF_TWEAK_LEN:]
 
-        logging.debug("Tweak: " + tweak)
+        logging.debug("Tweak: {tweak}")
         logging.debug(tweakBytes)
         # hexdump(tweakBytes)
 
@@ -301,13 +305,13 @@ class FF3Cipher:
 
         modU = self.radix ** u
         modV = self.radix ** v
-        logging.debug("modU: " + str(modU) + " modV: " + str(modV))
+        logging.debug("modU: {modU} modV: {modV}")
 
         # Main Feistel Round, 8 times
 
         for i in reversed(range(NUM_ROUNDS)):
 
-            logging.debug("-------- Round " + str(i))
+            logging.debug("-------- Round {i}")
             # Determine alternating Feistel round side
             if i % 2 == 0:
                 m = u
@@ -327,7 +331,7 @@ class FF3Cipher:
 
             # The remaining 12 bytes of P are for rev(A) with padding
 
-            numA = reverseString(A)
+            numA = reverse_string(A)
             numABytes = int(numA, self.radix).to_bytes(12, "big")
 
             logging.debug("A: " + str(A) + " numA:" + numA + " numABytes:" + numABytes.hex())
@@ -338,7 +342,7 @@ class FF3Cipher:
             # hexdump(P)
 
             # Calculate S by operating on P in place
-            revP = reverseString(P)
+            revP = reverse_string(P)
 
             # print("revP: ", end='')
             # hexdump(revP)
@@ -346,14 +350,14 @@ class FF3Cipher:
             # P is fixed-length 16 bytes
             revP = self.aesBlock.encrypt(bytes(revP))
 
-            S = reverseString(revP)
+            S = reverse_string(revP)
             # print("S:    ", end='')
             # hexdump(S)
 
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = int(reverseString(B), self.radix)
+            c = int(reverse_string(B), self.radix)
 
             if c == 0:
                 raise ValueError("string A is not within base/radix")
@@ -365,7 +369,7 @@ class FF3Cipher:
             else:
                 c = c % modV
 
-            logging.debug("m: " + str(m) + " A: " + A + " c: " + str(c) + " y:" + str(y))
+            logging.debug("m: {m} A: {A} c: {c} y: {y}")
 
             C = base_repr(c, base=self.radix)
 
@@ -373,7 +377,7 @@ class FF3Cipher:
             while len(C) < int(m):
                 C = "0" + C
 
-            C = reverseString(C)
+            C = reverse_string(C)
 
             # Final steps
             B = A
@@ -383,11 +387,9 @@ class FF3Cipher:
 
         return A + B
 
-
-'''
-numpy's base_repr has been adjusted here to provide lower-case alphabet for 10..36 
-'''
-
+#
+# numpy's base_repr has been adjusted here to provide lower-case alphabet for 10..36
+#
 
 def base_repr(number, base=2, padding=0):
     """
@@ -424,7 +426,7 @@ def base_repr(number, base=2, padding=0):
     digits = '0123456789abcdefghijklmnopqrstuvwxyz'
     if base > len(digits):
         raise ValueError("Bases greater than 36 not handled in base_repr.")
-    elif base < 2:
+    if base < 2:
         raise ValueError("Bases less than 2 not handled in base_repr.")
 
     num = abs(number)
@@ -437,5 +439,3 @@ def base_repr(number, base=2, padding=0):
     if number < 0:
         res.append('-')
     return ''.join(reversed(res or '0'))
-
-
