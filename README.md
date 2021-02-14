@@ -1,8 +1,8 @@
-# fpe - Format Preserving Encryption in Python
+# ff3 - Format Preserving Encryption in Python
 
 An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 algorithm in Python.
 
-[NIST Recommendation SP 800-38G](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
+* [NIST Recommendation SP 800-38G](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
 
 This follows the FF3 schemes for Format Preserving Encryption outlined in the NIST Recommendation, released in March 2016. 
 
@@ -47,15 +47,13 @@ print("Decrypted: " + decrypted)
 
 ## Usage notes
 
-There is a [FIPS Document](http://csrc.nist.gov/groups/STM/cmvp/documents/fips140-2/FIPS1402IG.pdf) that contains`Requirements for Vendor Affirmation of SP 800-38G` on page 155.
-
-It can be used as part of sensitive data tokenization, especially in regards to PCI and cryptographically reversible tokens. This implementation does not provide any gaurantees regarding PCI DSS or other validation.
+FPE can be used as part of sensitive data tokenization, especially in regards to PCI and cryptographically reversible tokens. This implementation does not provide any gaurantees regarding PCI DSS or other validation.
 
 It's important to note that, as with any cryptographic package, managing and protecting the key appropriately to your situation is crucial. This package does not provide any guarantees regarding the key in memory.
 
 ## Implementation Notes
 
-This implementation was based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follow the algorithm as outlined in the NIST recommendation as closely as possible, including naming.  It should be viewed as a reference implementation, and has not be optimized for performance. 
+This implementation was based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follow the algorithm as outlined in the NIST specification as closely as possible, including naming.  It should be viewed as a reference implementation, and has not be optimized for performance. 
 
 While the test vectors all pass, it has not otherwise been extensively tested. 
 
