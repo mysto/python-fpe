@@ -15,6 +15,12 @@ This project was built and tested with Python 3.7.  It requires the pycrypto 2.6
 
 `pip install pycrypto`
 
+## Installation
+
+Install this project with pip:
+
+`pip install ff3`
+
 ## Testing
 
 There are official [test vectors](http://csrc.nist.gov/groups/ST/toolkit/examples.html) for FF3 provided by NIST, which are used for testing in this package.

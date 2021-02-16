@@ -22,7 +22,7 @@ from ff3 import FF3Cipher
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
-# TODO: NIST announced in SP  800 38G Revision 1, the "the tweak parameter is reduced to 56 bits, in a 
+# TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits, in a 
 # manner that was subsequently developed by the designers of the method."
 
 testVector = [
