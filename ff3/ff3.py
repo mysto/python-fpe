@@ -24,7 +24,7 @@ import math
 from Crypto.Cipher import AES
 # from hexdump import hexdump
 
-FEISTEL_MIN =  100  # 1M is currently recommended
+FEISTEL_MIN =  1000000  # 1M is currently recommended in FF3-1
 NUM_ROUNDS =   8
 BLOCK_SIZE =   16  # aes.BlockSize
 TWEAK_LEN =    8
@@ -205,7 +205,7 @@ class FF3Cipher:
             numB = reverse_string(B)
             numBBytes = int(numB, self.radix).to_bytes(12, "big")
 
-            logging.debug("B: " + str(B) + " numB:" + numB + " numBBytes:" + numBBytes.hex())
+            logging.debug("B: {B} numB: {numB} numBBytes: {numBBytes.hex()}")
 
             P[BLOCK_SIZE-len(numBBytes):] = numBBytes
 
@@ -254,7 +254,7 @@ class FF3Cipher:
             A = B
             B = C
 
-            logging.debug("A: " + A + "   B: " + B)
+            logging.debug("A: {A} B: {B}")
 
         return A + B
 
@@ -334,7 +334,7 @@ class FF3Cipher:
             numA = reverse_string(A)
             numABytes = int(numA, self.radix).to_bytes(12, "big")
 
-            logging.debug("A: " + str(A) + " numA:" + numA + " numABytes:" + numABytes.hex())
+            logging.debug("A: {A} numA: {numA} numABytes: {numABytes.hex()}")
 
             P[BLOCK_SIZE-len(numABytes):] = numABytes
 
@@ -383,7 +383,7 @@ class FF3Cipher:
             B = A
             A = C
 
-            logging.debug("A: " + A + "   B: " + B)
+            logging.debug("A: {A} B: {B}")
 
         return A + B
 
