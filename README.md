@@ -53,7 +53,7 @@ It's important to note that, as with any cryptographic package, managing and pro
 
 ## Implementation Notes
 
-This implementation was based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follow the algorithm as outlined in the NIST specification as closely as possible, including naming.  It should be viewed as a reference implementation and has not be optimized for performance. 
+This implementation was based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follows the algorithm as outlined in the NIST specification as closely as possible, including naming.  It should be viewed as a reference implementation and has not be optimized for performance. 
 
 While the test vectors all pass, this package has not otherwise been extensively tested. 
 
@@ -63,7 +63,7 @@ The django.utils.baseconv module supports base 62 and could be used to increase 
 
 The cryptographic primitive used is the [Python Cryptography Toolkit (pycrypto)](https://pypi.org/project/pycrypto) for AES encryption. It uses a single-block with an IV of 0, which is effectively ECB mode. AES is also the only block cipher function that works at the moment, and the only allowed block cipher to be used for FF3, as per the spec.
 
-The domain size in FF3-1 was revised to radix^minLen >= 1,000,000 which is represented by the constant `FEISTEL_MIN` in `ff3.py`.
+The domain size was revised in FF3-1 to radix^minLen >= 1,000,000 which is represented by the constant `FEISTEL_MIN` in `ff3.py`. FF3-1 remains a draft and new 56-bit test vectors are not available.  This implementation follows the draft FF3-1 specification published on Feburary 2019.
 
 Regarding how the "tweak" is used as input: the tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden of in each `Encrypt` and `Decrypt` call. This usage makes it similar to passing an IV or nonce when creating an encryptor object.
 
