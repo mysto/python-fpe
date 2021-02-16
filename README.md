@@ -47,29 +47,25 @@ print("Decrypted: " + decrypted)
 
 ## Usage notes
 
-FPE can be used as part of sensitive data tokenization, especially in regards to PCI and cryptographically reversible tokens. This implementation does not provide any gaurantees regarding PCI DSS or other validation.
+FPE can be used for sensitive data tokenization, especially in regards to PCI and cryptographically reversible tokens. This implementation does not provide any guarantees regarding PCI DSS or other validation.
 
 It's important to note that, as with any cryptographic package, managing and protecting the key appropriately to your situation is crucial. This package does not provide any guarantees regarding the key in memory.
 
 ## Implementation Notes
 
-This implementation was based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follow the algorithm as outlined in the NIST specification as closely as possible, including naming.  It should be viewed as a reference implementation, and has not be optimized for performance. 
+This implementation was based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follow the algorithm as outlined in the NIST specification as closely as possible, including naming.  It should be viewed as a reference implementation and has not be optimized for performance. 
 
-While the test vectors all pass, it has not otherwise been extensively tested. 
+While the test vectors all pass, this package has not otherwise been extensively tested. 
 
-As of Python 3.7, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package did not support radices/bases higher than 36. As such, this release only supports base 36 strings, which can contain numeric digits 0-9 or lowercase alphabetic characters a-z.
+As of Python 3.7, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package supports radices/bases up to 36. Therefore, this release supports a max base of 36, which can contain numeric digits 0-9 and lowercase alphabetic characters a-z.
 
 The django.utils.baseconv module supports base 62 and could be used to increase the radix range.
 
 The cryptographic primitive used is the [Python Cryptography Toolkit (pycrypto)](https://pypi.org/project/pycrypto) for AES encryption. It uses a single-block with an IV of 0, which is effectively ECB mode. AES is also the only block cipher function that works at the moment, and the only allowed block cipher to be used for FF3, as per the spec.
 
-In the spec, it says that the radix and minimum length (minLen) of the message should be such that `radix^minLen >= 100`. In FF3-1, this was revised to  radix^minLen >= 1,000,000. In `ff3.py` there is a `const` called `FEISTEL_MIN` that can be changed to a sufficient value (like 1,000,000), the current default follows the original spec.
+The domain size in FF3-1 was revised to radix^minLen >= 1,000,000 which is represented by the constant `FEISTEL_MIN` in `ff3.py`.
 
 Regarding how the "tweak" is used as input: the tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden of in each `Encrypt` and `Decrypt` call. This usage makes it similar to passing an IV or nonce when creating an encryptor object.
-
-## To-do
-
-Implement FF3-1 changes
 
 ## Author
 
