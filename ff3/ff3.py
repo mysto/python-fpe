@@ -87,7 +87,7 @@ class FF3Cipher:
         # aes.NewCipher automatically returns the correct block based on the length of the key
         # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
-        self.aesBlock = AES.AESCipher(reverse_string(self.key))
+        self.aesBlock = AES.new(reverse_string(self.key), AES.MODE_ECB)
 
     def encrypt(self, plaintext):
         """Encrypts the plaintext string and returns a ciphertext of the same length and format"""

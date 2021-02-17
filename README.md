@@ -11,9 +11,9 @@ yet been updated here to FF3-1.
 
 ## Requires
 
-This project was built and tested with Python 3.7.  It requires the pycrypto 2.6.1 or newer library:
+This project was built and tested with Python 3.7.  It requires the pycryptodome library:
 
-`pip install pycrypto`
+`pip install pycryptodome`
 
 ## Installation
 
