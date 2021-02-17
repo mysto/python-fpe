@@ -27,7 +27,7 @@ from Crypto.Cipher import AES
 FEISTEL_MIN =  1000000  # 1M is currently recommended in FF3-1
 NUM_ROUNDS =   8
 BLOCK_SIZE =   16  # aes.BlockSize
-TWEAK_LEN =    8
+TWEAK_LEN =    8 # TODO: change to 7 bytes when 56-bit test vectors for FF3-1 become available
 HALF_TWEAK_LEN = TWEAK_LEN // 2
 MAX_RADIX =    36  # python int supports radix 2..36
 
@@ -165,7 +165,7 @@ class FF3Cipher:
         Tl = tweakBytes[:HALF_TWEAK_LEN]
         Tr = tweakBytes[HALF_TWEAK_LEN:]
 
-        logging.debug("Tweak: %s", tweak)
+        logging.debug(f"Tweak:{tweak}")
         logging.debug(tweakBytes)
         # hexdump(tweakBytes)
 
@@ -177,12 +177,12 @@ class FF3Cipher:
 
         modU = self.radix ** u
         modV = self.radix ** v
-        logging.debug("modU: {modUI} modV: {modV}")
+        logging.debug(f"modU: {modU} modV: {modV}")
 
         # Main Feistel Round, 8 times
 
         for i in range(NUM_ROUNDS):
-            logging.debug("-------- Round {i}")
+            # logging.debug(f"-------- Round {i}")
             # Determine alternating Feistel round side
             if i % 2 == 0:
                 m = u
@@ -205,7 +205,7 @@ class FF3Cipher:
             numB = reverse_string(B)
             numBBytes = int(numB, self.radix).to_bytes(12, "big")
 
-            logging.debug("B: {B} numB: {numB} numBBytes: {numBBytes.hex()}")
+            # logging.debug(f"B: {B} numB: {numB} numBBytes: {numBBytes.hex()}")
 
             P[BLOCK_SIZE-len(numBBytes):] = numBBytes
 
@@ -240,13 +240,13 @@ class FF3Cipher:
             else:
                 c = c % modV
 
-            logging.debug("m: {m} A: {A} c: {c} y: {y}")
+            # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
 
             C = base_repr(c, base=self.radix)
 
             # Need to pad the text with leading 0s first to make sure it's the correct length
-            while len(C) < int(m):
-                C = "0" + C
+            if len(C) < int(m):
+                C = C.zfill(m)
 
             C = reverse_string(C)
 
@@ -254,7 +254,7 @@ class FF3Cipher:
             A = B
             B = C
 
-            logging.debug("A: {A} B: {B}")
+            # logging.debug(f"A: {A} B: {B}")
 
         return A + B
 
@@ -293,7 +293,7 @@ class FF3Cipher:
         Tl = tweakBytes[:HALF_TWEAK_LEN]
         Tr = tweakBytes[HALF_TWEAK_LEN:]
 
-        logging.debug("Tweak: {tweak}")
+        logging.debug(f"Tweak: {tweak}")
         logging.debug(tweakBytes)
         # hexdump(tweakBytes)
 
@@ -305,13 +305,13 @@ class FF3Cipher:
 
         modU = self.radix ** u
         modV = self.radix ** v
-        logging.debug("modU: {modU} modV: {modV}")
+        logging.debug(f"modU: {modU} modV: {modV}")
 
         # Main Feistel Round, 8 times
 
         for i in reversed(range(NUM_ROUNDS)):
 
-            logging.debug("-------- Round {i}")
+            logging.debug(f"-------- Round {i}")
             # Determine alternating Feistel round side
             if i % 2 == 0:
                 m = u
@@ -334,7 +334,7 @@ class FF3Cipher:
             numA = reverse_string(A)
             numABytes = int(numA, self.radix).to_bytes(12, "big")
 
-            logging.debug("A: {A} numA: {numA} numABytes: {numABytes.hex()}")
+            logging.debug(f"A: {A} numA: {numA} numABytes: {numABytes.hex()}")
 
             P[BLOCK_SIZE-len(numABytes):] = numABytes
 
@@ -348,6 +348,7 @@ class FF3Cipher:
             # hexdump(revP)
 
             # P is fixed-length 16 bytes
+
             revP = self.aesBlock.encrypt(bytes(revP))
 
             S = reverse_string(revP)
@@ -369,13 +370,13 @@ class FF3Cipher:
             else:
                 c = c % modV
 
-            logging.debug("m: {m} A: {A} c: {c} y: {y}")
+            logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
 
             C = base_repr(c, base=self.radix)
 
             # Need to pad the text with leading 0s first to make sure it's the correct length
-            while len(C) < int(m):
-                C = "0" + C
+            if len(C) < int(m):
+                C = C.zfill(m)
 
             C = reverse_string(C)
 
@@ -383,7 +384,7 @@ class FF3Cipher:
             B = A
             A = C
 
-            logging.debug("A: {A} B: {B}")
+            logging.debug(f"A: {A} B: {B}")
 
         return A + B
 
