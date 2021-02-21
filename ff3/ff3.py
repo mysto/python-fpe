@@ -2,7 +2,7 @@
 
 SPDX-Copyright: Copyright (c) Schoening Consulting, LLC
 SPDX-License-Identifier: Apache-2.0
-Copyright 2020 Schoening Consulting, LLC
+Copyright 2021 Schoening Consulting, LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ def reverse_string(aString):
 
 
 """
-FF3 can encode a string within a range of minLen..maxLen. This implementation uses an alternating Feistel
+FF3 can encode a string within a range of minLen..maxLen. The spec uses an alternating Feistel
 with the following parameters:
     128 bit key length
     Cipher Block Chain (CBC-MAC) round function
@@ -50,6 +50,10 @@ uses the uses the lower-case letters 'a' to 'z' for digit values 10 to 35.  Curr
 upper-case letters 'A' to 'Z' would represent digit values 36 to 61.
 
 FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with radix, key and tweak parameters.
+
+AES ECB has a block size of 128 bits (i.e 16 bytes). It can only process data in blocks of this size.  Also, ECB 
+is encrypt only, a second encryption decrypts the text.
+
 """
 
 
@@ -84,7 +88,7 @@ class FF3Cipher:
                 (float(self.maxLen) > (192 / math.log2(float(radix))))):
             raise ValueError("minLen or maxLen invalid, adjust your radix")
 
-        # aes.NewCipher automatically returns the correct block based on the length of the key
+        # AES block cipher in ECB mode with the block size derived based on the length of the key
         # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
         self.aesBlock = AES.new(reverse_string(self.key), AES.MODE_ECB)
@@ -231,7 +235,7 @@ class FF3Cipher:
             c = int(reverse_string(A), self.radix)
 
             if c == 0:
-                raise ValueError("string A is not within base/radix")
+                raise ValueError(f"string {A} is not within base/radix")
 
             c = c + y
 
@@ -242,11 +246,11 @@ class FF3Cipher:
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
 
-            C = base_repr(c, base=self.radix)
+            C = base_repr(c, self.radix, int(m))
 
             # Need to pad the text with leading 0s first to make sure it's the correct length
-            if len(C) < int(m):
-                C = C.zfill(m)
+#            if len(C) < int(m):
+#                C = C.zfill(m)
 
             C = reverse_string(C)
 
@@ -372,11 +376,11 @@ class FF3Cipher:
 
             logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
 
-            C = base_repr(c, base=self.radix)
+            C = base_repr(c, self.radix, int(m))
 
             # Need to pad the text with leading 0s first to make sure it's the correct length
-            if len(C) < int(m):
-                C = C.zfill(m)
+#            if len(C) < int(m):
+#                C = C.zfill(m)
 
             C = reverse_string(C)
 
@@ -389,10 +393,13 @@ class FF3Cipher:
         return A + B
 
 #
-# numpy's base_repr has been adjusted here to provide lower-case alphabet for 10..36
+# A modified version of numpy's base_repr to provide lower-case alphabet for 10..36
 #
 
-def base_repr(number, base=2, padding=0):
+DIGITS = '0123456789abcdefghijklmnopqrstuvwxyz'
+LEN_DIGITS = len(DIGITS)
+
+def base_repr(number: int, base=2, length=0) -> str:
     """
     Return a string representation of a number in the given base system.
     Parameters
@@ -402,30 +409,16 @@ def base_repr(number, base=2, padding=0):
     base : int, optional
         Convert `number` to the `base` number system. The valid range is 2-36,
         the default value is 2.
-    padding : int, optional
-        Number of zeros padded on the left. Default is 0 (no padding).
+    length : int, optional
+        Number of total digits with zeros padded on the left. Default is 0 (no padding).
     Returns
     -------
     out : str
         String representation of `number` in `base` system.
-    See Also
     --------
-    binary_repr : Faster version of `base_repr` for base 2.
-    Examples
-    --------
-    >>> np.base_repr(5)
-    '101'
-    >>> np.base_repr(6, 5)
-    '11'
-    >>> np.base_repr(7, base=5, padding=3)
-    '00012'
-    >>> np.base_repr(10, base=16)
-    'A'
-    >>> np.base_repr(32, base=16)
-    '20'
     """
-    digits = '0123456789abcdefghijklmnopqrstuvwxyz'
-    if base > len(digits):
+
+    if base > LEN_DIGITS:
         raise ValueError("Bases greater than 36 not handled in base_repr.")
     if base < 2:
         raise ValueError("Bases less than 2 not handled in base_repr.")
@@ -433,9 +426,11 @@ def base_repr(number, base=2, padding=0):
     num = abs(number)
     res = []
     while num:
-        res.append(digits[num % base])
+        res.append(DIGITS[num % base])
         num //= base
-    if padding:
+    padding = length-len(res)
+    if padding > 0:
+        # pad with leading 0s to the correct length
         res.append('0' * padding)
     if number < 0:
         res.append('-')

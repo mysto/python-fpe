@@ -2,7 +2,7 @@
 
 SPDX-Copyright: Copyright (c) Schoening Consulting, LLC
 SPDX-License-Identifier: Apache-2.0
-Copyright 2020 Schoening Consulting, LLC
+Copyright 2021 Schoening Consulting, LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ See the License for the specific language governing permissions and limitations 
 
 import unittest
 from ff3 import FF3Cipher
+from ff3 import base_repr
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
@@ -139,6 +140,13 @@ testVector = [
 ]
 
 class TestFF3(unittest.TestCase):
+
+	def test_base_repr(self):
+		self.assertEqual(base_repr(5), '101')
+		self.assertEqual(base_repr(6,5), '11')
+		self.assertEqual(base_repr(7,5,5), '00012')
+		self.assertEqual(base_repr(10,16), 'a')
+		self.assertEqual(base_repr(32,16), '20')
 
 	def test_encrypt_all(self):
 		for i in range(15):
