@@ -23,6 +23,7 @@ import logging
 import math
 from Crypto.Cipher import AES
 # from hexdump import hexdump
+import string
 
 FEISTEL_MIN =  1000000  # 1M is currently recommended in FF3-1
 NUM_ROUNDS =   8
@@ -246,13 +247,10 @@ class FF3Cipher:
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
 
-            C = base_repr(c, self.radix, int(m))
+#            C = base_conv(c, self.radix, int(m))
+#            C = reverse_string(C)
 
-            # Need to pad the text with leading 0s first to make sure it's the correct length
-#            if len(C) < int(m):
-#                C = C.zfill(m)
-
-            C = reverse_string(C)
+            C = base_conv_r(c, self.radix, int(m))
 
             # Final steps
             A = B
@@ -376,13 +374,9 @@ class FF3Cipher:
 
             logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
 
-            C = base_repr(c, self.radix, int(m))
-
-            # Need to pad the text with leading 0s first to make sure it's the correct length
-#            if len(C) < int(m):
-#                C = C.zfill(m)
-
-            C = reverse_string(C)
+#            C = base_conv(c, self.radix, int(m))
+#            C = reverse_string(C)
+            C = base_conv_r(c, self.radix, int(m))
 
             # Final steps
             B = A
@@ -392,46 +386,39 @@ class FF3Cipher:
 
         return A + B
 
-#
-# A modified version of numpy's base_repr to provide lower-case alphabet for 10..36
-#
-
-DIGITS = '0123456789abcdefghijklmnopqrstuvwxyz'
+DIGITS = string.digits + string.ascii_lowercase 
 LEN_DIGITS = len(DIGITS)
 
-def base_repr(number: int, base=2, length=0) -> str:
+def base_conv(n, base=2, length=0):    
     """
-    Return a string representation of a number in the given base system.
-    Parameters
-    ----------
-    number : int
-        The value to convert. Positive and negative values are handled.
-    base : int, optional
-        Convert `number` to the `base` number system. The valid range is 2-36,
-        the default value is 2.
-    length : int, optional
-        Number of total digits with zeros padded on the left. Default is 0 (no padding).
-    Returns
-    -------
-    out : str
-        String representation of `number` in `base` system.
-    --------
+    Return a string representation of a number in the given base system for 2..36
     """
 
-    if base > LEN_DIGITS:
-        raise ValueError("Bases greater than 36 not handled in base_repr.")
-    if base < 2:
-        raise ValueError("Bases less than 2 not handled in base_repr.")
+    x = ''
+    while n >= base:
+        n, b = divmod(n, base)
+        x += DIGITS[b]
+    x += DIGITS[n]
 
-    num = abs(number)
-    res = []
-    while num:
-        res.append(DIGITS[num % base])
-        num //= base
-    padding = length-len(res)
-    if padding > 0:
-        # pad with leading 0s to the correct length
-        res.append('0' * padding)
-    if number < 0:
-        res.append('-')
-    return ''.join(reversed(res or '0'))
+    if (len(x) < length):
+        x=x.ljust(length,'0')
+
+    return x[::-1]
+
+def base_conv_r(n, base=2, length=0):    
+    """
+    Return a string representation of a number in the given base system for 2..36
+
+    The string is left in a reversed order expected by the calling cryptographic function
+    """
+
+    x = ''
+    while n >= base:
+        n, b = divmod(n, base)
+        x += DIGITS[b]
+    x += DIGITS[n]
+
+    if (len(x) < length):
+        x=x.ljust(length,'0')
+
+    return x

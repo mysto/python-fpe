@@ -18,8 +18,7 @@ See the License for the specific language governing permissions and limitations 
 '''
 
 import unittest
-from ff3 import FF3Cipher
-from ff3 import base_repr
+from ff3 import FF3Cipher, base_conv_r
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
@@ -142,11 +141,11 @@ testVector = [
 class TestFF3(unittest.TestCase):
 
 	def test_base_repr(self):
-		self.assertEqual(base_repr(5), '101')
-		self.assertEqual(base_repr(6,5), '11')
-		self.assertEqual(base_repr(7,5,5), '00012')
-		self.assertEqual(base_repr(10,16), 'a')
-		self.assertEqual(base_repr(32,16), '20')
+		self.assertEqual(base_conv_r(5)[::-1], '101')
+		self.assertEqual(base_conv_r(6,5)[::-1], '11')
+		self.assertEqual(base_conv_r(7,5,5)[::-1], '00012')
+		self.assertEqual(base_conv_r(10,16)[::-1], 'a')
+		self.assertEqual(base_conv_r(32,16)[::-1], '20')
 
 	def test_encrypt_all(self):
 		for i in range(15):
