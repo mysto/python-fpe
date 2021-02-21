@@ -284,7 +284,7 @@ class FF3Cipher:
             raise ValueError("ciphertext string is not within base/radix {self.radix}")
 
         # Calculate split point
-        u = (math.ceil(float(n) / 2))
+        u = math.ceil((n) / 2)
         v = n - u
 
         # Split the message
@@ -313,7 +313,7 @@ class FF3Cipher:
 
         for i in reversed(range(NUM_ROUNDS)):
 
-            logging.debug(f"-------- Round {i}")
+            # logging.debug(f"-------- Round {i}")
             # Determine alternating Feistel round side
             if i % 2 == 0:
                 m = u
@@ -336,7 +336,7 @@ class FF3Cipher:
             numA = reverse_string(A)
             numABytes = int(numA, self.radix).to_bytes(12, "big")
 
-            logging.debug(f"A: {A} numA: {numA} numABytes: {numABytes.hex()}")
+            # logging.debug(f"A: {A} numA: {numA} numABytes: {numABytes.hex()}")
 
             P[BLOCK_SIZE-len(numABytes):] = numABytes
 
@@ -372,7 +372,7 @@ class FF3Cipher:
             else:
                 c = c % modV
 
-            logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
+            # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
 
 #            C = base_conv(c, self.radix, int(m))
 #            C = reverse_string(C)
@@ -382,7 +382,7 @@ class FF3Cipher:
             B = A
             A = C
 
-            logging.debug(f"A: {A} B: {B}")
+            # logging.debug(f"A: {A} B: {B}")
 
         return A + B
 
