@@ -1,0 +1,12 @@
+language: python
+python:
+  - "3.6"      # current default Python on Travis CI
+  - "3.7"
+  - "3.8"
+  - "3.9"
+# command to install dependencies
+install:
+  - pip3 install pycryptodome
+# command to run tests
+script:
+  - python3 ff3/ff3_test.py
