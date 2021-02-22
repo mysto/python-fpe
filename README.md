@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/bschoening/fpe.svg?branch=main)](https://travis-ci.com/bschoening/fpe)
+
 # ff3 - Format Preserving Encryption in Python
 
 An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 algorithm in Python.
