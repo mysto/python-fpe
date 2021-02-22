@@ -25,7 +25,7 @@ from Crypto.Cipher import AES
 # from hexdump import hexdump
 import string
 
-FEISTEL_MIN =  1000000  # 1M is currently recommended in FF3-1
+DOMAIN_MIN =  1000000  # 1M is currently recommended in FF3-1
 NUM_ROUNDS =   8
 BLOCK_SIZE =   16  # aes.BlockSize
 TWEAK_LEN =    8 # TODO: change to 7 bytes when 56-bit test vectors for FF3-1 become available
@@ -68,7 +68,7 @@ class FF3Cipher:
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per original spec, radix^minLength >= 100.
-        self.minLen = (math.ceil(math.log(FEISTEL_MIN) / math.log(radix)))
+        self.minLen = math.ceil(math.log(DOMAIN_MIN) / math.log(radix))
 
         # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
         self.maxLen = 2 * math.floor(96/math.log2(radix))
@@ -77,7 +77,7 @@ class FF3Cipher:
 
         # Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
         if keyLen not in (16, 24, 32):
-            raise ValueError(f"key length is {keyLen} but must be 128, 192, or 256 bits")
+            raise ValueError(f'key length is {keyLen} but must be 128, 192, or 256 bits')
 
         # While FF3 allows radices in [2, 2^16], there is a practical limit to 36 (alphanumeric)
         # because python int only supports up to base 36.
