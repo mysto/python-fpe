@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/bschoening/fpe.svg?branch=main)](https://travis-ci.com/bschoening/fpe)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # ff3 - Format Preserving Encryption in Python
 
@@ -8,7 +9,7 @@ An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 al
 
 This package follows the FF3 algorithum for Format Preserving Encryption as described in the March 2016 NIST publication _Methods for Format-Preserving Encryption_, and revised on Feburary 28th, 2020 with a draft update for FF3-1.
 
-Changes to minimum domain size and revised tweak length have been partially implemented in this package with updates to domain size. It is expected the final standard will provide new test vectors necessary to change the tweak lengths to 56 bits.  Currently, tweaks remain set to 64 bits.
+Changes to minimum domain size and revised tweak length have been partially implemented in this package with updates to domain size. It is expected that the final standard will provide new test vectors necessary to change the tweak lengths to 56 bits.  Currently, tweaks remain set to 64 bits.
 
 ## Requires
 
@@ -40,9 +41,9 @@ from ff3 import FF3Cipher
 
 key = "EF4359D8D580AA4F7F036D6F04FC6A94"
 tweak = "D8E7920AFA330A73"
-plaintext = "890121234567890000"
-
 c = FF3Cipher(10, key, tweak)
+
+plaintext = "4000001234567899"
 ciphertext = c.encrypt(plaintext)
 decrypted = c.decrypt(ciphertext)
 
@@ -52,7 +53,7 @@ print("Decrypted: " + decrypted)
 
 ```
 
-## Usage notes
+## Usage
 
 FPE can be used for sensitive data tokenization, especially in regards to PCI and cryptographically reversible tokens. This implementation does not provide any guarantees regarding PCI DSS or other validation.
 
@@ -72,7 +73,7 @@ The cryptographic primitive used is the [Python Cryptography Toolkit (pycrypto)]
 
 The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`.. FF3-1 is in draft status and new 56-bit test vectors are not yet available.
 
-Regarding how the "tweak" is used as input: the tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden of in each `encrypt` and `decrypt` calls. This usage makes it similar to passing an IV or nonce when creating an encryptor object.
+Regarding how the "tweak" is used as input: the tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden in each `encrypt` and `decrypt` call. This usage makes it similar to passing an IV or nonce when creating an encryptor object.
 
 ## Author
 
