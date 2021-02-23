@@ -69,11 +69,11 @@ As of Python 3.7, the standard library's [int](https://docs.python.org/3/library
 
 The django.utils.baseconv module supports base 62 and could be used to increase the radix range.
 
-The cryptographic primitive used is the [Python Cryptography Toolkit (pycrypto)](https://pypi.org/project/pycrypto) for AES encryption. It has a single-block with an IV of 0, which is effectively ECB mode. AES is also the only block cipher function which matches the requirement of the FF3 spec.
+The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES is also the only block cipher function which matches the requirement of the FF3 spec.
 
-The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`.. FF3-1 is in draft status and new 56-bit test vectors are not yet available.
+The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status and updated 56-bit test vectors are not yet available.
 
-Regarding how the "tweak" is used as input: the tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden in each `encrypt` and `decrypt` call. This usage makes it similar to passing an IV or nonce when creating an encryptor object.
+The tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden in each `encrypt` and `decrypt` call. This is similar to passing an IV or nonce when creating an encryptor object.
 
 ## Author
 
