@@ -26,7 +26,7 @@ Install this project with pip:
 
 ## Testing
 
-There are official [test vectors](http://csrc.nist.gov/groups/ST/toolkit/examples.html) for FF3 provided by NIST, which are used for testing in this package.
+There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/ff3samples.pdf) for FF3 provided by NIST, which are used for testing in this package.
 
 To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
 
@@ -56,7 +56,14 @@ print("Decrypted: " + decrypted)
 
 ## Usage
 
-FPE can be used for sensitive data tokenization, especially in regards to PCI and cryptographically reversible tokens. This implementation does not provide any guarantees regarding PCI DSS or other validation.
+FPE can be used for sensitive data tokenization, especially with PCI and cryptographically reversible tokens. This implementation does not provide any guarantees regarding PCI DSS or other validation.
+
+FF3 is a Feistel ciphers, and Feistel ciphers are initialized with a radix representing an alphabet.  Practial radix limits of 36 in Java means the following radix values are typical:
+* radix 10: digits 0..9
+* radix 26: alphabetic a-z
+* radix 36: alphanumeric 0..9, a-z
+
+Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported.
 
 It's important to note that, as with any cryptographic package, managing and protecting the key appropriately to your situation is crucial. This package does not provide any guarantees regarding the key in memory.
 
@@ -70,7 +77,7 @@ As of Python 3.7, the standard library's [int](https://docs.python.org/3/library
 
 The django.utils.baseconv module supports base 62 and could be used to increase the radix range.
 
-The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES is also the only block cipher function which matches the requirement of the FF3 spec.
+The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec.
 
 The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status and updated 56-bit test vectors are not yet available.
 
