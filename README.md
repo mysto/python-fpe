@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/bschoening/fpe.svg?branch=main)](https://travis-ci.com/bschoening/fpe)
+[![Build Status](https://travis-ci.com/mysto/python-fpe.svg?branch=main)](https://travis-ci.com/bschoening/fpe)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Downloads](https://pepy.tech/badge/ff3)](https://pepy.tech/project/ff3)
 
@@ -24,13 +24,16 @@ Install this project with pip:
 
 `pip3 install ff3`
 
-## Testing
+## Usage
 
-There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/ff3samples.pdf) for FF3 provided by NIST, which are used for testing in this package.
+FF3 is a Feistel ciphers, and Feistel ciphers are initialized with a radix representing an alphabet.  Practial radix limits of 36 in Java means the following radix values are typical:
+* radix 10: digits 0..9
+* radix 26: alphabetic a-z
+* radix 36: alphanumeric 0..9, a-z
 
-To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
+Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported.
 
-  1. `python3 ff3_test.py`
+It's important to note that, as with any cryptographic package, managing and protecting the key appropriately to your situation is crucial. This package does not provide any guarantees regarding the key in memory.
 
 ## Code Example
 
@@ -53,23 +56,19 @@ print("Ciphertext: " + ciphertext)
 print("Decrypted: " + decrypted)
 
 ```
+## Testing
 
-## Usage
+There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/ff3samples.pdf) for FF3 provided by NIST, which are used for testing in this package.
 
-FPE can be used for sensitive data tokenization, especially with PCI and cryptographically reversible tokens. This implementation does not provide any guarantees regarding PCI DSS or other validation.
+To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
 
-FF3 is a Feistel ciphers, and Feistel ciphers are initialized with a radix representing an alphabet.  Practial radix limits of 36 in Java means the following radix values are typical:
-* radix 10: digits 0..9
-* radix 26: alphabetic a-z
-* radix 36: alphanumeric 0..9, a-z
-
-Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported.
-
-It's important to note that, as with any cryptographic package, managing and protecting the key appropriately to your situation is crucial. This package does not provide any guarantees regarding the key in memory.
+  1. `python3 ff3_test.py`
 
 ## Implementation Notes
 
 This implementation was originally based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follows the algorithm as outlined in the NIST specification as closely as possible, including naming.
+
+FPE can be used for sensitive data tokenization, especially with PCI and cryptographically reversible tokens. This implementation does not provide any guarantees regarding PCI DSS or other validation.
 
 While all test vectors pass, this package has not otherwise been extensively tested.
 
