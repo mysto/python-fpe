@@ -15,7 +15,7 @@ Changes to minimum domain size and revised tweak length have been partially impl
 
 ## Requires
 
-This project was built and tested with Python 3.7 and later versions.  It requires the pycryptodome library:
+This project was built and tested with Python 3.6 and later versions.  It requires the pycryptodome library:
 
 `pip3 install pycryptodome`
 
@@ -27,14 +27,25 @@ Install this project with pip:
 
 ## Usage
 
-FF3 is a Feistel ciphers, and Feistel ciphers are initialized with a radix representing an alphabet.  Practial radix limits of 36 in Java means the following radix values are typical:
+FF3 is a Feistel ciphers, and Feistel ciphers are initialized with a radix representing an alphabet.  
+Practial radix limits of 36 in python means the following radix values are typical:
 * radix 10: digits 0..9
 * radix 26: alphabetic a-z
 * radix 36: alphanumeric 0..9, a-z
 
-Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported.
+Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported. 
+Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of a letter followed 
+by 6 digits (e.g. A123456) cannot be correctly encrypted by FPE while preserving this convention.
 
-It's important to note that, as with any cryptographic package, managing and protecting the key appropriately to your situation is crucial. This package does not provide any guarantees regarding the key in memory.
+Input plaintext has maximum length restrictions based upon the chosen radix (2 * floor(96/log2(radix))):
+* radix 10: 56 
+* radix 26: 40
+* radix 36: 36
+
+To work around string length, its possible to encode longer text in chunks.
+
+As with any cryptographic package, managing and protecting the key(s) is crucial. The tweak is generally not kept secret.
+This package does not protect the key in memory.
 
 ## Code Example
 
@@ -46,7 +57,7 @@ from ff3 import FF3Cipher
 
 key = "EF4359D8D580AA4F7F036D6F04FC6A94"
 tweak = "D8E7920AFA330A73"
-c = FF3Cipher(10, key, tweak)
+c = FF3Cipher(key, tweak)
 
 plaintext = "4000001234567899"
 ciphertext = c.encrypt(plaintext)
