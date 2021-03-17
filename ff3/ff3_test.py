@@ -150,14 +150,14 @@ class TestFF3(unittest.TestCase):
 	def test_encrypt_all(self):
 		for i in range(15):
 			with self.subTest(vector=i):
-				c = FF3Cipher(testVector[i]['radix'], testVector[i]['key'], testVector[i]['tweak'])
+				c = FF3Cipher(testVector[i]['key'], testVector[i]['tweak'], testVector[i]['radix'])
 				s = c.encrypt(testVector[i]['plaintext'])
 				self.assertEqual(s, testVector[i]['ciphertext'])
 
 	def test_decrypt_all(self):
 		for i in range(15):
 			with self.subTest(vector=i):
-				c = FF3Cipher(testVector[i]['radix'], testVector[i]['key'], testVector[i]['tweak'])
+				c = FF3Cipher(testVector[i]['key'], testVector[i]['tweak'], testVector[i]['radix'] )
 				s = c.decrypt(testVector[i]['ciphertext'])
 				self.assertEqual(s, testVector[i]['plaintext'])
 

@@ -60,11 +60,11 @@ is encrypt only, a second encryption decrypts the text.
 
 class FF3Cipher:
     """Class FF3Cipher implements the FF3 format-preserving encryption algorithm"""
-    def __init__(self, radix, key, tweak):
+    def __init__(self, key, tweak, radix=10, ):
 
-        self.radix = radix
         self.key = bytes.fromhex(key)
         self.tweak = tweak
+        self.radix = radix
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per original spec, radix^minLength >= 100.
@@ -84,9 +84,8 @@ class FF3Cipher:
         if (radix < 2) or (radix > MAX_RADIX):
             raise ValueError("radix must be between 2 and 36, inclusive")
 
-        # Make sure 2 <= minLength <= maxLength < 2*floor(log base radix of 2^96) is satisfied
-        if ((self.minLen < 2) or (self.maxLen < self.minLen) or
-                (float(self.maxLen) > (192 / math.log2(float(radix))))):
+        # Make sure 2 <= minLength <= maxLength
+        if ((self.minLen < 2) or (self.maxLen < self.minLen)):
             raise ValueError("minLen or maxLen invalid, adjust your radix")
 
         # AES block cipher in ECB mode with the block size derived based on the length of the key
@@ -246,10 +245,6 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
-
-#            C = base_conv(c, self.radix, int(m))
-#            C = reverse_string(C)
-
             C = base_conv_r(c, self.radix, int(m))
 
             # Final steps
@@ -261,7 +256,13 @@ class FF3Cipher:
         return A + B
 
     def decrypt(self, ciphertext):
-        """Decrypts the ciphertext string and returns a plaintext of the same length and format"""
+        """
+        Decrypts the ciphertext string and returns a plaintext of the same length and format.
+
+        The process of decryption is essentially the same as the encryption process. The  differences
+        are  (1)  the  addition  function  is  replaced  by  a  subtraction function that is its
+        inverse, and (2) the order of the round indices (i) is reversed.
+        """
         return self.decrypt_with_tweak(ciphertext, self.tweak)
 
     def decrypt_with_tweak(self, ciphertext, tweak):
@@ -373,9 +374,6 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
-
-#            C = base_conv(c, self.radix, int(m))
-#            C = reverse_string(C)
             C = base_conv_r(c, self.radix, int(m))
 
             # Final steps
