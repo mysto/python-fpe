@@ -62,7 +62,7 @@ class FF3Cipher:
     """Class FF3Cipher implements the FF3 format-preserving encryption algorithm"""
     def __init__(self, key, tweak, radix=10, ):
 
-        self.key = bytes.fromhex(key)
+        keyBytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
 
@@ -73,7 +73,7 @@ class FF3Cipher:
         # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
         self.maxLen = 2 * math.floor(96/math.log2(radix))
 
-        keyLen = len(self.key)
+        keyLen = len(keyBytes)
 
         # Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
         if keyLen not in (16, 24, 32):
@@ -91,7 +91,7 @@ class FF3Cipher:
         # AES block cipher in ECB mode with the block size derived based on the length of the key
         # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
-        self.aesBlock = AES.new(reverse_string(self.key), AES.MODE_ECB)
+        self.aesBlock = AES.new(reverse_string(keyBytes), AES.MODE_ECB)
 
     def encrypt(self, plaintext):
         """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
