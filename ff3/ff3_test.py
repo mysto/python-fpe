@@ -18,6 +18,9 @@ See the License for the specific language governing permissions and limitations 
 '''
 
 import unittest
+
+from Crypto.Cipher import AES
+
 from ff3 import FF3Cipher, base_conv_r
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
@@ -146,6 +149,14 @@ class TestFF3(unittest.TestCase):
 		self.assertEqual(base_conv_r(7,5,5)[::-1], '00012')
 		self.assertEqual(base_conv_r(10,16)[::-1], 'a')
 		self.assertEqual(base_conv_r(32,16)[::-1], '20')
+
+	def test_aes_ecb(self):
+		# NIST test vector for ECB-AES128
+		key = bytes.fromhex('2b7e151628aed2a6abf7158809cf4f3c')
+		pt = bytes.fromhex('6bc1bee22e409f96e93d7e117393172a')
+		c = AES.new(key, AES.MODE_ECB)
+		ct = c.encrypt(pt)
+		self.assertEqual(ct.hex(), '3ad77bb40d7a3660a89ecaf32466ef97')
 
 	def test_encrypt_all(self):
 		for i in range(15):
