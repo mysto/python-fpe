@@ -91,7 +91,7 @@ class FF3Cipher:
         # AES block cipher in ECB mode with the block size derived based on the length of the key
         # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
-        self.aesBlock = AES.new(reverse_string(keyBytes), AES.MODE_ECB)
+        self.aesCipher = AES.new(reverse_string(keyBytes), AES.MODE_ECB)
 
     def encrypt(self, plaintext):
         """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
@@ -184,6 +184,9 @@ class FF3Cipher:
         logging.debug(f"modU: {modU} modV: {modV}")
 
         # Main Feistel Round, 8 times
+        #
+        # AES ECB requires the number of bits in the plaintext to be a multiple of
+        # the block size. Thus, we pad the input to 16 bytes
 
         for i in range(NUM_ROUNDS):
             # logging.debug(f"-------- Round {i}")
@@ -223,7 +226,7 @@ class FF3Cipher:
             # hexdump(revP)
 
             # P is fixed-length 16 bytes
-            revP = self.aesBlock.encrypt(bytes(revP))
+            revP = self.aesCipher.encrypt(bytes(revP))
 
             S = reverse_string(revP)
             # print("S:    ", end='')
@@ -352,7 +355,7 @@ class FF3Cipher:
 
             # P is fixed-length 16 bytes
 
-            revP = self.aesBlock.encrypt(bytes(revP))
+            revP = self.aesCipher.encrypt(bytes(revP))
 
             S = reverse_string(revP)
             # print("S:    ", end='')
