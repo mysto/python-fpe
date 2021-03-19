@@ -76,6 +76,17 @@ To run unit tests on this implementation, including all test vectors from the NI
 
   1. `python3 ff3_test.py`
 
+## FF3 Algorithum
+
+The FF3 algorithum is a tweakable block cipher based on an eight round Feistel cipher. A block cipher operates on fixed-length groups of bits, called blocks. A Feistel Cipher is not a specific cipher,
+but a design model.  The encryption process consisting of eight rounds of 
+processing of the plaintext, each round applies an internal round function followed by transformation steps.
+
+The round function applies AES encryption in ECB mode, which is performed each iteration 
+on alternating halves of the text being encrypted. The *key* value in FF3 is used only to initialize the AES cipher. Thereafter
+the *tweak* is used together with the intermediate encrypted text as input to the round function.
+
+In AES ECB mode, the total number of bits in the plaintext must be a multiple of the block size. 
 ## Implementation Notes
 
 This implementation was originally based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follows the algorithm as outlined in the NIST specification as closely as possible, including naming.
