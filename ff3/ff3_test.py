@@ -158,6 +158,15 @@ class TestFF3(unittest.TestCase):
 		ct = c.encrypt(pt)
 		self.assertEqual(ct.hex(), '3ad77bb40d7a3660a89ecaf32466ef97')
 
+	def test_calculateP(self):
+		# NIST Sample  # 1, round 0
+		i = 0
+		radix = 10
+		B = "567890000"
+		W = bytes.fromhex("FA330A73")
+		P = FF3Cipher.calculateP(i, radix, W, B)
+		self.assertEqual(P,	bytes([250, 51, 10, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 129, 205]))
+
 	def test_encrypt_all(self):
 		for i in range(15):
 			with self.subTest(vector=i):

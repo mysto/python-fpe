@@ -93,6 +93,29 @@ class FF3Cipher:
 
         self.aesCipher = AES.new(reverse_string(keyBytes), AES.MODE_ECB)
 
+    @staticmethod
+    def calculateP(i, radix, W, B):
+        # P is always 16 bytes
+        P = bytearray(BLOCK_SIZE)
+
+        # Calculate P by XORing W, i into the first 4 bytes of P
+        # i only requires 1 byte, rest are 0 padding bytes
+        # Anything XOR 0 is itself, so only need to XOR the last byte
+
+        P[0] = W[0]
+        P[1] = W[1]
+        P[2] = W[2]
+        P[3] = W[3] ^ int(i)
+
+        # The remaining 12 bytes of P are for rev(B) with padding
+
+        numB = reverse_string(B)
+        numBBytes = int(numB, radix).to_bytes(12, "big")
+        # logging.debug(f"B: {B} numB: {numB} numBBytes: {numBBytes.hex()}")
+
+        P[BLOCK_SIZE - len(numBBytes):] = numBBytes
+        return P
+
     def encrypt(self, plaintext):
         """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
         return self.encrypt_with_tweak(plaintext, self.tweak)
@@ -198,34 +221,10 @@ class FF3Cipher:
                 m = v
                 W = Tl
 
-            # Calculate P by XORing W, i into the first 4 bytes of P
-            # i only requires 1 byte, rest are 0 padding bytes
-            # Anything XOR 0 is itself, so only need to XOR the last byte
-
-            P[0] = W[0]
-            P[1] = W[1]
-            P[2] = W[2]
-            P[3] = W[3] ^ int(i)
-
-            # The remaining 12 bytes of P are for rev(B) with padding
-
-            numB = reverse_string(B)
-            numBBytes = int(numB, self.radix).to_bytes(12, "big")
-
-            # logging.debug(f"B: {B} numB: {numB} numBBytes: {numBBytes.hex()}")
-
-            P[BLOCK_SIZE-len(numBBytes):] = numBBytes
-
-            # print("P:    ", end='')
-            # hexdump(P)
-
-            # Calculate S by operating on P in place
+            # P is fixed-length 16 bytes
+            P = FF3Cipher.calculateP(i, self.radix, W, B)
             revP = reverse_string(P)
 
-            # print("revP: ", end='')
-            # hexdump(revP)
-
-            # P is fixed-length 16 bytes
             revP = self.aesCipher.encrypt(bytes(revP))
 
             S = reverse_string(revP)
@@ -326,34 +325,9 @@ class FF3Cipher:
                 m = v
                 W = Tl
 
-            # Calculate P by XORing W, i into the first 4 bytes of P
-            # i only requires 1 byte, rest are 0 padding bytes
-            # Anything XOR 0 is itself, so only need to XOR the last byte
-
-            P[0] = W[0]
-            P[1] = W[1]
-            P[2] = W[2]
-            P[3] = W[3] ^ int(i)
-
-            # The remaining 12 bytes of P are for rev(A) with padding
-
-            numA = reverse_string(A)
-            numABytes = int(numA, self.radix).to_bytes(12, "big")
-
-            # logging.debug(f"A: {A} numA: {numA} numABytes: {numABytes.hex()}")
-
-            P[BLOCK_SIZE-len(numABytes):] = numABytes
-
-            # print("P:    ", end='')
-            # hexdump(P)
-
-            # Calculate S by operating on P in place
-            revP = reverse_string(P)
-
-            # print("revP: ", end='')
-            # hexdump(revP)
-
             # P is fixed-length 16 bytes
+            P = FF3Cipher.calculateP(i,self.radix, W, A)
+            revP = reverse_string(P)
 
             revP = self.aesCipher.encrypt(bytes(revP))
 
