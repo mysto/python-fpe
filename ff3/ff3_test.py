@@ -167,6 +167,26 @@ class TestFF3(unittest.TestCase):
 		P = FF3Cipher.calculateP(i, radix, W, B)
 		self.assertEqual(P,	bytes([250, 51, 10, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 129, 205]))
 
+	def test_encrypt_boundaries(self):
+		c = FF3Cipher("EF4359D8D580AA4F7F036D6F04FC6A94","D8E7920AFA330A73")
+		# test max length 56 digit string with default radix 10
+		plaintext = "12345678901234567890123456789012345678901234567890123456"
+		ct = c.encrypt(plaintext)
+		pt = c.decrypt(ct)
+		self.assertEqual(plaintext, pt)
+		# test max length 40 alphanumeric string with radix 26
+		c = FF3Cipher("EF4359D8D580AA4F7F036D6F04FC6A94","D8E7920AFA330A73",26)
+		plaintext = "0123456789abcdefghijklmnopabcdefghijklmn"
+		ct = c.encrypt(plaintext)
+		pt = c.decrypt(ct)
+		self.assertEqual(plaintext, pt)
+		# test max length 36 alphanumeric string with radix 36
+		c = FF3Cipher("EF4359D8D580AA4F7F036D6F04FC6A94", "D8E7920AFA330A73", 36)
+		plaintext = "abcdefghijklmnopqrstuvwxyz0123456789"
+		ct = c.encrypt(plaintext)
+		pt = c.decrypt(ct)
+		self.assertEqual(plaintext, pt)
+
 	def test_encrypt_all(self):
 		for i in range(15):
 			with self.subTest(vector=i):
