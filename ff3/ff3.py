@@ -124,10 +124,9 @@ class FF3Cipher:
     Fiestel structure
 
             u length |  v length
-
             A block  |  B block
 
-                C = modulo function
+                C <- modulo function
 
             B' <- C    | A' <- B
 
@@ -225,9 +224,9 @@ class FF3Cipher:
             P = FF3Cipher.calculateP(i, self.radix, W, B)
             revP = reverse_string(P)
 
-            revP = self.aesCipher.encrypt(bytes(revP))
+            S = self.aesCipher.encrypt(bytes(revP))
 
-            S = reverse_string(revP)
+            S = reverse_string(S)
             # print("S:    ", end='')
             # hexdump(S)
 
@@ -329,9 +328,9 @@ class FF3Cipher:
             P = FF3Cipher.calculateP(i,self.radix, W, A)
             revP = reverse_string(P)
 
-            revP = self.aesCipher.encrypt(bytes(revP))
+            S = self.aesCipher.encrypt(bytes(revP))
+            S = reverse_string(S)
 
-            S = reverse_string(revP)
             # print("S:    ", end='')
             # hexdump(S)
 
@@ -350,7 +349,7 @@ class FF3Cipher:
             else:
                 c = c % modV
 
-            # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
+            # logging.debug(f"m: {m} B: {B} c: {c} y: {y}")
             C = base_conv_r(c, self.radix, int(m))
 
             # Final steps
