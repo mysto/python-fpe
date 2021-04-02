@@ -27,10 +27,9 @@ Install this project with pip:
 
 ## Usage
 
-FF3 is a Feistel ciphers, and Feistel ciphers are initialized with a radix representing an alphabet.  
+FF3 is a Feistel cipher, and Feistel ciphers are initialized with a radix representing an alphabet.  
 Practial radix limits of 36 in python means the following radix values are typical:
 * radix 10: digits 0..9
-* radix 26: alphabetic a-z
 * radix 36: alphanumeric 0..9, a-z
 
 Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported. 
@@ -38,8 +37,7 @@ Also, all elements in a plaintext string share the same radix. Thus, an identifi
 by 6 digits (e.g. A123456) cannot be correctly encrypted by FPE while preserving this convention.
 
 Input plaintext has maximum length restrictions based upon the chosen radix (2 * floor(96/log2(radix))):
-* radix 10: 56 
-* radix 26: 40
+* radix 10: 56
 * radix 36: 36
 
 To work around string length, its possible to encode longer text in chunks.
@@ -51,6 +49,7 @@ This package does not protect the key in memory.
 
 The example code below can help you get started.
 
+Using default domain [0-9]
 ```python3
 
 from ff3 import FF3Cipher
@@ -63,10 +62,11 @@ plaintext = "4000001234567899"
 ciphertext = c.encrypt(plaintext)
 decrypted = c.decrypt(ciphertext)
 
-print("Original: " + plaintext)
-print("Ciphertext: " + ciphertext)
-print("Decrypted: " + decrypted)
+print(f"{plaintext} -> {ciphertext} -> {decrypted}" )
 
+# format encrypted value
+ccn = f"{ciphertext[:4]} {ciphertext[4:8]} {ciphertext[8:12]} {ciphertext[12:]}"
+print(f"Encrypted CCN value with formatting: {ccn}")
 ```
 ## Testing
 
