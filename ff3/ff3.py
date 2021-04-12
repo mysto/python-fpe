@@ -24,17 +24,18 @@ import math
 from Crypto.Cipher import AES
 import string
 
-DOMAIN_MIN =  1000000  # 1M is currently recommended in FF3-1
-NUM_ROUNDS =   8
-BLOCK_SIZE =   16  # aes.BlockSize
-TWEAK_LEN =    8 # TODO: change to 7 bytes when 56-bit test vectors for FF3-1 become available
-TWEAK_LEN_NEW =    7 # FF3-1 tweak length
+DOMAIN_MIN = 1000000  # 1M is currently recommended in FF3-1
+NUM_ROUNDS = 8
+BLOCK_SIZE = 16  # aes.BlockSize
+TWEAK_LEN = 8  # TODO: change to 7 bytes when 56-bit test vectors for FF3-1 become available
+TWEAK_LEN_NEW = 7  # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
-MAX_RADIX =    36  # python int supports radix 2..36
+MAX_RADIX = 36  # python int supports radix 2..36
 
-def reverse_string(aString):
-    "func defined for clarity"
-    return aString[::-1]
+
+def reverse_string(str):
+    """func defined for clarity"""
+    return str[::-1]
 
 
 """
@@ -72,11 +73,11 @@ class FF3Cipher:
         # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
         self.maxLen = 2 * math.floor(96/math.log2(radix))
 
-        keyLen = len(keyBytes)
+        klen = len(keyBytes)
 
         # Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
-        if keyLen not in (16, 24, 32):
-            raise ValueError(f'key length is {keyLen} but must be 128, 192, or 256 bits')
+        if klen not in (16, 24, 32):
+            raise ValueError(f'key length is {klen} but must be 128, 192, or 256 bits')
 
         # While FF3 allows radices in [2, 2^16], there is a practical limit to 36 (alphanumeric)
         # because python int only supports up to base 36.
@@ -84,7 +85,7 @@ class FF3Cipher:
             raise ValueError("radix must be between 2 and 36, inclusive")
 
         # Make sure 2 <= minLength <= maxLength
-        if ((self.minLen < 2) or (self.maxLen < self.minLen)):
+        if (self.minLen < 2) or (self.maxLen < self.minLen):
             raise ValueError("minLen or maxLen invalid, adjust your radix")
 
         # AES block cipher in ECB mode with the block size derived based on the length of the key
@@ -196,7 +197,7 @@ class FF3Cipher:
             Tl[3] = Tl[3] & 0xF0
 
             # Tr is T[32..55] + T[28..31] + 0000
-            Tr = bytearray((int(tweakBytes[4:].hex(), 16) << 4).to_bytes(4,'big'))
+            Tr = bytearray((int(tweakBytes[4:].hex(), 16) << 4).to_bytes(4, 'big'))
             Tr[3] = tweakBytes[6] << 4 & 0xF0
         else:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
@@ -204,7 +205,7 @@ class FF3Cipher:
         logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
 
         # P is always 16 bytes
-        P = bytearray(BLOCK_SIZE)
+        # P = bytearray(BLOCK_SIZE)
 
         # Pre-calculate the modulus since it's only one of 2 values,
         # depending on whether i is even or odd
@@ -293,7 +294,7 @@ class FF3Cipher:
             raise ValueError("ciphertext string is not within base/radix {self.radix}")
 
         # Calculate split point
-        u = math.ceil((n) / 2)
+        u = math.ceil(n/2)
         v = n - u
 
         # Split the message
@@ -319,7 +320,7 @@ class FF3Cipher:
         logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
 
         # P is always 16 bytes
-        P = bytearray(BLOCK_SIZE)
+        # P = bytearray(BLOCK_SIZE)
 
         # Pre-calculate the modulus since it's only one of 2 values,
         # depending on whether i is even or odd
@@ -342,7 +343,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculateP(i,self.radix, W, A)
+            P = FF3Cipher.calculateP(i, self.radix, W, A)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -376,8 +377,10 @@ class FF3Cipher:
 
         return A + B
 
+
 DIGITS = string.digits + string.ascii_lowercase 
 LEN_DIGITS = len(DIGITS)
+
 
 def base_conv_r(n, base=2, length=0):    
     """
@@ -392,7 +395,7 @@ def base_conv_r(n, base=2, length=0):
         x += DIGITS[b]
     x += DIGITS[n]
 
-    if (len(x) < length):
-        x=x.ljust(length,'0')
+    if len(x) < length:
+        x = x.ljust(length, '0')
 
     return x
