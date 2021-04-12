@@ -17,7 +17,7 @@ See the License for the specific language governing permissions and limitations 
 
 """
 
-# Package ff3 implements the FF3 format-preserving encryption algorithm/scheme
+# Package ff3 implements the FF3-1 format-preserving encryption algorithm/scheme
 
 import logging
 import math
@@ -27,7 +27,7 @@ import string
 DOMAIN_MIN = 1000000  # 1M is currently recommended in FF3-1
 NUM_ROUNDS = 8
 BLOCK_SIZE = 16  # aes.BlockSize
-TWEAK_LEN = 8  # TODO: change to 7 bytes when 56-bit test vectors for FF3-1 become available
+TWEAK_LEN = 8  # Original FF3 tweak length
 TWEAK_LEN_NEW = 7  # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
 MAX_RADIX = 36  # python int supports radix 2..36
@@ -39,7 +39,7 @@ def reverse_string(str):
 
 
 """
-FF3 can encode a string within a range of minLen..maxLen. The spec uses an alternating Feistel
+FF3 encodes a string within a range of minLen..maxLen. The spec uses an alternating Feistel
 with the following parameters:
     128 bit key length
     Cipher Block Chain (CBC-MAC) round function
@@ -47,14 +47,17 @@ with the following parameters:
     eight (8) rounds
     Modulo addition
 
-An encoded string representation of x in the given base. Base must be between 2 and 36, inclusive. The result
-uses the uses the lower-case letters 'a' to 'z' for digit values 10 to 35.  Currently unimplemented, the
+An encoded string representation of x is in the given integer base, which must be between 2 and 36, inclusive. The 
+result uses the lower-case letters 'a' to 'z' for digit values 10 to 35.  Currently unimplemented, the
 upper-case letters 'A' to 'Z' would represent digit values 36 to 61.
 
-FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with radix, key and tweak parameters.
+FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with key, tweak and radix parameters. The
+default radix is 10, supporting encryption of decimal numbers.
 
-AES ECB has a block size of 128 bits (i.e 16 bytes). It can only process data in blocks of this size.  Also, ECB 
-is encrypt only, a second encryption decrypts the text.
+AES ECB is used as the cipher round value for XORing. ECB has a block size of 128 bits (i.e 16 bytes) and is 
+padded with zeros for blocks smaller than this size. ECB is used only in encrypt mode to generate this XOR value. A Feistel 
+decryption uses the same ECB encrypt value to decrypt the text. XOR is trivially invertible when you know two of the 
+arguments.
 """
 
 
@@ -194,7 +197,7 @@ class FF3Cipher:
         elif len(tweakBytes) == TWEAK_LEN_NEW:
             # Tl is T[0..27] + 0000
             Tl = bytearray(tweakBytes[:4])
-            Tl[3] = Tl[3] & 0xF0
+            Tl[3] &= 0xF0
 
             # Tr is T[32..55] + T[28..31] + 0000
             Tr = bytearray((int(tweakBytes[4:].hex(), 16) << 4).to_bytes(4, 'big'))
@@ -309,7 +312,7 @@ class FF3Cipher:
         elif len(tweakBytes) == TWEAK_LEN_NEW:
             # Tl is T[0..27] + 0000
             Tl = bytearray(tweakBytes[:4])
-            Tl[3] = Tl[3] & 0xF0
+            Tl[3] &= 0xF0
 
             # Tr is T[32..55] + T[28..31] + 0000
             Tr = bytearray((int(tweakBytes[4:].hex(), 16) << 4).to_bytes(4, 'big'))
