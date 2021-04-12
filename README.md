@@ -11,7 +11,10 @@ An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 al
 
 This package follows the FF3 algorithum for Format Preserving Encryption as described in the March 2016 NIST publication _Methods for Format-Preserving Encryption_, and revised on Feburary 28th, 2020 with a draft update for FF3-1.
 
-Changes to minimum domain size and revised tweak length have been partially implemented in this package with updates to domain size. It is expected that the final standard will provide new test vectors necessary to change the tweak lengths to 56 bits.  Currently, tweaks remain set to 64 bits.
+Changes to minimum domain size and revised tweak length have been implemented in this package.
+Tweaks can be 56 or 64 bits, but NIST has only published test vectors for 64-bit tweaks.  It is expected the final
+standard will provide updated test vectors necessary to change the 
+tweak lengths to 56 bits.  
 
 ## Requires
 
@@ -78,20 +81,20 @@ To run unit tests on this implementation, including all test vectors from the NI
 ## FF3 Algorithum
 
 The FF3 algorithum is a tweakable block cipher based on an eight round Feistel cipher. A block cipher operates on fixed-length groups of bits, called blocks. A Feistel Cipher is not a specific cipher,
-but a design model.  The Feistel encryption process consisting of eight rounds of 
-processing of the plaintext. Each round applies an internal function or _round function_, followed by transformation steps.
+but a design model.  This FF3 Feistel encryption consisting of eight rounds of processing
+the plaintext. Each round applies an internal function or _round function_, followed by transformation steps.
 
 The FF3 round function uses AES encryption in ECB mode, which is performed each iteration 
-on alternating halves of the text being encrypted. The *key* value in FF3 is used only to initialize the AES cipher. Thereafter
+on alternating halves of the text being encrypted. The *key* value is used only to initialize the AES cipher. Thereafter
 the *tweak* is used together with the intermediate encrypted text as input to the round function.
 
 ## Implementation Notes
 
 This implementation was originally based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follows the algorithm as outlined in the NIST specification as closely as possible, including naming.
 
-FPE can be used for sensitive data tokenization, especially with PCI and cryptographically reversible tokens. This implementation does not provide any guarantees regarding PCI DSS or other validation.
+FPE can be used for data tokenization of sensitive data which is cryptographically reversible. This implementation does not provide any guarantees regarding PCI DSS or other validation.
 
-While all test vectors pass, this package has not otherwise been extensively tested.
+While all NIST standard test vectors pass, this package has not otherwise been extensively tested.
 
 As of Python 3.7, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package supports radices/bases up to 36. Therefore, this release supports a max base of 36, which can contain numeric digits 0-9 and lowercase alphabetic characters a-z.
 
