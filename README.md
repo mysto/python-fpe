@@ -47,9 +47,8 @@ This package does not protect the key in memory.
 
 ## Code Example
 
-The example code below can help you get started.
+The example code below uses the default domain [0-9] and can help you get started.
 
-Using default domain [0-9]
 ```python3
 
 from ff3 import FF3Cipher
@@ -79,8 +78,8 @@ To run unit tests on this implementation, including all test vectors from the NI
 ## FF3 Algorithum
 
 The FF3 algorithum is a tweakable block cipher based on an eight round Feistel cipher. A block cipher operates on fixed-length groups of bits, called blocks. A Feistel Cipher is not a specific cipher,
-but a design model.  The encryption process consisting of eight rounds of 
-processing of the plaintext, each round applies an internal round function followed by transformation steps.
+but a design model.  The Feistel encryption process consisting of eight rounds of 
+processing of the plaintext. Each round applies an internal function or _round function_, followed by transformation steps.
 
 The FF3 round function uses AES encryption in ECB mode, which is performed each iteration 
 on alternating halves of the text being encrypted. The *key* value in FF3 is used only to initialize the AES cipher. Thereafter
@@ -96,7 +95,7 @@ While all test vectors pass, this package has not otherwise been extensively tes
 
 As of Python 3.7, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package supports radices/bases up to 36. Therefore, this release supports a max base of 36, which can contain numeric digits 0-9 and lowercase alphabetic characters a-z.
 
-The django.utils.baseconv module supports base 62 and could be used to increase the radix range.
+As an enhancement to increase the radix range, the standard libary _base64_ package supports base 64 for string conversion. The Fiestel algorithum requires Integer conversion is well and the result would need to as performant as existing BigInt.
 
 The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec.
 

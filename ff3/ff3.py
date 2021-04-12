@@ -22,13 +22,13 @@ See the License for the specific language governing permissions and limitations 
 import logging
 import math
 from Crypto.Cipher import AES
-# from hexdump import hexdump
 import string
 
 DOMAIN_MIN =  1000000  # 1M is currently recommended in FF3-1
 NUM_ROUNDS =   8
 BLOCK_SIZE =   16  # aes.BlockSize
 TWEAK_LEN =    8 # TODO: change to 7 bytes when 56-bit test vectors for FF3-1 become available
+TWEAK_LEN_NEW =    7 # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
 MAX_RADIX =    36  # python int supports radix 2..36
 
@@ -42,7 +42,7 @@ FF3 can encode a string within a range of minLen..maxLen. The spec uses an alter
 with the following parameters:
     128 bit key length
     Cipher Block Chain (CBC-MAC) round function
-    64-bit tweak
+    64-bit (FF3) or 56-bit (FF3-1)tweak
     eight (8) rounds
     Modulo addition
 
@@ -54,7 +54,6 @@ FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with 
 
 AES ECB has a block size of 128 bits (i.e 16 bytes). It can only process data in blocks of this size.  Also, ECB 
 is encrypt only, a second encryption decrypts the text.
-
 """
 
 
@@ -121,14 +120,14 @@ class FF3Cipher:
         return self.encrypt_with_tweak(plaintext, self.tweak)
 
     """
-    Fiestel structure
+    Feistel structure
 
             u length |  v length
             A block  |  B block
 
                 C <- modulo function
 
-            B' <- C    | A' <- B
+            B' <- C  |  A' <- B
 
 
     Steps:
@@ -138,7 +137,7 @@ class FF3Cipher:
     Let A = X[1..u]
     Let B = X[u+1,n]
     Let T(L) = T[0..31] and T(R) = T[32..63]
-    for i <- 0 to 6 do
+    for i <- 0..7 do
         If is even, let m = u and W = T(R) Else let m = v and W = T(L)
         Let P = REV([NUM<radix>(Rev(B))]^12 || W ⊗ REV(i^4)
         Let Y = CIPH(P)
@@ -170,9 +169,9 @@ class FF3Cipher:
         if (n < self.minLen) or (n > self.maxLen):
             raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
 
-        # Make sure the given the length of tweak in bits is 64
-        if len(tweakBytes) != TWEAK_LEN:
-            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
+        # Make sure the given the length of tweak in bits is 56 or 64
+        if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
+            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
         # Check if the plaintext message is formatted in the current radix
         x = int(plaintext, self.radix)
@@ -187,13 +186,22 @@ class FF3Cipher:
         A = plaintext[:u]
         B = plaintext[u:]
 
-        # Split the tweak
-        Tl = tweakBytes[:HALF_TWEAK_LEN]
-        Tr = tweakBytes[HALF_TWEAK_LEN:]
+        if len(tweakBytes) == TWEAK_LEN:
+            # Split the tweak
+            Tl = tweakBytes[:HALF_TWEAK_LEN]
+            Tr = tweakBytes[HALF_TWEAK_LEN:]
+        elif len(tweakBytes) == TWEAK_LEN_NEW:
+            # Tl is T[0..27] + 0000
+            Tl = bytearray(tweakBytes[:4])
+            Tl[3] = Tl[3] & 0xF0
 
-        logging.debug(f"Tweak:{tweak}")
-        logging.debug(tweakBytes)
-        # hexdump(tweakBytes)
+            # Tr is T[32..55] + T[28..31] + 0000
+            Tr = bytearray((int(tweakBytes[4:].hex(), 16) << 4).to_bytes(4,'big'))
+            Tr[3] = tweakBytes[6] << 4 & 0xF0
+        else:
+            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
+
+        logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
 
         # P is always 16 bytes
         P = bytearray(BLOCK_SIZE)
@@ -227,8 +235,7 @@ class FF3Cipher:
             S = self.aesCipher.encrypt(bytes(revP))
 
             S = reverse_string(S)
-            # print("S:    ", end='')
-            # hexdump(S)
+            # logging.debug("S:    ", S.hex())
 
             y = int.from_bytes(S, byteorder='big')
 
@@ -276,8 +283,8 @@ class FF3Cipher:
         if (n < self.minLen) or (n > self.maxLen):
             raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
 
-        # Make sure the given the length of tweak in bits is 64
-        if len(tweakBytes) != TWEAK_LEN:
+        # Make sure the given the length of tweak in bits is 56 or 64
+        if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
 
         # Check if the ciphertext message is formatted in the current radix
@@ -294,12 +301,22 @@ class FF3Cipher:
         B = ciphertext[u:]
 
         # Split the tweak
-        Tl = tweakBytes[:HALF_TWEAK_LEN]
-        Tr = tweakBytes[HALF_TWEAK_LEN:]
+        if len(tweakBytes) == TWEAK_LEN:
+            # Split the tweak
+            Tl = tweakBytes[:HALF_TWEAK_LEN]
+            Tr = tweakBytes[HALF_TWEAK_LEN:]
+        elif len(tweakBytes) == TWEAK_LEN_NEW:
+            # Tl is T[0..27] + 0000
+            Tl = bytearray(tweakBytes[:4])
+            Tl[3] = Tl[3] & 0xF0
 
-        logging.debug(f"Tweak: {tweak}")
-        logging.debug(tweakBytes)
-        # hexdump(tweakBytes)
+            # Tr is T[32..55] + T[28..31] + 0000
+            Tr = bytearray((int(tweakBytes[4:].hex(), 16) << 4).to_bytes(4, 'big'))
+            Tr[3] = tweakBytes[6] << 4 & 0xF0
+        else:
+            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
+
+        logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
 
         # P is always 16 bytes
         P = bytearray(BLOCK_SIZE)
@@ -331,8 +348,7 @@ class FF3Cipher:
             S = self.aesCipher.encrypt(bytes(revP))
             S = reverse_string(S)
 
-            # print("S:    ", end='')
-            # hexdump(S)
+            # logging.debug("S:    ", S.hex())
 
             y = int.from_bytes(S, byteorder='big')
 

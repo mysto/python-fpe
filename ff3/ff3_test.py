@@ -201,5 +201,16 @@ class TestFF3(unittest.TestCase):
 				s = c.decrypt(testVector[i]['ciphertext'])
 				self.assertEqual(s, testVector[i]['plaintext'])
 
+	# experimental test with 56 bit tweak
+	def test_encrypt_tweek56(self):
+		# 56-bit tweak
+		tweak = "D8E7920AFA330A"
+		ciphertext = "428531276362567922"
+		c = FF3Cipher(testVector[0]['key'], tweak)
+		s = c.encrypt(testVector[0]['plaintext'])
+		self.assertEqual(s, ciphertext)
+		x = c.decrypt(s)
+		self.assertEqual(x, testVector[0]['plaintext'])
+
 if __name__ == '__main__':
 	unittest.main()
