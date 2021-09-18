@@ -57,7 +57,7 @@ The example code below uses the default domain [0-9] and can help you get starte
 
 ```python3
 
-from ff3 import FF3Cipher
+from pyfpe_ff3 import FF3Cipher
 
 key = "EF4359D8D580AA4F7F036D6F04FC6A94"
 tweak = "D8E7920AFA330A73"
@@ -67,7 +67,7 @@ plaintext = "4000001234567899"
 ciphertext = c.encrypt(plaintext)
 decrypted = c.decrypt(ciphertext)
 
-print(f"{plaintext} -> {ciphertext} -> {decrypted}" )
+print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 
 # format encrypted value
 ccn = f"{ciphertext[:4]} {ciphertext[4:8]} {ciphertext[8:12]} {ciphertext[12:]}"

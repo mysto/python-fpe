@@ -21,13 +21,13 @@ import unittest
 
 from Crypto.Cipher import AES
 
-from ff3 import FF3Cipher, base_conv_r
+from pyfpe_ff3 import FF3Cipher, base_conv_r
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
 # TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits, in a 
 # manner that was subsequently developed by the designers of the method."
-from ff3.ff3 import int2
+from pyfpe_ff3.ff3 import int2
 
 testVector = [
     # AES-128
@@ -147,6 +147,14 @@ testVector = [
         "plaintext": "AB",
         "ciphertext": "l4",
         "allow_small_domain": True
+    },
+    {
+        "radix": 64,
+        "key": "EF4359D8D580AA4F7F036D6F04FC6A94",
+        "tweak": "D8E7920AFA330A73",
+        "plaintext": "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456B",
+        "ciphertext": "svexCluwcMujPeWF1iZe2rniKJNYR9noT",
+        "allow_small_domain": True
     }
 ]
 
@@ -161,7 +169,7 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(base_conv_r(32, 16)[::-1], '20')
 
     def test_aes_ecb(self):
-        # NIST test vector for ECB-AES128
+        # NIST tests vector for ECB-AES128
         key = bytes.fromhex('2b7e151628aed2a6abf7158809cf4f3c')
         pt = bytes.fromhex('6bc1bee22e409f96e93d7e117393172a')
         c = AES.new(key, AES.MODE_ECB)
@@ -179,18 +187,18 @@ class TestFF3(unittest.TestCase):
 
     def test_encrypt_boundaries(self):
         c = FF3Cipher("EF4359D8D580AA4F7F036D6F04FC6A94", "D8E7920AFA330A73")
-        # test max length 56 digit string with default radix 10
+        # tests max length 56 digit string with default radix 10
         plaintext = "12345678901234567890123456789012345678901234567890123456"
         ct = c.encrypt(plaintext)
         pt = c.decrypt(ct)
         self.assertEqual(plaintext, pt)
-        # test max length 40 alphanumeric string with radix 26
+        # tests max length 40 alphanumeric string with radix 26
         c = FF3Cipher("EF4359D8D580AA4F7F036D6F04FC6A94", "D8E7920AFA330A73", 26)
         plaintext = "0123456789abcdefghijklmnopabcdefghijklmn"
         ct = c.encrypt(plaintext)
         pt = c.decrypt(ct)
         self.assertEqual(plaintext, pt)
-        # test max length 36 alphanumeric string with radix 36
+        # tests max length 36 alphanumeric string with radix 36
         c = FF3Cipher("EF4359D8D580AA4F7F036D6F04FC6A94", "D8E7920AFA330A73", 36)
         plaintext = "abcdefghijklmnopqrstuvwxyz0123456789"
         ct = c.encrypt(plaintext)
@@ -198,7 +206,7 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(plaintext, pt)
 
     def test_encrypt_all(self):
-        for i in range(16):
+        for i in range(17):
             with self.subTest(vector=i):
                 allow_small_domain = testVector[i].get('allow_small_domain', False)
                 c = FF3Cipher(testVector[i]['key'], testVector[i]['tweak'], testVector[i]['radix'], allow_small_domain)
@@ -206,14 +214,14 @@ class TestFF3(unittest.TestCase):
                 self.assertEqual(s, testVector[i]['ciphertext'])
 
     def test_decrypt_all(self):
-        for i in range(16):
+        for i in range(17):
             with self.subTest(vector=i):
                 allow_small_domain = testVector[i].get('allow_small_domain', False)
                 c = FF3Cipher(testVector[i]['key'], testVector[i]['tweak'], testVector[i]['radix'], allow_small_domain)
-                s = c.decrypt(testVector[i]['ciphertext'])
+                s=c.decrypt(testVector[i]['ciphertext'])
                 self.assertEqual(s, testVector[i]['plaintext'])
 
-    # experimental test with 56 bit tweak
+    # experimental tests with 56 bit tweak
     def test_encrypt_tweek56(self):
         # 56-bit tweak
         tweak = "D8E7920AFA330A"

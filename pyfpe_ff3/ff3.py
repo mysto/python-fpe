@@ -17,7 +17,7 @@ See the License for the specific language governing permissions and limitations 
 
 """
 
-# Package ff3 implements the FF3-1 format-preserving encryption algorithm/scheme
+# Package pyfpe_ff3 implements the FF3-1 format-preserving encryption algorithm/scheme
 
 import logging
 import math
@@ -25,7 +25,7 @@ from Crypto.Cipher import AES
 import string
 
 DOMAIN_MIN = 1000000  # 1M is currently recommended in FF3-1
-NUM_ROUNDS = 8 # below 19 rounds cipher is breakable but sticking with 8 for NIST test vector compatibility
+NUM_ROUNDS = 8 # below 19 rounds cipher is breakable but sticking with 8 for NIST tests vector compatibility
 BLOCK_SIZE = 16  # aes.BlockSize
 TWEAK_LEN = 8  # Original FF3 tweak length
 TWEAK_LEN_NEW = 7  # FF3-1 tweak length
@@ -166,9 +166,13 @@ class FF3Cipher:
 
     def encrypt_with_tweak(self, plaintext, tweak):
         """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
-        tweakBytes = bytes.fromhex(tweak)
 
         n = len(plaintext)
+        if n > self.maxLen:
+            r = "".join(self.encrypt_with_tweak(t,tweak) for t in self.chunk(plaintext))
+            return r
+
+        tweakBytes = bytes.fromhex(tweak)
 
         # Check if message length is within minLength and maxLength bounds
         if (n < self.minLen) or (n > self.maxLen):
@@ -280,9 +284,14 @@ class FF3Cipher:
 
     def decrypt_with_tweak(self, ciphertext, tweak):
         """Decrypts the ciphertext string and returns a plaintext of the same length and format"""
-        tweakBytes = bytes.fromhex(tweak)
 
         n = len(ciphertext)
+
+        if n > self.maxLen:
+            r = "".join(self.decrypt_with_tweak(t,tweak) for t in self.chunk(ciphertext))
+            return r
+
+        tweakBytes = bytes.fromhex(tweak)
 
         # Check if message length is within minLength and maxLength bounds
         if (n < self.minLen) or (n > self.maxLen):
@@ -381,6 +390,31 @@ class FF3Cipher:
 
         return A + B
 
+    def chunk(self, plain_text) -> list:
+        l = len(plain_text)
+        if l > self.maxLen:
+            # chunk plain_text
+            split_plain_text = [plain_text[index: index + self.maxLen] for index in range(0, l, self.maxLen)]
+            # check if last part of split has length less than cipher's minLen, if so, resize
+            gap = (self.minLen +1) - len(split_plain_text[-1])
+            if gap > 0:
+                split_plain_text[-1] = split_plain_text[-2][-gap:] + split_plain_text[-1]
+                split_plain_text[-2] = split_plain_text[-2][:-gap]
+            return split_plain_text
+
+    def chunk_decrypt(self, cipher_text) -> str:
+        l = len(cipher_text)
+        if l > self.maxLen:
+            # chunk plain_text
+            split_cipher_text = [cipher_text[index: index + self.maxLen] for index in range(0, l, self.maxLen)]
+            # check if last part of split has length less than cipher's minLen, if so, resize
+            gap = (self.minLen +1) - len(split_cipher_text[-1])
+            if gap > 0:
+                split_cipher_text[-1] = split_cipher_text[-2][-gap:] + split_cipher_text[-1]
+                split_cipher_text[-2] = split_cipher_text[-2][:-gap]
+            r = "".join(self.decrypt(t) for t in split_cipher_text)
+            return r
+
 
 DIGITS = string.digits + string.ascii_lowercase + string.ascii_uppercase + "'-"
 LEN_DIGITS = len(DIGITS)
@@ -410,3 +444,5 @@ def int2(plaintext,radix):
     for i,j in enumerate(reverse_string(plaintext)):
         y = y+ DIGITS.find(j)*pow(radix,i)
     return y
+
+

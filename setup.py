@@ -11,7 +11,7 @@ __version__ = ""
 this_directory = path.abspath(path.dirname(__file__))
 parent_directory = os.path.abspath(os.path.join(this_directory, os.pardir))
 
-with open(path.join(this_directory, "README.MD"), encoding="utf-8") as f:
+with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 try:
@@ -21,13 +21,13 @@ except Exception:
     __version__ = os.environ.get("PYTHON_FPE_VERSION", "0.0.1-alpha")
 
 setup(
-    name="python-fpe",
+    name="pyFPE",
     python_requires=">=3.5",
     version=__version__,
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "License :: OSI Approved :: Apache License",
+        "License :: OSI Approved :: Apache Software License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.6",
@@ -37,10 +37,11 @@ setup(
     ],
     description="Python FPE- Does Format preserving Encryption of values",
     license="MIT license, Apache License",
-    include_package_data=True,
-    keywords="python-fpe, ff3, vaultless-tokenization",
+    # include_package_data=True,
+    keywords="python-fpe, pyfpe_ff3, vaultless, tokenization",
     install_requires=["pycryptodome==3.10.1"],
-    packages=find_packages(include=["python-fpe", "python-fpe.*"]),
+    packages=find_packages(include=['pyfpe_ff3','pyfpe_ff3.*']),
+    # package_dir={"": ""},
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/PuspenduBanerjee/python-fpe",
