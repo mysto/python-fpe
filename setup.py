@@ -43,8 +43,7 @@ setup(
     packages=find_packages(include=['pyfpe_ff3','pyfpe_ff3.*']),
     # package_dir={"": "pyfpe_ff3"},
     test_suite="tests",
-    te
-    tests_require=test_requirements,
+    # tests_require=test_requirements,
     url="https://github.com/PuspenduBanerjee/python-fpe",
     zip_safe=False,
     trusted_host=["pypi.org"],
