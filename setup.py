@@ -41,8 +41,9 @@ setup(
     keywords="python-fpe, pyfpe_ff3, vaultless, tokenization",
     install_requires=["pycryptodome==3.10.1"],
     packages=find_packages(include=['pyfpe_ff3','pyfpe_ff3.*']),
-    # package_dir={"": ""},
+    # package_dir={"": "pyfpe_ff3"},
     test_suite="tests",
+    te
     tests_require=test_requirements,
     url="https://github.com/PuspenduBanerjee/python-fpe",
     zip_safe=False,
