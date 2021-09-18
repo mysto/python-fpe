@@ -35,6 +35,7 @@ FF3 is a Feistel cipher, and Feistel ciphers are initialized with a radix repres
 Practial radix limits of 36 in python means the following radix values are typical:
 * radix 10: digits 0..9
 * radix 36: alphanumeric 0..9, a-z
+* radix 64: alphanumeric 0..9, a-z, A-Z, '-
 
 Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported. 
 Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of a letter followed 
@@ -43,6 +44,7 @@ by 6 digits (e.g. A123456) cannot be correctly encrypted by FPE while preserving
 Input plaintext has maximum length restrictions based upon the chosen radix (2 * floor(96/log2(radix))):
 * radix 10: 56
 * radix 36: 36
+* radix 64: 32
 
 To work around string length, its possible to encode longer text in chunks.
 
@@ -100,16 +102,17 @@ While all NIST standard test vectors pass, this package has not otherwise been e
 As of Python 3.7, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package supports radices/bases up to 36. Therefore, this release supports a max base of 36, which can contain numeric digits 0-9 and lowercase alphabetic characters a-z.
 
 As an enhancement to increase the radix range, the standard libary _base64_ package supports base 64 for string conversion. The Fiestel algorithum requires Integer conversion is well and the result would need to as performant as existing BigInt.
+Added int2 function to convert to support radix 64 [0..9, a-z, A-Z, '-].
 
 The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec.
 
-The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status and updated 56-bit test vectors are not yet available.
+The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status and updated 56-bit test vectors are not yet available. Small domains can still be allowed using `allow_small_domain` boolean value in constructor.
 
 The tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden in each `encrypt` and `decrypt` call. This is similar to passing an IV or nonce when creating an encryptor object.
 
-## Author
+## Authors
 
-Brad Schoening
+Brad Schoening & Puspendu Banerjee<puspendu.banerjee@gmail.com>
 
 ## License
 

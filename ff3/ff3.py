@@ -25,12 +25,12 @@ from Crypto.Cipher import AES
 import string
 
 DOMAIN_MIN = 1000000  # 1M is currently recommended in FF3-1
-NUM_ROUNDS = 8
+NUM_ROUNDS = 8 # below 19 rounds cipher is breakable but sticking with 8 for NIST test vector compatibility
 BLOCK_SIZE = 16  # aes.BlockSize
 TWEAK_LEN = 8  # Original FF3 tweak length
 TWEAK_LEN_NEW = 7  # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
-MAX_RADIX = 36  # python int supports radix 2..36
+MAX_RADIX = 64  # python int supports radix 2..36
 
 
 def reverse_string(str):
@@ -63,15 +63,16 @@ arguments.
 
 class FF3Cipher:
     """Class FF3Cipher implements the FF3 format-preserving encryption algorithm"""
-    def __init__(self, key, tweak, radix=10, ):
+    def __init__(self, key, tweak, radix=10, allow_small_domain=False, num_rounds=8, ):
 
         keyBytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
+        domain_min= 10 if allow_small_domain else DOMAIN_MIN
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per original spec, radix^minLength >= 100.
-        self.minLen = math.ceil(math.log(DOMAIN_MIN) / math.log(radix))
+        self.minLen = math.ceil(math.log(domain_min) / math.log(radix))
 
         # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
         self.maxLen = 2 * math.floor(96/math.log2(radix))
@@ -88,7 +89,7 @@ class FF3Cipher:
             raise ValueError("radix must be between 2 and 36, inclusive")
 
         # Make sure 2 <= minLength <= maxLength
-        if (self.minLen < 2) or (self.maxLen < self.minLen):
+        if (self.minLen < 1) or (self.maxLen < self.minLen):
             raise ValueError("minLen or maxLen invalid, adjust your radix")
 
         # AES block cipher in ECB mode with the block size derived based on the length of the key
@@ -113,7 +114,7 @@ class FF3Cipher:
         # The remaining 12 bytes of P are for rev(B) with padding
 
         numB = reverse_string(B)
-        numBBytes = int(numB, radix).to_bytes(12, "big")
+        numBBytes = int2(numB, radix).to_bytes(12, "big")
         # logging.debug(f"B: {B} numB: {numB} numBBytes: {numBBytes.hex()}")
 
         P[BLOCK_SIZE - len(numBBytes):] = numBBytes
@@ -178,7 +179,7 @@ class FF3Cipher:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
         # Check if the plaintext message is formatted in the current radix
-        x = int(plaintext, self.radix)
+        x = int2(plaintext, self.radix)
         if x == 0:
             raise ValueError("plaintext string is not within base/radix {self.radix}")
 
@@ -244,7 +245,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = int(reverse_string(A), self.radix)
+            c = int2(reverse_string(A), self.radix)
 
             if c == 0:
                 raise ValueError(f"string {A} is not within base/radix")
@@ -292,7 +293,7 @@ class FF3Cipher:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
 
         # Check if the ciphertext message is formatted in the current radix
-        x = int(ciphertext, self.radix)
+        x = int2(ciphertext, self.radix)
         if x == 0:
             raise ValueError("ciphertext string is not within base/radix {self.radix}")
 
@@ -357,7 +358,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = int(reverse_string(B), self.radix)
+            c = int2(reverse_string(B), self.radix)
 
             if c == 0:
                 raise ValueError("string A is not within base/radix")
@@ -381,7 +382,7 @@ class FF3Cipher:
         return A + B
 
 
-DIGITS = string.digits + string.ascii_lowercase 
+DIGITS = string.digits + string.ascii_lowercase + string.ascii_uppercase + "'-"
 LEN_DIGITS = len(DIGITS)
 
 
@@ -402,3 +403,10 @@ def base_conv_r(n, base=2, length=0):
         x = x.ljust(length, '0')
 
     return x
+
+
+def int2(plaintext,radix):
+    y:int=0
+    for i,j in enumerate(reverse_string(plaintext)):
+        y = y+ DIGITS.find(j)*pow(radix,i)
+    return y
