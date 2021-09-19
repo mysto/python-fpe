@@ -21,7 +21,7 @@ import unittest
 
 from Crypto.Cipher import AES
 
-from pyfpe_ff3 import FF3Cipher, base_conv_r
+from pyfpe_ff3 import FF3Cipher, base_conv_r, format_align_digits
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
@@ -235,6 +235,22 @@ class TestFF3(unittest.TestCase):
     def test_base_conversions(self):
         self.assertEqual(base_conv_r(64, 64)[::-1], '10')
         self.assertEqual(int("b", 36), int2("b", 64))
+
+    def test_format_align_digits(self):
+        text="234567890"
+        reference_text="12.3/45/67-89"
+        expected_text = "23.4/56/78-90"
+        reformatted_text=format_align_digits(text,reference_text)
+        self.assertEqual(reformatted_text,expected_text)
+
+    def test_autochunk(self):
+        key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+        tweak = "A8E7920AFA330A73"
+        c = FF3Cipher(key, tweak, radix=64, allow_small_domain= True)
+        plaintext = "Donaudampfschifffahrtsgesellschaftskapitaenswitwe"*2  # 49x2 =98 characters
+        ciphertext = c.encrypt(plaintext)
+        decrypted = c.decrypt(ciphertext)
+        self.assertEqual(plaintext,decrypted)
 
 
 if __name__ == '__main__':

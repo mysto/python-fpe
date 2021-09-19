@@ -72,6 +72,36 @@ print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 ccn = f"{ciphertext[:4]} {ciphertext[4:8]} {ciphertext[8:12]} {ciphertext[12:]}"
 print(f"Encrypted CCN value with formatting: {ccn}")
 ```
+
+The example code below uses the default domain [0-9] to anonymize US SSN by scrubbing non-digit characters and reformat the final result. 
+It can be applied for Phone Numbers as well.
+```python3
+from pyfpe_ff3 import FF3Cipher, format_align_digits
+key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+tweak = "D8E7920AFA330A73"
+c = FF3Cipher(key, tweak)
+actual_ssn = "845-06-9423"
+anonymized_ssn = format_align_digits(c.encrypt(actual_ssn),actual_ssn)
+print(f"{actual_ssn} -> {anonymized_ssn}")
+```
+
+Following example shows transparent chunking for length limit ( say 32 chaacters for radix 64). 
+This way we can handle larger plaintext to cipher and decipher. 
+```python3
+
+
+from pyfpe_ff3 import FF3Cipher
+
+key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+tweak = "A8E7920AFA330A73"
+c = FF3Cipher(key, tweak, radix=64, allow_small_domain= True)
+plaintext = "Donaudampfschifffahrtsgesellschaftskapitaenswitwe"*2  # 49x2 =98 characters
+ciphertext = c.encrypt(plaintext)
+decrypted = c.decrypt(ciphertext)
+print(f"{plaintext} -> \n{ciphertext} -> \n{decrypted}")
+
+```
+
 ## Testing
 
 There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/ff3samples.pdf) for FF3 provided by NIST, which are used for testing in this package.
