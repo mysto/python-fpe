@@ -10,7 +10,7 @@ install:
   - pip3 install coverage coveralls
 # command to run tests
 script:
-  - python3 pyfpe_ff3/pyfpe_ff3_test.py
+  - python3 tests/pyfpe_ff3_test.py
   - coverage run --source pyfpe_ff3 -m unittest tests/pyfpe_ff3_test.py
 after_success:
   - coveralls
