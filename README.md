@@ -26,7 +26,7 @@ This project was built and tested with Python 3.6 and later versions.  It requir
 
 Install this project with pip:
 
-`pip3 install ff3`
+`pip3 install pyFPE`
 
 ## Usage
 
@@ -78,7 +78,8 @@ There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryp
 
 To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
 
-  1. `python3 ff3_test.py`
+  1. `python tests/pyfpe_ff3_test.py`
+  2. or `python setup.py test`
 
 ## FF3 Algorithum
 
@@ -111,7 +112,7 @@ The tweak is required in the initial `FF3Cipher` constructor, but can optionally
 
 ## Authors
 
-Brad Schoening & Puspendu Banerjee<puspendu.banerjee@gmail.com>
+Brad Schoening & Puspendu Banerjee <puspendu.banerjee@gmail.com>
 
 ## License
 
