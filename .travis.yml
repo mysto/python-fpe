@@ -8,6 +8,7 @@ python:
 install:
   - pip3 install pycryptodome
   - pip3 install coverage coveralls
+  - pip3 install -e .
 # command to run tests
 script:
   - python3 tests/pyfpe_ff3_test.py
