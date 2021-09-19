@@ -1,7 +1,6 @@
-[![Build Status](https://travis-ci.com/mysto/python-fpe.svg?branch=main)](https://travis-ci.com/mysto/python-fpe)
-[![Coverage Status](https://coveralls.io/repos/github/mysto/python-fpe/badge.svg?branch=main)](https://coveralls.io/github/mysto/python-fpe?branch=main)
+[![Build Status](https://app.travis-ci.com/PuspenduBanerjee/python-fpe.svg?branch=main)](https://travis-ci.com/PuspenduBanerjee/python-fpe)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Downloads](https://pepy.tech/badge/ff3)](https://pepy.tech/project/ff3)
+[![PyPI version](https://badge.fury.io/py/pyFPE.svg)](https://badge.fury.io/py/pyFPE)
 
 # ff3 - Format Preserving Encryption in Python
 
