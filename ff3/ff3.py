@@ -177,10 +177,8 @@ class FF3Cipher:
         if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
-        # Check if the plaintext message is formatted in the current radix
+        # Convert the plaintext message string into an integer
         x = int(plaintext, self.radix)
-        if x == 0:
-            raise ValueError("plaintext string is not within base/radix {self.radix}")
 
         # Calculate split point
         u = math.ceil(n / 2)
@@ -246,9 +244,6 @@ class FF3Cipher:
             # Calculate c
             c = int(reverse_string(A), self.radix)
 
-            if c == 0:
-                raise ValueError(f"string {A} is not within base/radix")
-
             c = c + y
 
             if i % 2 == 0:
@@ -291,10 +286,8 @@ class FF3Cipher:
         if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
 
-        # Check if the ciphertext message is formatted in the current radix
+        # Convert the ciphertext message string into an integer
         x = int(ciphertext, self.radix)
-        if x == 0:
-            raise ValueError("ciphertext string is not within base/radix {self.radix}")
 
         # Calculate split point
         u = math.ceil(n/2)
@@ -358,9 +351,6 @@ class FF3Cipher:
 
             # Calculate c
             c = int(reverse_string(B), self.radix)
-
-            if c == 0:
-                raise ValueError("string A is not within base/radix")
 
             c = c - y
 
