@@ -14,8 +14,7 @@ This package follows the FF3 algorithm for Format Preserving Encryption as descr
 
 Changes to minimum domain size and revised tweak length have been implemented in this package.
 Tweaks can be 56 or 64 bits, but NIST has only published test vectors for 64-bit tweaks.  It is expected the final
-standard will provide updated test vectors necessary to change the 
-tweak lengths to 56 bits.  
+standard will provide updated test vectors necessary to change the tweak lengths to 56 bits.
 
 ## Requires
 
@@ -104,9 +103,9 @@ FPE can be used for data tokenization of sensitive data which is cryptographical
 
 While all NIST standard test vectors pass, this package has not otherwise been extensively tested.
 
-As of Python 3.7, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package supports radices/bases up to 36. Therefore, this release supports a max base of 36, which can contain numeric digits 0-9 and lowercase alphabetic characters a-z.
+As of Python 3, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package supports radices/bases up to 36. Therefore, this release supports a max base of 36, which can contain numeric digits 0-9 and lowercase alphabetic characters a-z.
 
-As an enhancement to increase the radix range, the standard libary _base64_ package supports base 64 for string conversion. The Fiestel algorithm requires Integer conversion is well and the result would need to as performant as existing BigInt.
+As an enhancement to increase the radix range, the standard libary _base64_ package supports base 64 for string conversion. The Fiestel algorithm requires Integer conversion as well and the result would need to as performant as existing int.
 
 The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec.
 
