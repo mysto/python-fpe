@@ -10,7 +10,7 @@ An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 al
 * [NIST Recommendation SP 800-38G](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
 * [NIST FF3-1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
 
-This package follows the FF3 algorithum for Format Preserving Encryption as described in the March 2016 NIST publication _Methods for Format-Preserving Encryption_, and revised on Feburary 28th, 2020 with a draft update for FF3-1.
+This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication _Methods for Format-Preserving Encryption_, and revised on February 28th, 2020 with a draft update for FF3-1.
 
 Changes to minimum domain size and revised tweak length have been implemented in this package.
 Tweaks can be 56 or 64 bits, but NIST has only published test vectors for 64-bit tweaks.  It is expected the final
@@ -32,15 +32,17 @@ Install this project with pip:
 ## Usage
 
 FF3 is a Feistel cipher, and Feistel ciphers are initialized with a radix representing an alphabet.  
-Practial radix limits of 36 in python means the following radix values are typical:
+Practical radix limits of 36 in Python mean the following radix values are typical:
+
 * radix 10: digits 0..9
 * radix 36: alphanumeric 0..9, a-z
 
-Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported. 
+Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported.
 Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of a letter followed 
 by 6 digits (e.g. A123456) cannot be correctly encrypted by FPE while preserving this convention.
 
 Input plaintext has maximum length restrictions based upon the chosen radix (2 * floor(96/log2(radix))):
+
 * radix 10: 56
 * radix 36: 36
 
@@ -71,6 +73,7 @@ print(f"{plaintext} -> {ciphertext} -> {decrypted}" )
 ccn = f"{ciphertext[:4]} {ciphertext[4:8]} {ciphertext[8:12]} {ciphertext[12:]}"
 print(f"Encrypted CCN value with formatting: {ccn}")
 ```
+
 ## Testing
 
 There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/ff3samples.pdf) for FF3 provided by NIST, which are used for testing in this package.
@@ -79,9 +82,9 @@ To run unit tests on this implementation, including all test vectors from the NI
 
   1. `python3 ff3_test.py`
 
-## FF3 Algorithum
+## The FF3 Algorithm
 
-The FF3 algorithum is a tweakable block cipher based on an eight round Feistel cipher. A block cipher operates on fixed-length groups of bits, called blocks. A Feistel Cipher is not a specific cipher,
+The FF3 algorithm is a tweakable block cipher based on an eight round Feistel cipher. A block cipher operates on fixed-length groups of bits, called blocks. A Feistel Cipher is not a specific cipher,
 but a design model.  This FF3 Feistel encryption consisting of eight rounds of processing
 the plaintext. Each round applies an internal function or _round function_, followed by transformation steps.
 
@@ -89,9 +92,13 @@ The FF3 round function uses AES encryption in ECB mode, which is performed each 
 on alternating halves of the text being encrypted. The *key* value is used only to initialize the AES cipher. Thereafter
 the *tweak* is used together with the intermediate encrypted text as input to the round function.
 
+## Other FPE Algorithms
+
+Only FF1 and FF3 have been approved by NIST for format preserving encryption. There are patent claims on FF1 which allegedly include open source implementations. Given the issues raised in ["The Curse of Small Domains: New Attacks on Format-Preserving Encryption"](https://eprint.iacr.org/2018/556.pdf) by Hoang, Tessaro and Trieu in 2018, it is prudent to be very cautious about using any FPE that isn't a standard and hasn't stood up to public scrutiny.
+
 ## Implementation Notes
 
-This implementation was originally based upon the [Capital One Go implemntation](https://github.com/capitalone/fpe).  It follows the algorithm as outlined in the NIST specification as closely as possible, including naming.
+This implementation was originally based upon the [Capital One Go implementation](https://github.com/capitalone/fpe).  It follows the algorithm as outlined in the NIST specification as closely as possible, including naming.
 
 FPE can be used for data tokenization of sensitive data which is cryptographically reversible. This implementation does not provide any guarantees regarding PCI DSS or other validation.
 
@@ -99,13 +106,13 @@ While all NIST standard test vectors pass, this package has not otherwise been e
 
 As of Python 3.7, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package supports radices/bases up to 36. Therefore, this release supports a max base of 36, which can contain numeric digits 0-9 and lowercase alphabetic characters a-z.
 
-As an enhancement to increase the radix range, the standard libary _base64_ package supports base 64 for string conversion. The Fiestel algorithum requires Integer conversion is well and the result would need to as performant as existing BigInt.
+As an enhancement to increase the radix range, the standard libary _base64_ package supports base 64 for string conversion. The Fiestel algorithm requires Integer conversion is well and the result would need to as performant as existing BigInt.
 
 The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec.
 
 The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status and updated 56-bit test vectors are not yet available.
 
-The tweak is required in the initial `FF3Cipher` constructor, but can optionally be overriden in each `encrypt` and `decrypt` call. This is similar to passing an IV or nonce when creating an encryptor object.
+The tweak is required in the initial `FF3Cipher` constructor, but can optionally be overridden in each `encrypt` and `decrypt` call. This is similar to passing an IV or nonce when creating an encrypter object.
 
 ## Author
 
