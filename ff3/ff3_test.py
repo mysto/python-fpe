@@ -22,6 +22,7 @@ import unittest
 from Crypto.Cipher import AES
 
 from ff3 import FF3Cipher, base_conv_r
+from ff3.ff3 import reverse_string
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
@@ -144,11 +145,11 @@ testVector = [
 class TestFF3(unittest.TestCase):
 
 	def test_base_repr(self):
-		self.assertEqual(base_conv_r(5)[::-1], '101')
-		self.assertEqual(base_conv_r(6,5)[::-1], '11')
-		self.assertEqual(base_conv_r(7,5,5)[::-1], '00012')
-		self.assertEqual(base_conv_r(10,16)[::-1], 'a')
-		self.assertEqual(base_conv_r(32,16)[::-1], '20')
+		self.assertEqual(reverse_string(base_conv_r(5)), '101')
+		self.assertEqual(reverse_string(base_conv_r(6,5)), '11')
+		self.assertEqual(reverse_string(base_conv_r(7,5,5)), '00012')
+		self.assertEqual(reverse_string(base_conv_r(10,16)), 'a')
+		self.assertEqual(reverse_string(base_conv_r(32,16)), '20')
 
 	def test_aes_ecb(self):
 		# NIST test vector for ECB-AES128
