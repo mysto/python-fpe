@@ -22,13 +22,14 @@ import unittest
 from Crypto.Cipher import AES
 
 from ff3 import FF3Cipher, base_conv_r
+from ff3.ff3 import reverse_string
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
 # TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits, in a 
 # manner that was subsequently developed by the designers of the method."
 
-testVector = [
+testVectors = [
 	# AES-128
 	{ 
 		"radix" : 10, 
@@ -144,11 +145,11 @@ testVector = [
 class TestFF3(unittest.TestCase):
 
 	def test_base_repr(self):
-		self.assertEqual(base_conv_r(5)[::-1], '101')
-		self.assertEqual(base_conv_r(6,5)[::-1], '11')
-		self.assertEqual(base_conv_r(7,5,5)[::-1], '00012')
-		self.assertEqual(base_conv_r(10,16)[::-1], 'a')
-		self.assertEqual(base_conv_r(32,16)[::-1], '20')
+		self.assertEqual(reverse_string(base_conv_r(5)), '101')
+		self.assertEqual(reverse_string(base_conv_r(6,5)), '11')
+		self.assertEqual(reverse_string(base_conv_r(7,5,5)), '00012')
+		self.assertEqual(reverse_string(base_conv_r(10,16)), 'a')
+		self.assertEqual(reverse_string(base_conv_r(32,16)), '20')
 
 	def test_aes_ecb(self):
 		# NIST test vector for ECB-AES128
@@ -188,29 +189,53 @@ class TestFF3(unittest.TestCase):
 		self.assertEqual(plaintext, pt)
 
 	def test_encrypt_all(self):
-		for i in range(15):
-			with self.subTest(vector=i):
-				c = FF3Cipher(testVector[i]['key'], testVector[i]['tweak'], testVector[i]['radix'])
-				s = c.encrypt(testVector[i]['plaintext'])
-				self.assertEqual(s, testVector[i]['ciphertext'])
+		for testVector in testVectors:
+			with self.subTest(testVector=testVector):
+				c = FF3Cipher(testVector['key'], testVector['tweak'], testVector['radix'])
+				s = c.encrypt(testVector['plaintext'])
+				self.assertEqual(s, testVector['ciphertext'])
 
 	def test_decrypt_all(self):
-		for i in range(15):
-			with self.subTest(vector=i):
-				c = FF3Cipher(testVector[i]['key'], testVector[i]['tweak'], testVector[i]['radix'] )
-				s = c.decrypt(testVector[i]['ciphertext'])
-				self.assertEqual(s, testVector[i]['plaintext'])
+		for testVector in testVectors:
+			with self.subTest(testVector=testVector):
+				c = FF3Cipher(testVector['key'], testVector['tweak'], testVector['radix'])
+				s = c.decrypt(testVector['ciphertext'])
+				self.assertEqual(s, testVector['plaintext'])
 
 	# experimental test with 56 bit tweak
-	def test_encrypt_tweek56(self):
+	def test_encrypt_tweak56(self):
 		# 56-bit tweak
 		tweak = "D8E7920AFA330A"
 		ciphertext = "428531276362567922"
-		c = FF3Cipher(testVector[0]['key'], tweak)
-		s = c.encrypt(testVector[0]['plaintext'])
+		testVector = testVectors[0]
+		c = FF3Cipher(testVector['key'], tweak)
+		s = c.encrypt(testVector['plaintext'])
 		self.assertEqual(s, ciphertext)
 		x = c.decrypt(s)
-		self.assertEqual(x, testVector[0]['plaintext'])
+		self.assertEqual(x, testVector['plaintext'])
+
+	# Check that encryption and decryption are inverses over whole domain
+	def test_whole_domain(self):
+		# Temporarily reduce DOMAIN_MIN to make testing fast
+		from ff3 import ff3
+		domain_min_orig = ff3.DOMAIN_MIN
+		ff3.DOMAIN_MIN=33
+
+		key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+		tweak = "D8E7920AFA330A73"
+		for radix, working_digits in [(2, 10), (3, 6), (10, 3), (17, 3), (32, 2)]:
+			c = FF3Cipher(key, tweak, radix=radix)
+			self.subTest(radix=radix, working_digits=working_digits)
+			n = radix ** working_digits
+			perm = [int(reverse_string(
+				c.decrypt(c.encrypt(
+					base_conv_r(i, base=radix, length=working_digits)
+				))
+			), radix) for i in range(n)]
+			self.assertEqual(perm, list(range(n)))
+
+		# Restore original DOMAIN_MIN value
+		ff3.DOMAIN_MIN = domain_min_orig
 
 if __name__ == '__main__':
 	unittest.main()
