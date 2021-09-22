@@ -29,7 +29,7 @@ from ff3.ff3 import reverse_string
 # TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits, in a 
 # manner that was subsequently developed by the designers of the method."
 
-testVector = [
+testVectors = [
 	# AES-128
 	{ 
 		"radix" : 10, 
@@ -189,29 +189,30 @@ class TestFF3(unittest.TestCase):
 		self.assertEqual(plaintext, pt)
 
 	def test_encrypt_all(self):
-		for i in range(15):
-			with self.subTest(vector=i):
-				c = FF3Cipher(testVector[i]['key'], testVector[i]['tweak'], testVector[i]['radix'])
-				s = c.encrypt(testVector[i]['plaintext'])
-				self.assertEqual(s, testVector[i]['ciphertext'])
+		for testVector in testVectors:
+			with self.subTest(testVector=testVector):
+				c = FF3Cipher(testVector['key'], testVector['tweak'], testVector['radix'])
+				s = c.encrypt(testVector['plaintext'])
+				self.assertEqual(s, testVector['ciphertext'])
 
 	def test_decrypt_all(self):
-		for i in range(15):
-			with self.subTest(vector=i):
-				c = FF3Cipher(testVector[i]['key'], testVector[i]['tweak'], testVector[i]['radix'] )
-				s = c.decrypt(testVector[i]['ciphertext'])
-				self.assertEqual(s, testVector[i]['plaintext'])
+		for testVector in testVectors:
+			with self.subTest(testVector=testVector):
+				c = FF3Cipher(testVector['key'], testVector['tweak'], testVector['radix'])
+				s = c.decrypt(testVector['ciphertext'])
+				self.assertEqual(s, testVector['plaintext'])
 
 	# experimental test with 56 bit tweak
 	def test_encrypt_tweek56(self):
 		# 56-bit tweak
 		tweak = "D8E7920AFA330A"
 		ciphertext = "428531276362567922"
-		c = FF3Cipher(testVector[0]['key'], tweak)
-		s = c.encrypt(testVector[0]['plaintext'])
+		testVector = testVectors[0]
+		c = FF3Cipher(testVector['key'], tweak)
+		s = c.encrypt(testVector['plaintext'])
 		self.assertEqual(s, ciphertext)
 		x = c.decrypt(s)
-		self.assertEqual(x, testVector[0]['plaintext'])
+		self.assertEqual(x, testVector['plaintext'])
 
 if __name__ == '__main__':
 	unittest.main()
