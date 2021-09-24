@@ -24,7 +24,9 @@ import math
 from Crypto.Cipher import AES
 import string
 
-DOMAIN_MIN = 1000000  # 1M is currently recommended in FF3-1
+# The recommendation in Draft SP 800-38G was strengthened to a requirement in Draft SP 800-38G Revision 1:
+# the minimum domain size for FF1 and FF3-1 is one million.
+DOMAIN_MIN = 1000000  # 1M required in FF3-1
 NUM_ROUNDS = 8
 BLOCK_SIZE = 16  # aes.BlockSize
 TWEAK_LEN = 8  # Original FF3 tweak length
