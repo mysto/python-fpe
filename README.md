@@ -11,7 +11,7 @@ This package follows the FF3 algorithm for Format Preserving Encryption as descr
 and revised on February 28th, 2019 with a draft update for FF3-1.
 
 * [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
-* [NIST Recommendation SP 800-8Gr1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
+* [NIST Recommendation SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
 
 Changes to minimum domain size and revised tweak length have been implemented in this package.
 Tweaks can be 56 or 64 bits, but NIST has only published test vectors for 64-bit tweaks.  It is expected the final
