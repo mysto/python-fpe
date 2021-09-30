@@ -35,10 +35,14 @@ HALF_TWEAK_LEN = TWEAK_LEN // 2
 MAX_RADIX = 36  # python int supports radix 2..36
 
 
-def reverse_string(str):
+def reverse_string(txt):
     """func defined for clarity"""
-    return str[::-1]
+    return txt[::-1]
 
+
+BASE26 = set(string.digits + string.ascii_lowercase[:16])
+BASE36 = set(string.digits + string.ascii_lowercase)
+radixMap = {10: set(string.digits), 16: set(string.hexdigits), 26: BASE26, 36: BASE36}
 
 """
 FF3 encodes a string within a range of minLen..maxLen. The spec uses an alternating Feistel
@@ -57,9 +61,9 @@ FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with 
 default radix is 10, supporting encryption of decimal numbers.
 
 AES ECB is used as the cipher round value for XORing. ECB has a block size of 128 bits (i.e 16 bytes) and is 
-padded with zeros for blocks smaller than this size. ECB is used only in encrypt mode to generate this XOR value. A Feistel 
-decryption uses the same ECB encrypt value to decrypt the text. XOR is trivially invertible when you know two of the 
-arguments.
+padded with zeros for blocks smaller than this size. ECB is used only in encrypt mode to generate this XOR value. 
+A Feistel decryption uses the same ECB encrypt value to decrypt the text. XOR is trivially invertible when you 
+know two of the arguments.
 """
 
 
@@ -67,7 +71,7 @@ class FF3Cipher:
     """Class FF3Cipher implements the FF3 format-preserving encryption algorithm"""
     def __init__(self, key, tweak, radix=10, ):
 
-        keyBytes = bytes.fromhex(key)
+        keybytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
 
@@ -78,7 +82,7 @@ class FF3Cipher:
         # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
         self.maxLen = 2 * math.floor(96/math.log2(radix))
 
-        klen = len(keyBytes)
+        klen = len(keybytes)
 
         # Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
         if klen not in (16, 24, 32):
@@ -96,7 +100,7 @@ class FF3Cipher:
         # AES block cipher in ECB mode with the block size derived based on the length of the key
         # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
-        self.aesCipher = AES.new(reverse_string(keyBytes), AES.MODE_ECB)
+        self.aesCipher = AES.new(reverse_string(keybytes), AES.MODE_ECB)
 
     @staticmethod
     def calculateP(i, radix, W, B):
@@ -179,8 +183,10 @@ class FF3Cipher:
         if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
-        # Convert the plaintext message string into an integer
-        x = int(plaintext, self.radix)
+        # Check message is in current radix by converting the plaintext message string into an integer
+        for ch in plaintext:
+            if ch not in radixMap[self.radix]:
+                raise ValueError(f"plaintext {plaintext} character {ch} not in radix {self.radix}")
 
         # Calculate split point
         u = math.ceil(n / 2)
@@ -206,9 +212,6 @@ class FF3Cipher:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
         logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
-
-        # P is always 16 bytes
-        # P = bytearray(BLOCK_SIZE)
 
         # Pre-calculate the modulus since it's only one of 2 values,
         # depending on whether i is even or odd
@@ -288,8 +291,10 @@ class FF3Cipher:
         if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
 
-        # Convert the ciphertext message string into an integer
-        x = int(ciphertext, self.radix)
+        # Check message is in current radix by converting the plaintext message string into an integer
+        for ch in ciphertext:
+            if ch not in radixMap[self.radix]:
+                raise ValueError(f"plaintext {ciphertext} character {ch} not in radix {self.radix}")
 
         # Calculate split point
         u = math.ceil(n/2)
@@ -316,9 +321,6 @@ class FF3Cipher:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
         logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
-
-        # P is always 16 bytes
-        # P = bytearray(BLOCK_SIZE)
 
         # Pre-calculate the modulus since it's only one of 2 values,
         # depending on whether i is even or odd
