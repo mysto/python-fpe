@@ -7,10 +7,11 @@
 
 An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 algorithm in Python.
 
-* [NIST Recommendation SP 800-38G](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
-* [NIST FF3-1](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
+This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_, 
+and revised on February 28th, 2019 with a draft update for FF3-1.
 
-This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication _Methods for Format-Preserving Encryption_, and revised on February 28th, 2020 with a draft update for FF3-1.
+* [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
+* [NIST Recommendation SP 800-8Gr1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
 
 Changes to minimum domain size and revised tweak length have been implemented in this package.
 Tweaks can be 56 or 64 bits, but NIST has only published test vectors for 64-bit tweaks.  It is expected the final
@@ -30,7 +31,8 @@ Install this project with pip:
 
 ## Usage
 
-FF3 is a Feistel cipher, and Feistel ciphers are initialized with a radix representing an alphabet.  
+FF3 is a Feistel cipher, and Feistel ciphers are initialized with a radix representing an alphabet. The number of 
+characters in an alphabet is called the _radix_.
 Practical radix limits of 36 in Python mean the following radix values are typical:
 
 * radix 10: digits 0..9
