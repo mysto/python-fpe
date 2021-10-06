@@ -33,7 +33,7 @@ Install this project with pip:
 
 FF3 is a Feistel cipher, and Feistel ciphers are initialized with a radix representing an alphabet. The number of 
 characters in an alphabet is called the _radix_.
-Practical radix limits of 36 in Python mean the following radix values are typical:
+The following radix values are typical:
 
 * radix 10: digits 0..9
 * radix 36: alphanumeric 0..9, a-z
