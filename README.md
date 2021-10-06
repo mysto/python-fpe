@@ -37,6 +37,7 @@ Practical radix limits of 36 in Python mean the following radix values are typic
 
 * radix 10: digits 0..9
 * radix 36: alphanumeric 0..9, a-z
+* radix 62: alphanumeric 0..9, a-z, A-Z
 
 Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported.
 Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of a letter followed 
@@ -46,6 +47,7 @@ Input plaintext has maximum length restrictions based upon the chosen radix (2 *
 
 * radix 10: 56
 * radix 36: 36
+* radix 62: 32
 
 To work around string length, its possible to encode longer text in chunks.
 
@@ -104,10 +106,6 @@ This implementation was originally based upon the [Capital One Go implementation
 FPE can be used for data tokenization of sensitive data which is cryptographically reversible. This implementation does not provide any guarantees regarding PCI DSS or other validation.
 
 While all NIST standard test vectors pass, this package has not otherwise been extensively tested.
-
-As of Python 3, the standard library's [int](https://docs.python.org/3/library/functions.html#int) package supports radices/bases up to 36. Therefore, this release supports a max base of 36, which can contain numeric digits 0-9 and lowercase alphabetic characters a-z.
-
-As an enhancement to increase the radix range, the standard libary _base64_ package supports base 64 for string conversion. The Fiestel algorithm requires Integer conversion as well and the result would need to as performant as existing int.
 
 The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec.
 
