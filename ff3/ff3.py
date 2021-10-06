@@ -375,16 +375,26 @@ class FF3Cipher:
         return A + B
 
 
-DIGITS = string.digits + string.ascii_lowercase 
-LEN_DIGITS = len(DIGITS)
+DIGITS = string.digits + string.ascii_lowercase
+DIGITS_LEN = len(DIGITS)
 
-
-def base_conv_r(n, base=2, length=0):    
+def base_conv_r(n, base=2, length=0):
     """
     Return a string representation of a number in the given base system for 2..36
 
     The string is left in a reversed order expected by the calling cryptographic function
+
+    examples:
+       radix_conv(5)
+        '101'
+       radix_conv(10, base=16)
+        'A'
+       radix_conv(32, base=16)
+        '20'
     """
+    if (base > DIGITS_LEN):
+        raise ValueError(f"Base {base} is outside range of suppored radix 2..{DIGITS_LEN}")
+    maxval = len(DIGITS[:base])-1
 
     x = ''
     while n >= base:
@@ -396,3 +406,4 @@ def base_conv_r(n, base=2, length=0):
         x = x.ljust(length, '0')
 
     return x
+
