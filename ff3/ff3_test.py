@@ -21,7 +21,7 @@ import unittest
 
 from Crypto.Cipher import AES
 
-from ff3 import FF3Cipher, base_conv_r
+from ff3 import FF3Cipher, encode_int_r
 from ff3 import reverse_string
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
@@ -143,11 +143,11 @@ testVectors = [
 class TestFF3(unittest.TestCase):
 
     def test_base_repr(self):
-        self.assertEqual(reverse_string(base_conv_r(5)), '101')
-        self.assertEqual(reverse_string(base_conv_r(6, 5)), '11')
-        self.assertEqual(reverse_string(base_conv_r(7, 5, 5)), '00012')
-        self.assertEqual(reverse_string(base_conv_r(10, 16)), 'a')
-        self.assertEqual(reverse_string(base_conv_r(32, 16)), '20')
+        self.assertEqual(reverse_string(encode_int_r(5)), '101')
+        self.assertEqual(reverse_string(encode_int_r(6, 5)), '11')
+        self.assertEqual(reverse_string(encode_int_r(7, 5, 5)), '00012')
+        self.assertEqual(reverse_string(encode_int_r(10, 16)), 'a')
+        self.assertEqual(reverse_string(encode_int_r(32, 16)), '20')
 
     def test_aes_ecb(self):
         # NIST test vector for ECB-AES128
@@ -175,7 +175,7 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(plaintext, pt)
         # test max length 40 alphanumeric string with radix 26
         c = FF3Cipher("EF4359D8D580AA4F7F036D6F04FC6A94", "D8E7920AFA330A73", 26)
-        plaintext = "0123456789abcdefghijklmnopabcdefghijklmn"
+        plaintext = "0123456789abcdefghijklmn"
         ct = c.encrypt(plaintext)
         pt = c.decrypt(ct)
         self.assertEqual(plaintext, pt)
@@ -200,8 +200,8 @@ class TestFF3(unittest.TestCase):
                 s = c.decrypt(testVector['ciphertext'])
                 self.assertEqual(s, testVector['plaintext'])
 
-    # TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits, in a
-    # manner that was subsequently developed by the designers of the method."
+    # TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits,
+    #   in a manner that was subsequently developed by the designers of the method."
 
     # experimental test with 56 bit tweak
     def test_encrypt_tweak56(self):

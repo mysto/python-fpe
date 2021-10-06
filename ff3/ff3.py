@@ -32,17 +32,13 @@ BLOCK_SIZE = 16  # aes.BlockSize
 TWEAK_LEN = 8  # Original FF3 tweak length
 TWEAK_LEN_NEW = 7  # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
-MAX_RADIX = 36  # python int supports radix 2..36
+BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
+RADIX_MAX = 62
 
 
 def reverse_string(txt):
     """func defined for clarity"""
     return txt[::-1]
-
-
-BASE26 = set(string.digits + string.ascii_lowercase[:16])
-BASE36 = set(string.digits + string.ascii_lowercase)
-radixMap = {10: set(string.digits), 16: set(string.hexdigits), 26: BASE26, 36: BASE36}
 
 """
 FF3 encodes a string within a range of minLen..maxLen. The spec uses an alternating Feistel
@@ -53,9 +49,9 @@ with the following parameters:
     eight (8) rounds
     Modulo addition
 
-An encoded string representation of x is in the given integer base, which must be between 2 and 36, inclusive. The 
-result uses the lower-case letters 'a' to 'z' for digit values 10 to 35.  Currently unimplemented, the
-upper-case letters 'A' to 'Z' would represent digit values 36 to 61.
+An encoded string representation of x is in the given integer base, which must be between 2 and 62, inclusive. The 
+result uses the lower-case letters 'a' to 'z' for digit values 10 to 35 and upper-case letters 'A' to 'Z' for 
+digit values 36 to 61.
 
 FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with key, tweak and radix parameters. The
 default radix is 10, supporting encryption of decimal numbers.
@@ -88,10 +84,9 @@ class FF3Cipher:
         if klen not in (16, 24, 32):
             raise ValueError(f'key length is {klen} but must be 128, 192, or 256 bits')
 
-        # While FF3 allows radices in [2, 2^16], there is a practical limit to 36 (alphanumeric)
-        # because python int only supports up to base 36.
-        if (radix < 2) or (radix > MAX_RADIX):
-            raise ValueError("radix must be between 2 and 36, inclusive")
+        # While FF3 allows radices in [2, 2^16], commonly useful range is 2..62
+        if (radix < 2) or (radix > RADIX_MAX):
+            raise ValueError("radix must be between 2 and 62, inclusive")
 
         # Make sure 2 <= minLength <= maxLength
         if (self.minLen < 2) or (self.maxLen < self.minLen):
@@ -119,7 +114,7 @@ class FF3Cipher:
         # The remaining 12 bytes of P are for rev(B) with padding
 
         numB = reverse_string(B)
-        numBBytes = int(numB, radix).to_bytes(12, "big")
+        numBBytes = decode_int(numB, radix).to_bytes(12, "big")
         # logging.debug(f"B: {B} numB: {numB} numBBytes: {numBBytes.hex()}")
 
         P[BLOCK_SIZE - len(numBBytes):] = numBBytes
@@ -183,10 +178,7 @@ class FF3Cipher:
         if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
-        # Check message is in current radix by converting the plaintext message string into an integer
-        for ch in plaintext:
-            if ch not in radixMap[self.radix]:
-                raise ValueError(f"plaintext {plaintext} character {ch} not in radix {self.radix}")
+        # Todo: Check message is in current radix
 
         # Calculate split point
         u = math.ceil(n / 2)
@@ -247,7 +239,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = int(reverse_string(A), self.radix)
+            c = decode_int(reverse_string(A), self.radix)
 
             c = c + y
 
@@ -257,7 +249,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
-            C = base_conv_r(c, self.radix, int(m))
+            C = encode_int_r(c, self.radix, int(m))
 
             # Final steps
             A = B
@@ -291,10 +283,7 @@ class FF3Cipher:
         if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
 
-        # Check message is in current radix by converting the plaintext message string into an integer
-        for ch in ciphertext:
-            if ch not in radixMap[self.radix]:
-                raise ValueError(f"plaintext {ciphertext} character {ch} not in radix {self.radix}")
+        # Todo: Check message is in current radix
 
         # Calculate split point
         u = math.ceil(n/2)
@@ -354,7 +343,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = int(reverse_string(B), self.radix)
+            c = decode_int(reverse_string(B), self.radix)
 
             c = c - y
 
@@ -364,7 +353,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} B: {B} c: {c} y: {y}")
-            C = base_conv_r(c, self.radix, int(m))
+            C = encode_int_r(c, self.radix, int(m))
 
             # Final steps
             B = A
@@ -374,13 +363,9 @@ class FF3Cipher:
 
         return A + B
 
-
-DIGITS = string.digits + string.ascii_lowercase
-DIGITS_LEN = len(DIGITS)
-
-def base_conv_r(n, base=2, length=0):
+def encode_int_r(n, base=2, length=0):
     """
-    Return a string representation of a number in the given base system for 2..36
+    Return a string representation of a number in the given base system for 2..62
 
     The string is left in a reversed order expected by the calling cryptographic function
 
@@ -392,18 +377,34 @@ def base_conv_r(n, base=2, length=0):
        radix_conv(32, base=16)
         '20'
     """
-    if (base > DIGITS_LEN):
-        raise ValueError(f"Base {base} is outside range of suppored radix 2..{DIGITS_LEN}")
-    maxval = len(DIGITS[:base])-1
+    if (base > RADIX_MAX):
+        raise ValueError(f"Base {base} is outside range of suppored radix 2..62")
 
     x = ''
     while n >= base:
         n, b = divmod(n, base)
-        x += DIGITS[b]
-    x += DIGITS[n]
+        x += BASE62[b]
+    x += BASE62[n]
 
     if len(x) < length:
         x = x.ljust(length, '0')
 
     return x
 
+def decode_int(string, base):
+    """Decode a Base X encoded string into the number
+
+    Arguments:
+    - `string`: The encoded string
+    - `alphabet`: The alphabet to use for decoding
+    """
+    strlen = len(string)
+    num = 0
+
+    idx = 0
+    for char in string:
+        power = (strlen - (idx + 1))
+        num += BASE62.index(char) * (base ** power)
+        idx += 1
+
+    return num
