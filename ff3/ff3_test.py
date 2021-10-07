@@ -244,11 +244,9 @@ class TestFF3(unittest.TestCase):
             c = FF3Cipher(key, tweak, radix=radix)
             self.subTest(radix=radix, working_digits=working_digits)
             n = radix ** working_digits
-            perm = [decode_int(reverse_string(
-                c.decrypt(c.encrypt(
-                    encode_int_r(i, base=radix, length=working_digits)
-                ))
-            ), radix) for i in range(n)]
+            perm = [decode_int(c.decrypt(c.encrypt(
+                        encode_int_r(i, base=radix, length=working_digits))
+                    ), radix) for i in range(n)]
             self.assertEqual(perm, list(range(n)))
 
         # Restore original DOMAIN_MIN value
