@@ -17,12 +17,14 @@ See the License for the specific language governing permissions and limitations 
 
 """
 
+import string
 import unittest
 
 from Crypto.Cipher import AES
 
 from ff3 import FF3Cipher, encode_int_r, decode_int
 from ff3 import reverse_string
+import ff3.ff3
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
@@ -146,6 +148,7 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(reverse_string(encode_int_r(5)), '101')
         self.assertEqual(reverse_string(encode_int_r(6, 5)), '11')
         self.assertEqual(reverse_string(encode_int_r(7, 5, 5)), '00012')
+        self.assertEqual(reverse_string(encode_int_r(7, 5, 5, "abcde")), 'aaabc')
         self.assertEqual(reverse_string(encode_int_r(10, 16)), 'a')
         self.assertEqual(reverse_string(encode_int_r(32, 16)), '20')
 
@@ -160,10 +163,10 @@ class TestFF3(unittest.TestCase):
     def test_calculateP(self):
         # NIST Sample  # 1, round 0
         i = 0
-        radix = 10
+        alphabet = string.digits
         b = "567890000"
         w = bytes.fromhex("FA330A73")
-        p = FF3Cipher.calculateP(i, radix, w, b)
+        p = FF3Cipher.calculateP(i, alphabet, w, b)
         self.assertEqual(p, bytes([250, 51, 10, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 129, 205]))
 
     def test_encrypt_boundaries(self):
@@ -229,6 +232,54 @@ class TestFF3(unittest.TestCase):
         # self.assertEqual(s, ciphertext)
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
+
+    def test_alphabet(self):
+        alphabet = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+        key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+        tweak = "D8E7920AFA330A73"
+        plaintext = "⁸⁹⁰¹²¹²³⁴⁵⁶⁷⁸⁹⁰⁰⁰⁰"
+        ciphertext = "⁷⁵⁰⁹¹⁸⁸¹⁴⁰⁵⁸⁶⁵⁴⁶⁰⁷"
+        c = FF3Cipher(key, tweak, alphabet=alphabet)
+        s = c.encrypt(plaintext)
+        self.assertEqual(s, ciphertext)
+        x = c.decrypt(s)
+        self.assertEqual(x, plaintext)
+
+    def test_validate_radix_and_alphabet(self):
+        self.assertEqual(
+            ff3.ff3.validate_radix_and_alphabet(None, None),
+            (10, string.digits),
+        )
+        self.assertEqual(
+            ff3.ff3.validate_radix_and_alphabet(17, None),
+            (17, "0123456789abcdefg"),
+        )
+        self.assertEqual(
+            ff3.ff3.validate_radix_and_alphabet(None, "äéíöü"),
+            (5, "äéíöü"),
+        )
+        self.assertEqual(
+            ff3.ff3.validate_radix_and_alphabet(5, "äéíöü"),
+            (5, "äéíöü"),
+        )
+        self.assertRaises(
+            ValueError,
+            ff3.ff3.validate_radix_and_alphabet,
+            4,
+            "äéíöü",
+        )
+        self.assertRaises(
+            ValueError,
+            ff3.ff3.validate_radix_and_alphabet,
+            None,
+            "0",
+        )
+        self.assertRaises(
+            ValueError,
+            ff3.ff3.validate_radix_and_alphabet,
+            1,
+            None,
+        )
 
 
     # Check that encryption and decryption are inverses over whole domain

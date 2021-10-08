@@ -32,9 +32,9 @@ BLOCK_SIZE = 16  # aes.BlockSize
 TWEAK_LEN = 8  # Original FF3 tweak length
 TWEAK_LEN_NEW = 7  # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
-BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
-RADIX_MAX = 62
+DEFAULT_ALPHABET = string.digits + string.ascii_lowercase + string.ascii_uppercase
 
+NoneType = type(None)
 
 def reverse_string(txt):
     """func defined for clarity"""
@@ -65,11 +65,14 @@ know two of the arguments.
 
 class FF3Cipher:
     """Class FF3Cipher implements the FF3 format-preserving encryption algorithm"""
-    def __init__(self, key, tweak, radix=10, ):
+    def __init__(self, key, tweak, radix=None, alphabet=None):
+
+        radix, alphabet = validate_radix_and_alphabet(radix, alphabet)
 
         keybytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
+        self.alphabet = alphabet
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per original spec, radix^minLength >= 100.
@@ -84,10 +87,6 @@ class FF3Cipher:
         if klen not in (16, 24, 32):
             raise ValueError(f'key length is {klen} but must be 128, 192, or 256 bits')
 
-        # While FF3 allows radices in [2, 2^16], commonly useful range is 2..62
-        if (radix < 2) or (radix > RADIX_MAX):
-            raise ValueError("radix must be between 2 and 62, inclusive")
-
         # Make sure 2 <= minLength <= maxLength
         if (self.minLen < 2) or (self.maxLen < self.minLen):
             raise ValueError("minLen or maxLen invalid, adjust your radix")
@@ -98,7 +97,7 @@ class FF3Cipher:
         self.aesCipher = AES.new(reverse_string(keybytes), AES.MODE_ECB)
 
     @staticmethod
-    def calculateP(i, radix, W, B):
+    def calculateP(i, alphabet, W, B):
         # P is always 16 bytes
         P = bytearray(BLOCK_SIZE)
 
@@ -113,7 +112,7 @@ class FF3Cipher:
 
         # The remaining 12 bytes of P are for rev(B) with padding
 
-        BBytes = decode_int(B, radix).to_bytes(12, "big")
+        BBytes = decode_int(B, alphabet).to_bytes(12, "big")
         # logging.debug(f"B: {B} BBytes: {BBytes.hex()}")
 
         P[BLOCK_SIZE - len(BBytes):] = BBytes
@@ -227,7 +226,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculateP(i, self.radix, W, B)
+            P = FF3Cipher.calculateP(i, self.alphabet, W, B)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -238,7 +237,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = decode_int(A, self.radix)
+            c = decode_int(A, self.alphabet)
 
             c = c + y
 
@@ -248,7 +247,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
-            C = encode_int_r(c, self.radix, int(m))
+            C = encode_int_r(c, self.radix, int(m), self.alphabet)
 
             # Final steps
             A = B
@@ -331,7 +330,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculateP(i, self.radix, W, A)
+            P = FF3Cipher.calculateP(i, self.alphabet, W, A)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -342,7 +341,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = decode_int(B, self.radix)
+            c = decode_int(B, self.alphabet)
 
             c = c - y
 
@@ -352,7 +351,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} B: {B} c: {c} y: {y}")
-            C = encode_int_r(c, self.radix, int(m))
+            C = encode_int_r(c, self.radix, int(m), self.alphabet)
 
             # Final steps
             B = A
@@ -362,7 +361,7 @@ class FF3Cipher:
 
         return A + B
 
-def encode_int_r(n, base=2, length=0):
+def encode_int_r(n, base=2, length=0, alphabet=None):
     """
     Return a string representation of a number in the given base system for 2..62
 
@@ -376,21 +375,20 @@ def encode_int_r(n, base=2, length=0):
        radix_conv(32, base=16)
         '20'
     """
-    if (base > RADIX_MAX):
-        raise ValueError(f"Base {base} is outside range of suppored radix 2..62")
+    base, alphabet = validate_radix_and_alphabet(base, alphabet)
 
     x = ''
     while n >= base:
         n, b = divmod(n, base)
-        x += BASE62[b]
-    x += BASE62[n]
+        x += alphabet[b]
+    x += alphabet[n]
 
     if len(x) < length:
-        x = x.ljust(length, '0')
+        x = x.ljust(length, alphabet[0])
 
     return x
 
-def decode_int(string, base):
+def decode_int(string, alphabet):
     """Decode a Base X encoded string into the number
 
     Arguments:
@@ -398,12 +396,69 @@ def decode_int(string, base):
     - `alphabet`: The alphabet to use for decoding
     """
     strlen = len(string)
+    base = len(alphabet)
     num = 0
 
     idx = 0
     for char in reverse_string(string):
         power = (strlen - (idx + 1))
-        num += BASE62.index(char) * (base ** power)
+        num += alphabet.index(char) * (base ** power)
         idx += 1
 
     return num
+
+def validate_radix_and_alphabet(radix, alphabet):
+    """Validate and compute radix and alphabet given one or the other.
+
+    If only radix is given, use the default alphabet up to that many characters.
+    If only alphabet is given, compute the radix as the length of the alphabet.
+    If both are given, verify consistency.
+
+    Arguments:
+    - `radix`: The length of the alphabet
+    - `alphabet`: A string containing successive characters to be used as digits
+
+    Returns:
+    - `radix`, `alphabet`: A validated tuple containing both the radix and alphabet
+    """
+
+    if not isinstance(radix, (NoneType, int)):
+        raise ValueError(f"radix must be an integer.")
+
+    if radix is not None and radix < 2:
+        raise ValueError("radix must be at least 2.")
+
+    if not isinstance(alphabet, (NoneType, str)):
+        raise ValueError(f"alphabet must be an string.")
+
+    if alphabet is not None and len(alphabet) < 2:
+        raise ValueError(f"alphabet must contain at least two characters.")
+
+    if radix is not None and alphabet is not None:
+        # Verify consistency
+        if len(alphabet) != radix:
+            raise ValueError(
+                f"The alphabet has length {len(alphabet)} which conflicts with "
+                f"the given value of {radix} for radix."
+            )
+
+    if alphabet is None:
+        if radix is None:
+            radix = 10
+        # Use characters from the default alphabet.
+        if radix > len(DEFAULT_ALPHABET):
+            raise ValueError(
+                f"For radix >{len(DEFAULT_ALPHABET)} "
+                f"please specify a custom alphabet."
+            )
+        alphabet = DEFAULT_ALPHABET[:radix]
+    # alphabet is now defined. The radix might not be.
+
+    if len(alphabet) != len(str(alphabet)):
+        raise ValueError("The specified alphabet has duplicate characters.")
+
+    if radix is None:
+        radix = len(alphabet)
+    # radix is now defined.
+
+    return radix, alphabet
