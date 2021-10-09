@@ -76,11 +76,7 @@ class FF3Cipher:
         self.alphabet = alphabet
 
         # Calculate range of supported message lengths [minLen..maxLen]
-        # per original spec, radix^minLength >= 100.
-        self.minLen = math.ceil(math.log(DOMAIN_MIN) / math.log(radix))
-
-        # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
-        self.maxLen = 2 * math.floor(96/math.log2(radix))
+        self.minLen, self.maxLen = minlen_and_maxlen(radix)
 
         klen = len(keybytes)
 
@@ -469,3 +465,12 @@ def validate_radix_and_alphabet(radix, alphabet):
         )
 
     return radix, alphabet
+
+def minlen_and_maxlen(radix):
+        """Calculate range of supported message lengths [minLen..maxLen].
+
+        Correctness of these formulas is verified in ff3_test.test_minlen_maxlen.
+        """
+        minLen = math.ceil(math.log(DOMAIN_MIN, radix))
+        maxLen = 2 * math.floor(math.log(2 ** 96, radix))
+        return minLen, maxLen

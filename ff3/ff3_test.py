@@ -24,7 +24,7 @@ from Crypto.Cipher import AES
 
 from ff3 import FF3Cipher, encode_int_r, decode_int
 from ff3 import reverse_string
-import ff3.ff3
+from ff3 import ff3
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
@@ -247,40 +247,67 @@ class TestFF3(unittest.TestCase):
 
     def test_validate_radix_and_alphabet(self):
         self.assertEqual(
-            ff3.ff3.validate_radix_and_alphabet(None, None),
+            ff3.validate_radix_and_alphabet(None, None),
             (10, string.digits),
         )
         self.assertEqual(
-            ff3.ff3.validate_radix_and_alphabet(17, None),
+            ff3.validate_radix_and_alphabet(17, None),
             (17, "0123456789abcdefg"),
         )
         self.assertEqual(
-            ff3.ff3.validate_radix_and_alphabet(None, "äéíöü"),
+            ff3.validate_radix_and_alphabet(None, "äéíöü"),
             (5, "äéíöü"),
         )
         self.assertEqual(
-            ff3.ff3.validate_radix_and_alphabet(5, "äéíöü"),
+            ff3.validate_radix_and_alphabet(5, "äéíöü"),
             (5, "äéíöü"),
         )
         self.assertRaises(
             ValueError,
-            ff3.ff3.validate_radix_and_alphabet,
+            ff3.validate_radix_and_alphabet,
             4,
             "äéíöü",
         )
         self.assertRaises(
             ValueError,
-            ff3.ff3.validate_radix_and_alphabet,
+            ff3.validate_radix_and_alphabet,
             None,
             "0",
         )
         self.assertRaises(
             ValueError,
-            ff3.ff3.validate_radix_and_alphabet,
+            ff3.validate_radix_and_alphabet,
             1,
             None,
         )
 
+    # Verify that the minlen and maxlen are correct for all radices.
+    def test_minlen_maxlen(self):
+        import math
+        for radix in range(2, ff3.MAX_RADIX + 1):
+            self.assertTrue(2 <= radix <= ff3.MAX_RADIX)
+            minLen, maxLen = ff3.minlen_and_maxlen(radix)
+
+            # This was the previously-used simplified formula. It works, but
+            # Python can handle the one directly from the spec, so let's use that instead.
+            # self.assertEqual(maxLen, 2 * math.floor(96/math.log2(radix)))
+
+            # per FF3-1 spec, radix^minlen >= 1_000_000 and minlen >= 2.
+            self.assertTrue(
+                (2 <= minLen) and (ff3.DOMAIN_MIN <= radix ** minLen)
+            )
+            self.assertFalse(
+                (2 <= minLen - 1) and (ff3.DOMAIN_MIN <= radix ** (minLen - 1))
+            )
+            # According to the spec, maxlen <= 2 floor(log_radix(2^96)).
+            # Let's verify that we have the correct value with integer arithmetic.
+            # First, maxlen should be even.
+            # Then radix ^ (maxlen / 2) <= 2^96,
+            # and  radix ^ (maxlen / 2 + 1) > 2^96.
+            half_maxlen, maxlen_mod_2 = divmod(maxLen, 2)
+            self.assertEqual(maxlen_mod_2, 0)
+            self.assertTrue(radix ** half_maxlen <= 2 ** 96)
+            self.assertFalse(radix ** (half_maxlen + 1) <= 2 ** 96)
 
     # Check that encryption and decryption are inverses over whole domain
     def test_whole_domain(self):
@@ -297,7 +324,6 @@ class TestFF3(unittest.TestCase):
         max_radix = max(radix for radix, working_digits, alphabet in TEST_CASES)
 
         # Temporarily reduce DOMAIN_MIN to make testing fast
-        from ff3 import ff3
         domain_min_orig = ff3.DOMAIN_MIN
         ff3.DOMAIN_MIN = max_radix + 1
 
