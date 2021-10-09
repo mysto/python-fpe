@@ -26,7 +26,8 @@ import string
 
 # The recommendation in Draft SP 800-38G was strengthened to a requirement in Draft SP 800-38G Revision 1:
 # the minimum domain size for FF1 and FF3-1 is one million.
-DOMAIN_MIN = 1000000  # 1M required in FF3-1
+DOMAIN_MIN = 1_000_000  # 1M required in FF3-1
+MAX_RADIX = 2 ** 16
 NUM_ROUNDS = 8
 BLOCK_SIZE = 16  # aes.BlockSize
 TWEAK_LEN = 8  # Original FF3 tweak length
@@ -460,5 +461,11 @@ def validate_radix_and_alphabet(radix, alphabet):
     if radix is None:
         radix = len(alphabet)
     # radix is now defined.
+
+    if radix > MAX_RADIX:
+        raise ValueError(
+            f"The current radix {radix} exceeds the maximum allowed radix of "
+            f"{MAX_RADIX} in the FF3-1 specification."
+        )
 
     return radix, alphabet
