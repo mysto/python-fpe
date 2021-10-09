@@ -284,21 +284,76 @@ class TestFF3(unittest.TestCase):
 
     # Check that encryption and decryption are inverses over whole domain
     def test_whole_domain(self):
+        TEST_CASES = [
+            # (radix, working_digits, alphabet (None means default))
+            (2, 10, None),
+            (3, 6, None),
+            (10, 3, None),
+            (17, 3, None),
+            (62, 2, None),
+            (3, 7, "ABC"),
+        ]
+
+        max_radix = max(radix for radix, working_digits, alphabet in TEST_CASES)
+
         # Temporarily reduce DOMAIN_MIN to make testing fast
         from ff3 import ff3
         domain_min_orig = ff3.DOMAIN_MIN
-        ff3.DOMAIN_MIN = ff3.RADIX_MAX + 1
+        ff3.DOMAIN_MIN = max_radix + 1
 
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
         tweak = "D8E7920AFA330A73"
-        for radix, working_digits in [(2, 10), (3, 6), (10, 3), (17, 3), (62, 2)]:
-            c = FF3Cipher(key, tweak, radix=radix)
+        for radix, working_digits, alphabet in TEST_CASES:
+            c = FF3Cipher(key, tweak, radix=radix, alphabet=alphabet)
             self.subTest(radix=radix, working_digits=working_digits)
             n = radix ** working_digits
-            perm = [decode_int(c.decrypt(c.encrypt(
-                        encode_int_r(i, base=radix, length=working_digits))
-                    ), radix) for i in range(n)]
-            self.assertEqual(perm, list(range(n)))
+
+            all_possible_plaintexts = [
+                encode_int_r(i, base=radix, length=working_digits, alphabet=c.alphabet)
+                for i in range(n)
+            ]
+
+            # Check that plaintexts decode correctly
+            self.assertEqual(
+                [
+                    decode_int(plaintext, c.alphabet)
+                    for plaintext in all_possible_plaintexts
+                ],
+                list(range(n))
+            )
+
+            # Check that there are no duplicate plaintexts
+            self.assertEqual(
+                len(set(all_possible_plaintexts)),
+                len(all_possible_plaintexts)
+            )
+
+            # Check that all plaintexts have the expected length
+            self.assertTrue(
+                all(
+                    len(plaintext) == working_digits
+                    for plaintext in all_possible_plaintexts
+                )
+            )
+
+            all_possible_ciphertexts = [
+                c.encrypt(plaintext) for plaintext in all_possible_plaintexts
+            ]
+
+            # Check that encryption is format-preserving
+            self.assertEqual(
+                set(all_possible_plaintexts), set(all_possible_ciphertexts)
+            )
+
+            all_decrypted_ciphertexts = [
+                c.decrypt(ciphertext) for ciphertext in all_possible_ciphertexts
+            ]
+
+            # Check that encryption and decryption are inverses
+            self.assertEqual(all_possible_plaintexts, all_decrypted_ciphertexts)
+
+            # Note: it would be mathematically redundant to also check first decrypting
+            # and then encrypting, since permutations have only two-sided inverses.
 
         # Restore original DOMAIN_MIN value
         ff3.DOMAIN_MIN = domain_min_orig
