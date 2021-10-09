@@ -24,6 +24,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     packages=find_packages(exclude=["tests", "tests.*"]),
-#    packages=find_packages(include=['ff3']),
+    install_requires=["pycryptodome"],
     python_requires='>=3.6',
 )

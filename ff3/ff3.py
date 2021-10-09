@@ -113,11 +113,10 @@ class FF3Cipher:
 
         # The remaining 12 bytes of P are for rev(B) with padding
 
-        numB = reverse_string(B)
-        numBBytes = decode_int(numB, radix).to_bytes(12, "big")
-        # logging.debug(f"B: {B} numB: {numB} numBBytes: {numBBytes.hex()}")
+        BBytes = decode_int(B, radix).to_bytes(12, "big")
+        # logging.debug(f"B: {B} BBytes: {BBytes.hex()}")
 
-        P[BLOCK_SIZE - len(numBBytes):] = numBBytes
+        P[BLOCK_SIZE - len(BBytes):] = BBytes
         return P
 
     def encrypt(self, plaintext):
@@ -239,7 +238,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = decode_int(reverse_string(A), self.radix)
+            c = decode_int(A, self.radix)
 
             c = c + y
 
@@ -343,7 +342,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = decode_int(reverse_string(B), self.radix)
+            c = decode_int(B, self.radix)
 
             c = c - y
 
@@ -402,7 +401,7 @@ def decode_int(string, base):
     num = 0
 
     idx = 0
-    for char in string:
+    for char in reverse_string(string):
         power = (strlen - (idx + 1))
         num += BASE62.index(char) * (base ** power)
         idx += 1

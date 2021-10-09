@@ -19,15 +19,33 @@ standard will provide updated test vectors necessary to change the tweak lengths
 
 ## Requires
 
-This project was built and tested with Python 3.6 and later versions.  It requires the pycryptodome library:
-
-`pip3 install pycryptodome`
+This project was built and tested with Python 3.6 and later versions.  The only dependency is [PyCryptodome](https://pycryptodome.readthedocs.io).
 
 ## Installation
 
-Install this project with pip:
+For a normal install of the latest PyPI release with pip:
 
 `pip3 install ff3`
+
+To instead install the development version:
+
+```bash
+git clone https://github.com/mysto/python-fpe.git
+cd python-fpe
+pip3 install --editable .
+```
+
+Before contributing any pull requests, you will need to first fork this repository and change the remote origin to reflect your fork:
+
+```bash
+git remote set-url origin git@github.com:YOUR-GITHUB-USERNAME/python-fpe.git
+```
+
+To uninstall:
+
+```bash
+pip3 uninstall ff3
+```
 
 ## Usage
 
