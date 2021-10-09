@@ -101,7 +101,7 @@ There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryp
 
 To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
 
-  1. `python3 ff3_test.py`
+  1. `python3 -m ff3.ff3_test`
 
 ## The FF3 Algorithm
 
