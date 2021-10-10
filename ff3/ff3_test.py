@@ -234,6 +234,7 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(x, plaintext)
 
     def test_alphabet(self):
+        # Check the first NIST 128-bit test vector using superscript characters
         alphabet = "⁰¹²³⁴⁵⁶⁷⁸⁹"
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
         tweak = "D8E7920AFA330A73"
