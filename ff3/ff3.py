@@ -468,5 +468,10 @@ def minlen_and_maxlen(radix):
         Correctness of these formulas is verified in ff3_test.test_minlen_maxlen.
         """
         minLen = math.ceil(math.log(DOMAIN_MIN, radix))
-        maxLen = 2 * math.floor(math.log(2 ** 96, radix))
+
+        # maxLen = 2 * math.floor(math.log(2 ** 96, radix))
+
+        # Simplify the above formula from the spec using the log base change rule.
+        maxLen = 2 * math.floor(96 / math.log2(radix))
+
         return minLen, maxLen
