@@ -289,6 +289,8 @@ class TestFF3(unittest.TestCase):
             self.assertTrue(2 <= radix <= ff3.MAX_RADIX)
             minLen, maxLen = ff3.minlen_and_maxlen(radix)
 
+            self.assertTrue(minLen <= maxLen)
+
             # This was the previously-used simplified formula. It works, but
             # Python can handle the one directly from the spec, so let's use that instead.
             # self.assertEqual(maxLen, 2 * math.floor(96/math.log2(radix)))

@@ -84,10 +84,6 @@ class FF3Cipher:
         if klen not in (16, 24, 32):
             raise ValueError(f'key length is {klen} but must be 128, 192, or 256 bits')
 
-        # Make sure 2 <= minLength <= maxLength
-        if (self.minLen < 2) or (self.maxLen < self.minLen):
-            raise ValueError("minLen or maxLen invalid, adjust your radix")
-
         # AES block cipher in ECB mode with the block size derived based on the length of the key
         # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
