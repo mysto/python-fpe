@@ -70,6 +70,7 @@ class FF3Cipher:
         keybytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
+        self.alphabet = BASE62
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per original spec, radix^minLength >= 100.
@@ -96,6 +97,13 @@ class FF3Cipher:
         # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
 
         self.aesCipher = AES.new(reverse_string(keybytes), AES.MODE_ECB)
+
+    # factory method to create a FF3Cipher object with a custom alphabet
+    @staticmethod
+    def withCustomAlphabet(key, tweak, alphabet):
+        c = FF3Cipher(key, tweak, len(alphabet))
+        c.alphabet = alphabet
+        return c
 
     @staticmethod
     def calculateP(i, radix, W, B):
