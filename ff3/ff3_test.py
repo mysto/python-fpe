@@ -281,6 +281,45 @@ class TestFF3(unittest.TestCase):
             1,
             None,
         )
+        self.assertRaises(
+            ValueError,
+            ff3.validate_radix_and_alphabet,
+            "radix_is_not_integer",
+            None,
+        )
+        self.assertRaises(
+            ValueError,
+            ff3.validate_radix_and_alphabet,
+            2,
+            2,  # alphabet is not string
+        )
+        self.assertRaises(
+            ValueError,
+            ff3.validate_radix_and_alphabet,
+            2,
+            "00",  # alphabet has duplicated characters
+        )
+        self.assertRaises(
+            ValueError,
+            ff3.validate_radix_and_alphabet,
+            63,  # There are only 62 characters in the default alphabet
+            None,
+        )
+        cjk = "".join(
+            [chr(code_point)
+            for code_point in chain(
+                range(0x4E00, 0x9FCD),  # CJK Unified Ideographs
+                range(0x3400, 0x4DB6),  # CJKUI Ext A
+                range(0x20000, 0x2A6E0),  # CJKUI Ext B
+                range(0x2A700, 0x2B735),  # CJKUI Ext C
+                range(0x2B740, 0x2B81E),  # CJKUI Ext D
+            )])
+        self.assertRaises(
+            ValueError,
+            ff3.validate_radix_and_alphabet,
+            len(cjk),
+            cjk,  # Alphabet larger than allowed by spec
+        )
 
     # Verify that the minlen and maxlen are correct for all radices.
     def test_minlen_maxlen(self):
