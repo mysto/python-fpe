@@ -16,7 +16,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and limitations under the License.
 
 """
-
 import string
 import unittest
 from itertools import chain
@@ -146,12 +145,13 @@ testVectors = [
 class TestFF3(unittest.TestCase):
 
     def test_base_repr(self):
-        self.assertEqual(reverse_string(encode_int_r(5)), '101')
-        self.assertEqual(reverse_string(encode_int_r(6, 5)), '11')
-        self.assertEqual(reverse_string(encode_int_r(7, 5, 5)), '00012')
-        self.assertEqual(reverse_string(encode_int_r(7, 5, 5, "abcde")), 'aaabc')
-        self.assertEqual(reverse_string(encode_int_r(10, 16)), 'a')
-        self.assertEqual(reverse_string(encode_int_r(32, 16)), '20')
+        hexdigits = "0123456789abcdef"
+        self.assertEqual(reverse_string(encode_int_r(5, 2, "01")), '101')
+        self.assertEqual(reverse_string(encode_int_r(6, 5, string.digits)), '11')
+        self.assertEqual(reverse_string(encode_int_r(7, 5, string.digits, 5)), '00012')
+        self.assertEqual(reverse_string(encode_int_r(7, 5, "abcde")), 'aaabc')
+        self.assertEqual(reverse_string(encode_int_r(10, 16, hexdigits)), 'a')
+        self.assertEqual(reverse_string(encode_int_r(32, 16, hexdigits)), '20')
 
     def test_aes_ecb(self):
         # NIST test vector for ECB-AES128
@@ -167,7 +167,7 @@ class TestFF3(unittest.TestCase):
         alphabet = string.digits
         b = "567890000"
         w = bytes.fromhex("FA330A73")
-        p = FF3Cipher.calculateP(i, alphabet, w, b)
+        p = FF3Cipher.calculate_p(i, alphabet, w, b)
         self.assertEqual(p, bytes([250, 51, 10, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 129, 205]))
 
     def test_encrypt_boundaries(self):
@@ -234,8 +234,8 @@ class TestFF3(unittest.TestCase):
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
 
-    def test_alphabet(self):
-        # Check the first NIST 128-bit test vector using superscript characters
+    # Check the first NIST 128-bit test vector using superscript characters
+    def test_custom_alphabet(self):
         alphabet = "⁰¹²³⁴⁵⁶⁷⁸⁹"
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
         tweak = "D8E7920AFA330A73"

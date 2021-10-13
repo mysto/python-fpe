@@ -42,6 +42,7 @@ def reverse_string(txt):
     """func defined for clarity"""
     return txt[::-1]
 
+
 """
 FF3 encodes a string within a range of minLen..maxLen. The spec uses an alternating Feistel
 with the following parameters:
@@ -101,8 +102,15 @@ class FF3Cipher:
 
         self.aesCipher = AES.new(reverse_string(keybytes), AES.MODE_ECB)
 
+    # factory method to create a FF3Cipher object with a custom alphabet
     @staticmethod
-    def calculateP(i, alphabet, W, B):
+    def withCustomAlphabet(key, tweak, alphabet):
+        c = FF3Cipher(key, tweak, len(alphabet))
+        c.alphabet = alphabet
+        return c
+
+    @staticmethod
+    def calculate_p(i, alphabet, W, B):
         # P is always 16 bytes
         P = bytearray(BLOCK_SIZE)
 
@@ -231,7 +239,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculateP(i, self.alphabet, W, B)
+            P = FF3Cipher.calculate_p(i, self.alphabet, W, B)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -252,7 +260,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
-            C = encode_int_r(c, self.radix, int(m), self.alphabet)
+            C = encode_int_r(c, self.radix, self.alphabet, int(m))
 
             # Final steps
             A = B
@@ -335,7 +343,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculateP(i, self.alphabet, W, A)
+            P = FF3Cipher.calculate_p(i, self.alphabet, W, A)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -356,7 +364,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} B: {B} c: {c} y: {y}")
-            C = encode_int_r(c, self.radix, int(m), self.alphabet)
+            C = encode_int_r(c, self.radix, self.alphabet, int(m))
 
             # Final steps
             B = A
@@ -366,18 +374,19 @@ class FF3Cipher:
 
         return A + B
 
-def encode_int_r(n, base=2, length=0, alphabet=None):
+
+def encode_int_r(n, base, alphabet, length=0):
     """
     Return a string representation of a number in the given base system for 2..62
 
     The string is left in a reversed order expected by the calling cryptographic function
 
     examples:
-       radix_conv(5)
+       encode_int(5)
         '101'
-       radix_conv(10, base=16)
+       encode_intv(10, base=16)
         'A'
-       radix_conv(32, base=16)
+       encode_int(32, base=16)
         '20'
     """
     base, alphabet = validate_radix_and_alphabet(base, alphabet)
@@ -393,19 +402,20 @@ def encode_int_r(n, base=2, length=0, alphabet=None):
 
     return x
 
-def decode_int(string, alphabet):
+
+def decode_int(astring, alphabet):
     """Decode a Base X encoded string into the number
 
     Arguments:
-    - `string`: The encoded string
+    - `astring`: The encoded string
     - `alphabet`: The alphabet to use for decoding
     """
-    strlen = len(string)
+    strlen = len(astring)
     base = len(alphabet)
     num = 0
 
     idx = 0
-    for char in reverse_string(string):
+    for char in reversed(astring):
         power = (strlen - (idx + 1))
         num += alphabet.index(char) * (base ** power)
         idx += 1

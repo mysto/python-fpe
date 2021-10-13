@@ -7,7 +7,7 @@
 
 An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 algorithm in Python.
 
-This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_, 
+This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_,
 and revised on February 28th, 2019 with a draft update for FF3-1.
 
 * [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
@@ -115,7 +115,20 @@ There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryp
 
 To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
 
-  1. `python3 -m ff3.ff3_test`
+```bash
+python3 -m ff3.ff3_test
+```
+
+## Performance Benchmarks
+
+The Mysto FF3 was benchmarked on a MacBook Air (1.1 GHz Quad-Core Intel Core i5)
+performing 70,000 tokenization per second with random 8 character data input.
+
+To run the performance tests:
+
+```bash
+python3 ff3_perf.py
+```
 
 ## The FF3 Algorithm
 
@@ -123,7 +136,7 @@ The FF3 algorithm is a tweakable block cipher based on an eight round Feistel ci
 but a design model.  This FF3 Feistel encryption consisting of eight rounds of processing
 the plaintext. Each round applies an internal function or _round function_, followed by transformation steps.
 
-The FF3 round function uses AES encryption in ECB mode, which is performed each iteration 
+The FF3 round function uses AES encryption in ECB mode, which is performed each iteration
 on alternating halves of the text being encrypted. The *key* value is used only to initialize the AES cipher. Thereafter
 the *tweak* is used together with the intermediate encrypted text as input to the round function.
 
