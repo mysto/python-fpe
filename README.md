@@ -113,7 +113,19 @@ There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryp
 
 To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
 
-  1. `python3 -m ff3.ff3_test`
+```bash
+python3 -m ff3.ff3_test
+```
+
+## Performance Benchmarks
+
+The Mysto FF3 was benchmarked on a MacBook Air (1.1 GHz Quad-Core Intel Core i5) 
+performing 70,000 tokenization per second with random 8 character data input.
+
+To run the performance tests:
+```bash
+python3 ff3_perf.py
+```
 
 ## The FF3 Algorithm
 
