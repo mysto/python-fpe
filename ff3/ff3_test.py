@@ -164,7 +164,7 @@ class TestFF3(unittest.TestCase):
         alphabet = string.digits
         b = "567890000"
         w = bytes.fromhex("FA330A73")
-        p = FF3Cipher.calculateP(i, alphabet, w, b)
+        p = FF3Cipher.calculate_p(i, alphabet, w, b)
         self.assertEqual(p, bytes([250, 51, 10, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 129, 205]))
 
     def test_encrypt_boundaries(self):
@@ -244,7 +244,6 @@ class TestFF3(unittest.TestCase):
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
 
-
     # Check that encryption and decryption are inverses over whole domain
     def xtest_whole_domain(self):
         # Temporarily reduce DOMAIN_MIN to make testing fast
@@ -265,6 +264,7 @@ class TestFF3(unittest.TestCase):
 
         # Restore original DOMAIN_MIN value
         ff3.DOMAIN_MIN = domain_min_orig
+
 
 if __name__ == '__main__':
     unittest.main()
