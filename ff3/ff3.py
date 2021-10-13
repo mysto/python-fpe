@@ -50,9 +50,12 @@ with the following parameters:
     eight (8) rounds
     Modulo addition
 
-An encoded string representation of x is in the given integer base, which must be between 2 and 62, inclusive. The 
+An encoded string representation of x is in the given integer base, which must be at least 2. The 
 result uses the lower-case letters 'a' to 'z' for digit values 10 to 35 and upper-case letters 'A' to 'Z' for 
 digit values 36 to 61.
+
+Instead of specifying the base, an alphabet may be specified as a string of unique characters.
+For bases larger than 62, an explicit alphabet is mandatory.
 
 FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with key, tweak and radix parameters. The
 default radix is 10, supporting encryption of decimal numbers.
@@ -65,9 +68,13 @@ know two of the arguments.
 
 
 class FF3Cipher:
-    """Class FF3Cipher implements the FF3 format-preserving encryption algorithm"""
-    def __init__(self, key, tweak, radix=10, ):
+    """Class FF3Cipher implements the FF3 format-preserving encryption algorithm.
 
+    If a value of radix between 2 and 62 is specified, then that many characters
+    from the base 62 alphabet (digits + lowercase + uppercase latin) are used.
+    """
+
+    def __init__(self, key, tweak, radix=10, ):
         keybytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
