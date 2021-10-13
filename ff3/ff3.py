@@ -33,7 +33,8 @@ TWEAK_LEN = 8  # Original FF3 tweak length
 TWEAK_LEN_NEW = 7  # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
 BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
-RADIX_MAX = 62
+BASE62_LEN = len(BASE62)
+RADIX_MAX = 256            # Support 8-bit alphabets for now, requires test cases for larger values
 
 
 def reverse_string(txt):
@@ -78,7 +79,10 @@ class FF3Cipher:
         keybytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
-        self.alphabet = BASE62[0:radix]
+        if radix <= BASE62_LEN:
+            self.alphabet = BASE62[0:radix]
+        else:
+            self.alphabet = None
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per original spec, radix^minLength >= 100.
@@ -394,7 +398,7 @@ def encode_int_r(n, base, alphabet, length=0):
         '20'
     """
     if (base > RADIX_MAX):
-        raise ValueError(f"Base {base} is outside range of suppored radix 2..62")
+        raise ValueError(f"Base {base} is outside range of supported radix 2..{RADIX_MAX}")
 
     x = ''
     while n >= base:

@@ -266,6 +266,29 @@ class TestFF3(unittest.TestCase):
         # Restore original DOMAIN_MIN value
         ff3.DOMAIN_MIN = domain_min_orig
 
+    def test_german(self):
+        """Test the German alphabet.
+
+        The purpose of this test is to make sure that alphabets larger
+        than the default 62-character alphabet work properly.
+
+        The German alphabet consists of the latin alphabet plus four
+        additional letters, each of which have uppercase and lowercase
+        letters. Thus the radix is 70.
+        """
+
+        # ToDo: improve ability to share constants
+        # german_alphabet = BASE62 + "ÄäÖöÜüẞß"
+        german_alphabet = string.digits + string.ascii_lowercase + string.ascii_uppercase + "ÄäÖöÜüẞß"
+        key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+        tweak = "D8E7920AFA330A73"
+        plaintext = "liebeGrüße"
+        ciphertext = "5kÖQbairXo"
+        c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet=german_alphabet)
+        s = c.encrypt(plaintext)
+        self.assertEqual(s, ciphertext)
+        x = c.decrypt(s)
+        self.assertEqual(x, plaintext)
 
 if __name__ == '__main__':
     unittest.main()
