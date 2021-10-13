@@ -447,7 +447,7 @@ def validate_radix_and_alphabet(radix, alphabet):
         alphabet = DEFAULT_ALPHABET[:radix]
     # alphabet is now defined. The radix might not be.
 
-    if len(alphabet) != len(str(alphabet)):
+    if len(alphabet) != len(set(alphabet)):
         raise ValueError("The specified alphabet has duplicate characters.")
 
     if radix is None:
