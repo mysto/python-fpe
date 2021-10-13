@@ -324,8 +324,8 @@ class TestFF3(unittest.TestCase):
     # Verify that the minlen and maxlen are correct for all radices.
     def test_minlen_maxlen(self):
         import math
-        for radix in range(2, ff3.MAX_RADIX + 1):
-            self.assertTrue(2 <= radix <= ff3.MAX_RADIX)
+        for radix in range(2, ff3.RADIX_MAX + 1):
+            self.assertTrue(2 <= radix <= ff3.RADIX_MAX)
             minLen, maxLen = ff3.minlen_and_maxlen(radix)
 
             self.assertTrue(minLen <= maxLen)
