@@ -57,7 +57,7 @@ The following radix values are typical:
 * radix 36: alphanumeric 0..9, a-z
 * radix 62: alphanumeric 0..9, a-z, A-Z
 
-Special characters and international character sets, such as those found in UTF-8, would require a larger radix, and are not supported.
+Special characters and international character sets, such as those found in UTF-8, are supported by specifying a custom alphabet.
 Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of a letter followed 
 by 6 digits (e.g. A123456) cannot be correctly encrypted by FPE while preserving this convention.
 
@@ -88,11 +88,23 @@ plaintext = "4000001234567899"
 ciphertext = c.encrypt(plaintext)
 decrypted = c.decrypt(ciphertext)
 
-print(f"{plaintext} -> {ciphertext} -> {decrypted}" )
+print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 
 # format encrypted value
 ccn = f"{ciphertext[:4]} {ciphertext[4:8]} {ciphertext[8:12]} {ciphertext[12:]}"
 print(f"Encrypted CCN value with formatting: {ccn}")
+```
+## Custom alphabets
+
+To use an alphabet consisting of the uppercase letters A-F (radix=6), we can continue
+from the above code example with:
+
+```python3
+c6 = FF3Cipher.withCustomAlphabet(key, tweak, "ABCDEF")
+plaintext = "DEADBEEF"
+ciphertext = c6.encrypt(plaintext)
+decrypted = c6.decrypt(ciphertext)
+print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 ```
 
 ## Testing

@@ -70,7 +70,7 @@ class FF3Cipher:
         keybytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
-        self.alphabet = BASE62
+        self.alphabet = BASE62[0:radix]
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per original spec, radix^minLength >= 100.
@@ -106,7 +106,7 @@ class FF3Cipher:
         return c
 
     @staticmethod
-    def calculateP(i, radix, W, B):
+    def calculateP(i, alphabet, W, B):
         # P is always 16 bytes
         P = bytearray(BLOCK_SIZE)
 
@@ -121,7 +121,7 @@ class FF3Cipher:
 
         # The remaining 12 bytes of P are for rev(B) with padding
 
-        BBytes = decode_int(B, radix).to_bytes(12, "big")
+        BBytes = decode_int(B, alphabet).to_bytes(12, "big")
         # logging.debug(f"B: {B} BBytes: {BBytes.hex()}")
 
         P[BLOCK_SIZE - len(BBytes):] = BBytes
@@ -235,7 +235,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculateP(i, self.radix, W, B)
+            P = FF3Cipher.calculateP(i, self.alphabet, W, B)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -246,7 +246,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = decode_int(A, self.radix)
+            c = decode_int(A,  self.alphabet)
 
             c = c + y
 
@@ -256,7 +256,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
-            C = encode_int_r(c, self.radix, int(m))
+            C = encode_int_r(c, self.radix, self.alphabet, int(m))
 
             # Final steps
             A = B
@@ -339,7 +339,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculateP(i, self.radix, W, A)
+            P = FF3Cipher.calculateP(i, self.alphabet, W, A)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -350,7 +350,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = decode_int(B, self.radix)
+            c = decode_int(B, self.alphabet)
 
             c = c - y
 
@@ -360,7 +360,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} B: {B} c: {c} y: {y}")
-            C = encode_int_r(c, self.radix, int(m))
+            C = encode_int_r(c, self.radix, self.alphabet, int(m))
 
             # Final steps
             B = A
@@ -370,18 +370,18 @@ class FF3Cipher:
 
         return A + B
 
-def encode_int_r(n, base=2, length=0):
+def encode_int_r(n, base, alphabet, length=0):
     """
     Return a string representation of a number in the given base system for 2..62
 
     The string is left in a reversed order expected by the calling cryptographic function
 
     examples:
-       radix_conv(5)
+       encode_int(5)
         '101'
-       radix_conv(10, base=16)
+       encode_intv(10, base=16)
         'A'
-       radix_conv(32, base=16)
+       encode_int(32, base=16)
         '20'
     """
     if (base > RADIX_MAX):
@@ -390,15 +390,15 @@ def encode_int_r(n, base=2, length=0):
     x = ''
     while n >= base:
         n, b = divmod(n, base)
-        x += BASE62[b]
-    x += BASE62[n]
+        x += alphabet[b]
+    x += alphabet[n]
 
     if len(x) < length:
-        x = x.ljust(length, '0')
+        x = x.ljust(length, alphabet[0])
 
     return x
 
-def decode_int(string, base):
+def decode_int(string, alphabet):
     """Decode a Base X encoded string into the number
 
     Arguments:
@@ -406,12 +406,13 @@ def decode_int(string, base):
     - `alphabet`: The alphabet to use for decoding
     """
     strlen = len(string)
+    base = len(alphabet)
     num = 0
 
     idx = 0
     for char in reverse_string(string):
         power = (strlen - (idx + 1))
-        num += BASE62.index(char) * (base ** power)
+        num += alphabet.index(char) * (base ** power)
         idx += 1
 
     return num
