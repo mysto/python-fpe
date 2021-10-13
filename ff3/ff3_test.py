@@ -145,8 +145,9 @@ class TestFF3(unittest.TestCase):
     def test_base_repr(self):
         hexdigits = "0123456789abcdef"
         self.assertEqual(reverse_string(encode_int_r(5, 2, "01")), '101')
-        self.assertEqual(reverse_string(encode_int_r(6, 5, string.digits)), '11')
-        self.assertEqual(reverse_string(encode_int_r(7, 5, string.digits, 5)), '00012')
+        self.assertEqual(reverse_string(encode_int_r(6, 5, "01234")), '11')
+        self.assertEqual(reverse_string(encode_int_r(7, 5, "01234", 5)), '00012')
+        self.assertEqual(reverse_string(encode_int_r(7, 5, "abcde", 5)), 'aaabc')
         self.assertEqual(reverse_string(encode_int_r(10, 16, hexdigits)), 'a')
         self.assertEqual(reverse_string(encode_int_r(32, 16, hexdigits)), '20')
 
