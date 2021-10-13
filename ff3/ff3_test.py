@@ -161,7 +161,6 @@ class TestFF3(unittest.TestCase):
     def test_calculateP(self):
         # NIST Sample  # 1, round 0
         i = 0
-        radix = 10
         alphabet = string.digits
         b = "567890000"
         w = bytes.fromhex("FA330A73")
@@ -232,6 +231,7 @@ class TestFF3(unittest.TestCase):
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
 
+    # Check the first NIST 128-bit test vector using superscript characters
     def test_custom_alphabet(self):
         alphabet = "⁰¹²³⁴⁵⁶⁷⁸⁹"
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
