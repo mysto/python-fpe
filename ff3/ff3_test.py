@@ -19,6 +19,7 @@ See the License for the specific language governing permissions and limitations 
 
 import string
 import unittest
+from itertools import chain
 
 from Crypto.Cipher import AES
 
@@ -425,6 +426,27 @@ class TestFF3(unittest.TestCase):
 
         # Restore original DOMAIN_MIN value
         ff3.DOMAIN_MIN = domain_min_orig
+
+    def test_german(self):
+        """Test the German alphabet.
+
+        The purpose of this test is to make sure that alphabets larger
+        than the default 62-character alphabet work properly.
+
+        The German alphabet consists of the latin alphabet plus four
+        additional letters, each of which have uppercase and lowercase
+        letters. Thus the radix is 70.
+        """
+        german_alphabet = ff3.BASE62 + "ÄäÖöÜüẞß"
+        key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+        tweak = "D8E7920AFA330A73"
+        plaintext = "liebeGrüße"
+        ciphertext = "5kÖQbairXo"
+        c = FF3Cipher(key, tweak, alphabet=german_alphabet)
+        s = c.encrypt(plaintext)
+        self.assertEqual(s, ciphertext)
+        x = c.decrypt(s)
+        self.assertEqual(x, plaintext)
 
 if __name__ == '__main__':
     unittest.main()
