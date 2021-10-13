@@ -448,5 +448,11 @@ class TestFF3(unittest.TestCase):
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
 
+    def test_why_withCustomAlphabet_is_broken(self):
+        german_alphabet = ff3.BASE62 + "ÄäÖöÜüẞß"
+        key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+        tweak = "D8E7920AFA330A73"
+        c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet=german_alphabet)
+
 if __name__ == '__main__':
     unittest.main()
