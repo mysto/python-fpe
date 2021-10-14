@@ -139,6 +139,25 @@ testVectors = [
     }
 ]
 
+# from https://pages.nist.gov/ACVP/draft-celi-acvp-symmetric.html#name-test-groups
+
+testVectors_ACVP_AES_FF3_1 = [
+    # AES-128
+    {
+        "radix": 10,
+        "key": "0D517EBC71852CBA6C7013C9DB9104D8",
+        "tweak": "9F6B7D43B3A552",
+        "plaintext": "4312962667",
+        "ciphertext": "9953909311"
+    },
+    {
+        "radix": 10,
+        "key": "9BA74F3763BD93F8B59200D122F1C621",
+        "tweak": "7ECCD5D62C8AA9",
+        "plaintext": "42592972841413437983428634710481338922521696022233194252",
+        "ciphertext": "28668408862620085501326992764022466222881643717215081258"
+    },
+]
 
 class TestFF3(unittest.TestCase):
 
@@ -204,6 +223,25 @@ class TestFF3(unittest.TestCase):
 
     # TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits,
     #   in a manner that was subsequently developed by the designers of the method."
+
+    # ACVP test with 56 bit tweak
+    def test_encrypt_tweak5_ACVP(self):
+        # 56-bit tweak #1
+        testVector = testVectors_ACVP_AES_FF3_1[0]
+        c = FF3Cipher(testVector['key'], testVector['tweak'])
+        s = c.encrypt(testVector['plaintext'])
+        # ToDo:
+        #self.assertEqual(s, testVector['ciphertext'])
+        x = c.decrypt(s)
+        self.assertEqual(x, testVector['plaintext'])
+        # 56-bit tweak #2
+        testVector = testVectors_ACVP_AES_FF3_1[1]
+        c = FF3Cipher(testVector['key'], testVector['tweak'])
+        s = c.encrypt(testVector['plaintext'])
+        # ToDo:
+        # self.assertEqual(s, testVector['ciphertext'])
+        x = c.decrypt(s)
+        self.assertEqual(x, testVector['plaintext'])
 
     # experimental test with 56 bit tweak
     def test_encrypt_tweak56(self):
