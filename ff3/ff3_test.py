@@ -225,7 +225,7 @@ class TestFF3(unittest.TestCase):
     #   in a manner that was subsequently developed by the designers of the method."
 
     # ACVP test with 56 bit tweak
-    def xtest_encrypt_tweak5_ACVP(self):
+    def test_encrypt_tweak5_ACVP(self):
         # 56-bit tweak #1
         testVector = testVectors_ACVP_AES_FF3_1[0]
         c = FF3Cipher(testVector['key'], testVector['tweak'])
@@ -244,7 +244,7 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(x, testVector['plaintext'])
 
     # experimental test with 56 bit tweak
-    def xtest_encrypt_tweak56(self):
+    def test_encrypt_tweak56(self):
         # 56-bit tweak
         tweak = "D8E7920AFA330A"
         ciphertext = "428531276362567922"
@@ -258,7 +258,7 @@ class TestFF3(unittest.TestCase):
     # experimental test with 56 bit tweak from Bouncy Castle FF3-1 tests
     # Note: the ciphertext here does not match the BC value
 
-    def xtest_encrypt_tweak56_bc(self):
+    def test_encrypt_tweak56_bc(self):
         # 56-bit tweak
         key = "1A58964B681384806A5A7639915ED0BE837C9C50C150AFD8F73445C0438CACF3"
         tweak = "CE3EBD69454984"
