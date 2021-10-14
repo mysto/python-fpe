@@ -208,17 +208,20 @@ class FF3Cipher:
         B = plaintext[u:]
 
         if len(tweakBytes) == TWEAK_LEN:
+            # FF3
             # Split the tweak
             Tl = tweakBytes[:HALF_TWEAK_LEN]
             Tr = tweakBytes[HALF_TWEAK_LEN:]
         elif len(tweakBytes) == TWEAK_LEN_NEW:
+            # FF3-1
+            # The tweak is partitioned into a 32-bit left tweak and a 32-bit right tweak
             # Tl is T[0..27] + 0000
             Tl = bytearray(tweakBytes[:4])
             Tl[3] &= 0xF0
 
             # Tr is T[32..55] + T[28..31] + 0000
-            Tr = bytearray((int(tweakBytes[4:].hex(), 16) << 4).to_bytes(4, 'big'))
-            Tr[3] = tweakBytes[6] << 4 & 0xF0
+            Tr = bytearray(tweakBytes[4:])
+            Tr.append((tweakBytes[3]&0x0F)<<4)
         else:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
