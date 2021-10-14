@@ -11,6 +11,6 @@ install:
 # command to run tests
 script:
   - python3 -m ff3.ff3_test
-  - coverage run --source ff3 -m unittest ff3/ff3_test.py
+  - coverage run --source ff3 --omit ff3/ff3_test.py,ff3/ff3_perf.py -m unittest ff3/ff3_test.py
 after_success:
   - coveralls
