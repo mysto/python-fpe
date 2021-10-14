@@ -268,7 +268,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
-            C = encode_int_r(c, self.radix, self.alphabet, int(m))
+            C = encode_int_r(c, self.alphabet, int(m))
 
             # Final steps
             A = B
@@ -372,7 +372,7 @@ class FF3Cipher:
                 c = c % modV
 
             # logging.debug(f"m: {m} B: {B} c: {c} y: {y}")
-            C = encode_int_r(c, self.radix, self.alphabet, int(m))
+            C = encode_int_r(c, self.alphabet, int(m))
 
             # Final steps
             B = A
@@ -383,7 +383,7 @@ class FF3Cipher:
         return A + B
 
 
-def encode_int_r(n, base, alphabet, length=0):
+def encode_int_r(n, alphabet, length=0):
     """
     Return a string representation of a number in the given base system for 2..62
 
@@ -397,6 +397,7 @@ def encode_int_r(n, base, alphabet, length=0):
        encode_int(32, base=16)
         '20'
     """
+    base = len(alphabet)
     if (base > RADIX_MAX):
         raise ValueError(f"Base {base} is outside range of supported radix 2..{RADIX_MAX}")
 
