@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ff3",
-    version="0.9.0",
+    version="0.9.1",
     author="Schoening Consulting, LLC",
     author_email="bschoeni+llc@gmail.com",
     description="Format Preserving Encryption (FPE) with FF3",
