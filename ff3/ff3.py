@@ -26,15 +26,12 @@ import string
 
 # The recommendation in Draft SP 800-38G was strengthened to a requirement in Draft SP 800-38G Revision 1:
 # the minimum domain size for FF1 and FF3-1 is one million.
-DOMAIN_MIN = 1_000_000  # 1M required in FF3-1
+
 NUM_ROUNDS = 8
 BLOCK_SIZE = 16  # aes.BlockSize
 TWEAK_LEN = 8  # Original FF3 tweak length
 TWEAK_LEN_NEW = 7  # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
-BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
-BASE62_LEN = len(BASE62)
-RADIX_MAX = 256            # Support 8-bit alphabets for now, requires test cases for larger values
 
 
 def reverse_string(txt):
@@ -74,19 +71,23 @@ class FF3Cipher:
     If a value of radix between 2 and 62 is specified, then that many characters
     from the base 62 alphabet (digits + lowercase + uppercase latin) are used.
     """
+    DOMAIN_MIN = 1_000_000  # 1M required in FF3-1
+    BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
+    BASE62_LEN = len(BASE62)
+    RADIX_MAX = 256  # Support 8-bit alphabets for now, requires test cases for larger values
 
     def __init__(self, key, tweak, radix=10, ):
         keybytes = bytes.fromhex(key)
         self.tweak = tweak
         self.radix = radix
-        if radix <= BASE62_LEN:
-            self.alphabet = BASE62[0:radix]
+        if radix <= FF3Cipher.BASE62_LEN:
+            self.alphabet = FF3Cipher.BASE62[0:radix]
         else:
             self.alphabet = None
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per original spec, radix^minLength >= 100.
-        self.minLen = math.ceil(math.log(DOMAIN_MIN) / math.log(radix))
+        self.minLen = math.ceil(math.log(FF3Cipher.DOMAIN_MIN) / math.log(radix))
 
         # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
         self.maxLen = 2 * math.floor(96/math.log2(radix))
@@ -98,7 +99,7 @@ class FF3Cipher:
             raise ValueError(f'key length is {klen} but must be 128, 192, or 256 bits')
 
         # While FF3 allows radices in [2, 2^16], commonly useful range is 2..62
-        if (radix < 2) or (radix > RADIX_MAX):
+        if (radix < 2) or (radix > FF3Cipher.RADIX_MAX):
             raise ValueError("radix must be between 2 and 62, inclusive")
 
         # Make sure 2 <= minLength <= maxLength
@@ -406,8 +407,8 @@ def encode_int_r(n, alphabet, length=0):
         '20'
     """
     base = len(alphabet)
-    if (base > RADIX_MAX):
-        raise ValueError(f"Base {base} is outside range of supported radix 2..{RADIX_MAX}")
+    if (base > FF3Cipher.RADIX_MAX):
+        raise ValueError(f"Base {base} is outside range of supported radix 2..{FF3Cipher.RADIX_MAX}")
 
     x = ''
     while n >= base:

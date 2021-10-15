@@ -159,6 +159,7 @@ testVectors_ACVP_AES_FF3_1 = [
     },
 ]
 
+
 class TestFF3(unittest.TestCase):
 
     def test_base_repr(self):
@@ -286,9 +287,8 @@ class TestFF3(unittest.TestCase):
     # Check that encryption and decryption are inverses over whole domain
     def xtest_whole_domain(self):
         # Temporarily reduce DOMAIN_MIN to make testing fast
-        from ff3 import ff3
-        domain_min_orig = ff3.DOMAIN_MIN
-        ff3.DOMAIN_MIN = ff3.RADIX_MAX + 1
+        domain_min_orig = FF3Cipher.DOMAIN_MIN
+        FF3Cipher.DOMAIN_MIN = FF3Cipher.RADIX_MAX + 1
 
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
         tweak = "D8E7920AFA330A73"
@@ -297,12 +297,12 @@ class TestFF3(unittest.TestCase):
             self.subTest(radix=radix, working_digits=working_digits)
             n = radix ** working_digits
             perm = [decode_int(c.decrypt(c.encrypt(
-                        encode_int_r(i, radix, c.alphabet, length=working_digits))
+                        encode_int_r(i, c.alphabet, length=working_digits))
                     ), radix) for i in range(n)]
             self.assertEqual(perm, list(range(n)))
 
         # Restore original DOMAIN_MIN value
-        ff3.DOMAIN_MIN = domain_min_orig
+        FF3Cipher.DOMAIN_MIN = domain_min_orig
 
     def test_german(self):
         """Test the German alphabet.
@@ -327,6 +327,7 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(s, ciphertext)
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
+
 
 if __name__ == '__main__':
     unittest.main()
