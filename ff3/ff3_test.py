@@ -315,8 +315,6 @@ class TestFF3(unittest.TestCase):
         letters. Thus the radix is 70.
         """
 
-        # ToDo: improve ability to share constants
-        # german_alphabet = BASE62 + "ÄäÖöÜüẞß"
         german_alphabet = string.digits + string.ascii_lowercase + string.ascii_uppercase + "ÄäÖöÜüẞß"
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
         tweak = "D8E7920AFA330A73"
