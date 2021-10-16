@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and limitations 
 """
 import string
 import unittest
+from itertools import chain
 
 from Crypto.Cipher import AES
 
@@ -283,6 +284,101 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(s, ciphertext)
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
+
+    def test_radix_and_alphabet(self):
+        key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+        tweak = "D8E7920AFA330A73"
+
+        default_cipher = FF3Cipher(key, tweak)
+        self.assertEqual(
+            (default_cipher.radix, default_cipher.alphabet),
+            (10, string.digits),
+        )
+
+        base_17_cipher = FF3Cipher(key, tweak, 17)
+        self.assertEqual(
+            (base_17_cipher.radix, base_17_cipher.alphabet),
+            (17, "0123456789abcdefg"),
+        )
+
+        alphabet_cipher = FF3Cipher.withCustomAlphabet(key, tweak, alphabet="äéíöü")
+        self.assertEqual(
+            (alphabet_cipher.radix, alphabet_cipher.alphabet),
+            (5, "äéíöü"),
+        )
+
+        # TODO: currently causes division by zero instead of ValueError
+        self.assertRaises(
+            ValueError,
+            FF3Cipher.withCustomAlphabet,
+            key,
+            tweak,
+            "0",  # base 1 with alphabet
+        )
+
+        # TODO: currently causes division by zero instead of ValueError
+        self.assertRaises(
+            ValueError,
+            FF3Cipher,
+            key,
+            tweak,
+            1,  # base 1 with radix causes error
+        )
+
+        # TODO: currently causes:
+        #    TypeError: '<=' not supported between instances of 'str' and 'int'
+        self.assertRaises(
+            ValueError,
+            FF3Cipher,
+            key,
+            tweak,
+            "radix_is_not_integer",
+        )
+
+        # TODO: currently causes:
+        #    TypeError: object of type 'int' has no len()
+        self.assertRaises(
+            ValueError,
+            FF3Cipher.withCustomAlphabet,
+            key,
+            tweak,
+            2,  # alphabet is not string
+        )
+
+        # TODO: Not an error!!!
+        self.assertRaises(
+            ValueError,
+            FF3Cipher.withCustomAlphabet,
+            key,
+            tweak,
+            "00",  # alphabet has duplicated characters
+        )
+
+        self.assertRaises(
+            ValueError,
+            FF3Cipher,
+            key,
+            tweak,
+            FF3Cipher.RADIX_MAX + 1,  # Radix too big
+        )
+
+        # alphabet too big
+        cjk = "".join(
+            [chr(code_point)
+            for code_point in chain(
+                range(0x4E00, 0x9FCD),  # CJK Unified Ideographs
+                range(0x3400, 0x4DB6),  # CJKUI Ext A
+                range(0x20000, 0x2A6E0),  # CJKUI Ext B
+                range(0x2A700, 0x2B735),  # CJKUI Ext C
+                range(0x2B740, 0x2B81E),  # CJKUI Ext D
+            )])
+        self.assertRaises(
+            ValueError,
+            FF3Cipher.withCustomAlphabet,
+            key,
+            tweak,
+            cjk,  # Alphabet larger than allowed by spec
+        )
 
     # Check that encryption and decryption are inverses over whole domain
     def xtest_whole_domain(self):
