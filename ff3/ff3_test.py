@@ -284,6 +284,42 @@ class TestFF3(unittest.TestCase):
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
 
+    # Verify that the minlen and maxlen are correct for all radices.
+    # (This just makes sure that potentially unstable floating point arithmetic works
+    # as expected.)
+    # @unittest.skip("This test is basically static.")
+    def test_minlen_maxlen(self):
+        import math
+        for radix in range(2, FF3Cipher.RADIX_MAX + 1):
+            self.assertTrue(2 <= radix <= FF3Cipher.RADIX_MAX)
+
+            # Copied from the beginning of FF3Cipher.__init__:
+            minLen = math.ceil(math.log(FF3Cipher.DOMAIN_MIN) / math.log(radix))
+            maxLen = 2 * math.floor(96/math.log2(radix))
+
+            self.assertTrue(minLen <= maxLen)
+
+            # This was the previously-used simplified formula. It works, but
+            # Python can handle the one directly from the spec, so let's use that instead.
+            # self.assertEqual(maxLen, 2 * math.floor(96/math.log2(radix)))
+
+            # per FF3-1 spec, radix^minlen >= 1_000_000 and minlen >= 2.
+            self.assertTrue(
+                (2 <= minLen) and (FF3Cipher.DOMAIN_MIN <= radix ** minLen)
+            )
+            self.assertFalse(
+                (2 <= minLen - 1) and (FF3Cipher.DOMAIN_MIN <= radix ** (minLen - 1))
+            )
+            # According to the spec, maxlen <= 2 floor(log_radix(2^96)).
+            # Let's verify that we have the correct value with integer arithmetic.
+            # First, maxlen should be even.
+            # Then radix ^ (maxlen / 2) <= 2^96,
+            # and  radix ^ (maxlen / 2 + 1) > 2^96.
+            half_maxlen, maxlen_mod_2 = divmod(maxLen, 2)
+            self.assertEqual(maxlen_mod_2, 0)
+            self.assertTrue(radix ** half_maxlen <= 2 ** 96)
+            self.assertFalse(radix ** (half_maxlen + 1) <= 2 ** 96)
+
     # Check that encryption and decryption are inverses over whole domain
     def xtest_whole_domain(self):
         # Temporarily reduce DOMAIN_MIN to make testing fast
