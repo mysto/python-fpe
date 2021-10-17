@@ -7,7 +7,7 @@
 
 An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 algorithm in Python.
 
-This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_, 
+This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_,
 and revised on February 28th, 2019 with a draft update for FF3-1.
 
 * [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
@@ -49,7 +49,7 @@ pip3 uninstall ff3
 
 ## Usage
 
-FF3 is a Feistel cipher, and Feistel ciphers are initialized with a radix representing an alphabet. The number of 
+FF3 is a Feistel cipher, and Feistel ciphers are initialized with a radix representing an alphabet. The number of
 characters in an alphabet is called the _radix_.
 The following radix values are typical:
 
@@ -58,7 +58,7 @@ The following radix values are typical:
 * radix 62: alphanumeric 0..9, a-z, A-Z
 
 Special characters and international character sets, such as those found in UTF-8, are supported by specifying a custom alphabet.
-Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of a letter followed 
+Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of a letter followed
 by 6 digits (e.g. A123456) cannot be correctly encrypted by FPE while preserving this convention.
 
 Input plaintext has maximum length restrictions based upon the chosen radix (2 * floor(96/log2(radix))):
@@ -94,6 +94,7 @@ print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 ccn = f"{ciphertext[:4]} {ciphertext[4:8]} {ciphertext[8:12]} {ciphertext[12:]}"
 print(f"Encrypted CCN value with formatting: {ccn}")
 ```
+
 ## Custom alphabets
 
 To use an alphabet consisting of the uppercase letters A-F (radix=6), we can continue
@@ -104,6 +105,7 @@ c6 = FF3Cipher.withCustomAlphabet(key, tweak, "ABCDEF")
 plaintext = "DEADBEEF"
 ciphertext = c6.encrypt(plaintext)
 decrypted = c6.decrypt(ciphertext)
+
 print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 ```
 
@@ -119,10 +121,11 @@ python3 -m ff3.ff3_test
 
 ## Performance Benchmarks
 
-The Mysto FF3 was benchmarked on a MacBook Air (1.1 GHz Quad-Core Intel Core i5) 
+The Mysto FF3 was benchmarked on a MacBook Air (1.1 GHz Quad-Core Intel Core i5)
 performing 70,000 tokenization per second with random 8 character data input.
 
 To run the performance tests:
+
 ```bash
 python3 ff3_perf.py
 ```
@@ -133,7 +136,7 @@ The FF3 algorithm is a tweakable block cipher based on an eight round Feistel ci
 but a design model.  This FF3 Feistel encryption consisting of eight rounds of processing
 the plaintext. Each round applies an internal function or _round function_, followed by transformation steps.
 
-The FF3 round function uses AES encryption in ECB mode, which is performed each iteration 
+The FF3 round function uses AES encryption in ECB mode, which is performed each iteration
 on alternating halves of the text being encrypted. The *key* value is used only to initialize the AES cipher. Thereafter
 the *tweak* is used together with the intermediate encrypted text as input to the round function.
 
