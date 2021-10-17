@@ -12,7 +12,7 @@ setuptools.setup(
     description="Format Preserving Encryption (FPE) with FF3",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/bschoeni/fpe",
+    url="https://github.com/mysto/python-fpe",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
