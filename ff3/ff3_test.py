@@ -162,7 +162,7 @@ testVectors_ACVP_AES_FF3_1 = [
 
 class TestFF3(unittest.TestCase):
 
-    def test_base_repr(self):
+    def test_encode_int(self):
         hexdigits = "0123456789abcdef"
         self.assertEqual(reverse_string(encode_int_r(5, "01")), '101')
         self.assertEqual(reverse_string(encode_int_r(6, "01234")), '11')
