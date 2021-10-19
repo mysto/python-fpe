@@ -86,7 +86,7 @@ class FF3Cipher:
             self.alphabet = None
 
         # Calculate range of supported message lengths [minLen..maxLen]
-        # per original spec, radix^minLength >= 100.
+        # per revised spec, radix^minLength >= 1,000,000.
         self.minLen = math.ceil(math.log(FF3Cipher.DOMAIN_MIN) / math.log(radix))
 
         # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
