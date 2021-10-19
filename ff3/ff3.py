@@ -134,7 +134,7 @@ class FF3Cipher:
 
         # The remaining 12 bytes of P are for rev(B) with padding
 
-        BBytes = decode_int(B, alphabet).to_bytes(12, "big")
+        BBytes = decode_int_r(B, alphabet).to_bytes(12, "big")
         # logging.debug(f"B: {B} BBytes: {BBytes.hex()}")
 
         P[BLOCK_SIZE - len(BBytes):] = BBytes
@@ -263,7 +263,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = decode_int(A,  self.alphabet)
+            c = decode_int_r(A,  self.alphabet)
 
             c = c + y
 
@@ -371,7 +371,7 @@ class FF3Cipher:
             y = int.from_bytes(S, byteorder='big')
 
             # Calculate c
-            c = decode_int(B, self.alphabet)
+            c = decode_int_r(B, self.alphabet)
 
             c = c - y
 
@@ -422,7 +422,7 @@ def encode_int_r(n, alphabet, length=0):
     return x
 
 
-def decode_int(astring, alphabet):
+def decode_int_r(astring, alphabet):
     """Decode a Base X encoded string into the number
 
     Arguments:

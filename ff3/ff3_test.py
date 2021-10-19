@@ -21,7 +21,7 @@ import unittest
 
 from Crypto.Cipher import AES
 
-from ff3 import FF3Cipher, encode_int_r, decode_int
+from ff3 import FF3Cipher, encode_int_r, decode_int_r
 from ff3 import reverse_string
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
@@ -170,6 +170,14 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(reverse_string(encode_int_r(7, "abcde", 5)), 'aaabc')
         self.assertEqual(reverse_string(encode_int_r(10, hexdigits)), 'a')
         self.assertEqual(reverse_string(encode_int_r(32, hexdigits)), '20')
+
+    def test_decode_int(self):
+        hexdigits = "0123456789abcdef"
+        self.assertEqual(321, (decode_int_r("123", string.digits)))
+        self.assertEqual(101, (decode_int_r("101", string.digits)))
+        self.assertEqual(0x02, (decode_int_r("20", hexdigits)))
+        self.assertEqual(0xAA, (decode_int_r("aa", hexdigits)))
+
 
     def test_aes_ecb(self):
         # NIST test vector for ECB-AES128
@@ -320,7 +328,7 @@ class TestFF3(unittest.TestCase):
             # Check that plaintexts decode correctly
             self.assertEqual(
                 [
-                    decode_int(plaintext, c.alphabet)
+                    decode_int_r(plaintext, c.alphabet)
                     for plaintext in all_possible_plaintexts
                 ],
                 list(range(n))
