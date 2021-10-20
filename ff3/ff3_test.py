@@ -139,26 +139,176 @@ testVectors = [
     }
 ]
 
-# from https://pages.nist.gov/ACVP/draft-celi-acvp-symmetric.html#name-test-groups
+# ACVP vectors from private communication updating:
+# https://pages.nist.gov/ACVP/draft-celi-acvp-symmetric.html#name-test-groups
 
 testVectors_ACVP_AES_FF3_1 = [
-    # AES-128
+    # AES - 128
     {
+        # tg: 1 tc: 1
         "radix": 10,
+        "alphabet": "0123456789",
         "key": "2DE79D232DF5585D68CE47882AE256D6",
         "tweak": "CBD09280979564",
         "plaintext": "3992520240",
         "ciphertext": "8901801106"
     },
     {
+        # tg: 1 tc: 1
         "radix": 10,
+        "alphabet": "0123456789",
         "key": "01C63017111438F7FC8E24EB16C71AB5",
         "tweak": "C4E822DCD09F27",
         "plaintext": "60761757463116869318437658042297305934914824457484538562",
         "ciphertext": "35637144092473838892796702739628394376915177448290847293"
     },
+    {
+        # tg: 2 tc: 26
+        "radix": 26,
+        "alphabet": "abcdefghijklmnopqrstuvwxyz",
+        "key": "718385E6542534604419E83CE387A437",
+        "tweak": "B6F35084FA90E1",
+        "plaintext": "wfmwlrorcd",
+        "ciphertext": "ywowehycyd"
+    },
+    {
+        # tg: 2 tc: 27
+        "radix": 26,
+        "alphabet": "abcdefghijklmnopqrstuvwxyz",
+        "key": "DB602DFF22ED7E84C8D8C865A941A238",
+        "tweak": "EBEFD63BCC2083",
+        "plaintext": "kkuomenbzqvggfbteqdyanwpmhzdmoicekiihkrm",
+        "ciphertext": "belcfahcwwytwrckieymthabgjjfkxtxauipmjja"
+    },
+    {
+        # tg: 3 tc: 51
+        "radix": 64,
+        "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
+        "key": "AEE87D0D485B3AFD12BD1E0B9D03D50D",
+        "tweak": "5F9140601D224B",
+        "plaintext": "ixvuuIHr0e",
+        "ciphertext": "GR90R1q838"
+    },
+    {
+        # tg: 3 tc: 52
+        "radix": 64,
+        "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
+        "key": "7B6C88324732F7F4AD435DA9AD77F917",
+        "tweak": "3F42102C0BAB39",
+        "plaintext": "21q1kbbIVSrAFtdFWzdMeIDpRqpo",
+        "ciphertext": "cvQ/4aGUV4wRnyO3CHmgEKW5hk8H"
+    },
+    # AES - 192
+    {
+        # tg: 4 tc: 76
+        "radix": 10,
+        "alphabet": "0123456789",
+        "key": "F62EDB777A671075D47563F3A1E9AC797AA706A2D8E02FC8",
+        "tweak": "493B8451BF6716",
+        "plaintext": "4406616808",
+        "ciphertext": "1807744762"
+    },
+    {
+        # tg: 4 tc: 77
+        "radix": 10,
+        "alphabet": "0123456789",
+        "key": "0951B475D1A327C52756F2624AF224C80E9BE85F09B2D44F",
+        "tweak": "D679E2EA3054E1",
+        "plaintext": "99980459818278359406199791971849884432821321826358606310",
+        "ciphertext": "84359031857952748660483617398396641079558152339419110919"
+    },
+    {
+        # tg: 5 tc: 101
+        "radix": 26,
+        "alphabet": "abcdefghijklmnopqrstuvwxyz",
+        "key": "49CCB8F62D941E5684599ECA0300937B5C766D053E109777",
+        "tweak": "0BFCF75CDC2FC1",
+        "plaintext": "jaxlrchjjx",
+        "ciphertext": "kjdbfqyahd"
+    },
+    {
+        # tg: 5 tc: 102
+        "radix": 26,
+        "alphabet": "abcdefghijklmnopqrstuvwxyz",
+        "key": "03D253674A9309FF07ED0E71B24CBFE769025E09FCE544D7",
+        "tweak": "B33176B1DA0F6C",
+        "plaintext": "tafzrybuvhiqvcyztuxfnwfprmqlwpayphxbawpl",
+        "ciphertext": "loaemzbgqkywkdhmncrijzildzleoqibtthdiliv"
+    },
+    {
+        # tg: 6 tc: 126
+        "radix": 64,
+        "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
+        "key": "1C24B74B7C1B9969314CB53E92F98EFD620D5520017FB076",
+        "tweak": "0380341C425A6F",
+        "plaintext": "6np8r2t8zo",
+        "ciphertext": "HgpCXoA1Rt"
+    },
+    {
+        # tg: 6 tc: 127
+        "radix": 64,
+        "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
+        "key": "C0ABADFC071379824A070E8C3FD40DD9BFD7A3C99A0D5FE3",
+        "tweak": "6C2926C705DDAF",
+        "plaintext": "GKB6sa9g56BSJ09iJ4dsaxRdsMvo",
+        "ciphertext": "gC0tTSdDPxM79QOWi+z+SNL9C4V+"
+    },
+    # AES - 256
+    {
+        # tg: 7 tc: 151
+        "radix": 10,
+        "alphabet": "0123456789",
+        "key": "1FAA03EFF55A06F8FAB3F1DC57127D493E2F8F5C365540467A3A055BDBE6481D",
+        "tweak": "4D67130C030445",
+        "plaintext": "3679409436",
+        "ciphertext": "1735794859"
+    },
+    {
+        # tg: 7 tc: 152
+        "radix": 10,
+        "alphabet": "0123456789",
+        "key": "9CE16E125BD422A011408EB083355E7089E70A4CD2F59E141D0B94A74BCC5967",
+        "tweak": "4684635BD2C821",
+        "plaintext": "85783290820098255530464619643265070052870796363685134012",
+        "ciphertext": "75104723514036464144839960480545848044718729603261409917"
+    },
+    {
+        # tg: 8 tc: 176
+        "radix": 26,
+        "alphabet": "abcdefghijklmnopqrstuvwxyz",
+        "key": "6187F8BDE99F7DAF9E3EE8A8654308E7E51D31FA88AFFAEB5592041C033B736B",
+        "tweak": "5820812B3D5DD1",
+        "plaintext": "mkblaoiyfd",
+        "ciphertext": "ifpyiihvvq"
+    },
+    {
+        # tg: 8 tc: 177
+        "radix": 26,
+        "alphabet": "abcdefghijklmnopqrstuvwxyz",
+        "key": "F6807FB9688937E4D4956006C8F0CB2394148A5F4B14666CF353F4941428FFD7",
+        "tweak": "30C87B99890096",
+        "plaintext": "wrammvhudopmaazlsxevzwzwpezzmghwfnmkitnk",
+        "ciphertext": "nzftnfkliuctlmtdfrxfhwgevrbcbgljurnytxkj"
+    },
+    {
+        # tg: 9 tc: 201
+        "radix": 64,
+        "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
+        "key": "9C2B69F7DDF181C54398E345BE04C2F6B00B9DD1679200E1E04C4FF961AE0F09",
+        "tweak": "103C238B4B1E44",
+        "plaintext": "H2/c6FblSA",
+        "ciphertext": "EOg4H1bE+8"
+    },
+    {
+        # tg: 9 tc: 202
+        "radix": 64,
+        "alphabet": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/",
+        "key": "C58BCBD08B90006CEC7E82B2D987D79F6A21111DEF0CEBB273CBAEB2D6CD4044",
+        "tweak": "7036604882667B",
+        "plaintext": "bz5TcS1krnD8IOLdrQeKzXkLAa6h",
+        "ciphertext": "Z6x3/9LPW8SZunRezRM8J68Q4J03"
+    },
 ]
-
 
 class TestFF3(unittest.TestCase):
 
@@ -233,49 +383,31 @@ class TestFF3(unittest.TestCase):
     # TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits,
     #   in a manner that was subsequently developed by the designers of the method."
 
-    # ACVP test with 56 bit tweak
-    def test_encrypt_tweak5_ACVP(self):
-        # 56-bit tweak #1
-        testVector = testVectors_ACVP_AES_FF3_1[0]
-        c = FF3Cipher(testVector['key'], testVector['tweak'])
-        s = c.encrypt(testVector['plaintext'])
-        self.assertEqual(s, testVector['ciphertext'])
-        x = c.decrypt(s)
-        self.assertEqual(x, testVector['plaintext'])
-        # 56-bit tweak #2
-        testVector = testVectors_ACVP_AES_FF3_1[1]
-        c = FF3Cipher(testVector['key'], testVector['tweak'])
-        s = c.encrypt(testVector['plaintext'])
-        self.assertEqual(s, testVector['ciphertext'])
-        x = c.decrypt(s)
-        self.assertEqual(x, testVector['plaintext'])
+    def test_encrypt_acvp(self):
+        for testVector in testVectors_ACVP_AES_FF3_1:
+            with self.subTest(testVector=testVector):
+                c = FF3Cipher.withCustomAlphabet(testVector['key'], testVector['tweak'], testVector['alphabet'])
+                s = c.encrypt(testVector['plaintext'])
+                self.assertEqual(s, testVector['ciphertext'])
+
+    def test_decrypt_acvp(self):
+        for testVector in testVectors_ACVP_AES_FF3_1:
+            with self.subTest(testVector=testVector):
+                c = FF3Cipher.withCustomAlphabet(testVector['key'], testVector['tweak'], testVector['alphabet'])
+                s = c.decrypt(testVector['ciphertext'])
+                self.assertEqual(s, testVector['plaintext'])
 
     # experimental test with 56 bit tweak
     def test_encrypt_tweak56(self):
         # 56-bit tweak
         tweak = "D8E7920AFA330A"
-        ciphertext = "428531276362567922"
+        ciphertext = "477064185124354662"
         testVector = testVectors[0]
         c = FF3Cipher(testVector['key'], tweak)
         s = c.encrypt(testVector['plaintext'])
-        #self.assertEqual(s, ciphertext)
+        self.assertEqual(s, ciphertext)
         x = c.decrypt(s)
         self.assertEqual(x, testVector['plaintext'])
-
-    # experimental test with 56 bit tweak from Bouncy Castle FF3-1 tests
-    # Note: the ciphertext here does not match the BC value
-
-    def test_encrypt_tweak56_bc(self):
-        # 56-bit tweak
-        key = "1A58964B681384806A5A7639915ED0BE837C9C50C150AFD8F73445C0438CACF3"
-        tweak = "CE3EBD69454984"
-        plaintext = "4752683571"
-        # ciphertext = "2234571788"
-        c = FF3Cipher(key, tweak)
-        s = c.encrypt(plaintext)
-        # self.assertEqual(s, ciphertext)
-        x = c.decrypt(s)
-        self.assertEqual(x, plaintext)
 
     # Check the first NIST 128-bit test vector using superscript characters
     def test_custom_alphabet(self):

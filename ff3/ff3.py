@@ -434,9 +434,12 @@ def decode_int_r(astring, alphabet):
     num = 0
 
     idx = 0
-    for char in reversed(astring):
-        power = (strlen - (idx + 1))
-        num += alphabet.index(char) * (base ** power)
-        idx += 1
+    try:
+        for char in reversed(astring):
+            power = (strlen - (idx + 1))
+            num += alphabet.index(char) * (base ** power)
+            idx += 1
+    except ValueError:
+        raise ValueError(f'char {char} not found in alphabet {alphabet}')
 
     return num
