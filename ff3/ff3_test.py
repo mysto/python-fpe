@@ -145,17 +145,17 @@ testVectors_ACVP_AES_FF3_1 = [
     # AES-128
     {
         "radix": 10,
-        "key": "0D517EBC71852CBA6C7013C9DB9104D8",
-        "tweak": "9F6B7D43B3A552",
-        "plaintext": "4312962667",
-        "ciphertext": "9953909311"
+        "key": "2DE79D232DF5585D68CE47882AE256D6",
+        "tweak": "CBD09280979564",
+        "plaintext": "3992520240",
+        "ciphertext": "8901801106"
     },
     {
         "radix": 10,
-        "key": "9BA74F3763BD93F8B59200D122F1C621",
-        "tweak": "7ECCD5D62C8AA9",
-        "plaintext": "42592972841413437983428634710481338922521696022233194252",
-        "ciphertext": "28668408862620085501326992764022466222881643717215081258"
+        "key": "01C63017111438F7FC8E24EB16C71AB5",
+        "tweak": "C4E822DCD09F27",
+        "plaintext": "60761757463116869318437658042297305934914824457484538562",
+        "ciphertext": "35637144092473838892796702739628394376915177448290847293"
     },
 ]
 
@@ -239,16 +239,14 @@ class TestFF3(unittest.TestCase):
         testVector = testVectors_ACVP_AES_FF3_1[0]
         c = FF3Cipher(testVector['key'], testVector['tweak'])
         s = c.encrypt(testVector['plaintext'])
-        # ToDo:
-        #self.assertEqual(s, testVector['ciphertext'])
+        self.assertEqual(s, testVector['ciphertext'])
         x = c.decrypt(s)
         self.assertEqual(x, testVector['plaintext'])
         # 56-bit tweak #2
         testVector = testVectors_ACVP_AES_FF3_1[1]
         c = FF3Cipher(testVector['key'], testVector['tweak'])
         s = c.encrypt(testVector['plaintext'])
-        # ToDo:
-        # self.assertEqual(s, testVector['ciphertext'])
+        self.assertEqual(s, testVector['ciphertext'])
         x = c.decrypt(s)
         self.assertEqual(x, testVector['plaintext'])
 
