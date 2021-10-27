@@ -217,11 +217,11 @@ class FF3Cipher:
             # FF3-1
             # The tweak is partitioned into a 32-bit left tweak and a 32-bit right tweak
             # Tl is T[0..27] + 0000
-            Tl = bytearray(tweakBytes[:4])
+            Tl = bytearray(tweakBytes[:HALF_TWEAK_LEN])
             Tl[3] &= 0xF0
 
             # Tr is T[32..55] + T[28..31] + 0000
-            Tr = bytearray(tweakBytes[4:])
+            Tr = bytearray(tweakBytes[HALF_TWEAK_LEN:])
             Tr.append((tweakBytes[3]&0x0F)<<4)
             print(f"Tweak:{tweakBytes.hex()} Tl:{Tl.hex()}, Tr:{Tr.hex()}")
         else:
