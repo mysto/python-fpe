@@ -139,7 +139,7 @@ testVectors = [
     }
 ]
 
-# ACVP vectors from private communication updating:
+# ACVP vectors for FF3-1 using 56-bit tweaks from private communication updating:
 # https://pages.nist.gov/ACVP/draft-celi-acvp-symmetric.html#name-test-groups
 
 testVectors_ACVP_AES_FF3_1 = [
@@ -379,9 +379,6 @@ class TestFF3(unittest.TestCase):
                 c = FF3Cipher(testVector['key'], testVector['tweak'], testVector['radix'])
                 s = c.decrypt(testVector['ciphertext'])
                 self.assertEqual(s, testVector['plaintext'])
-
-    # TODO: NIST announced in SP 800 38G Revision 1, the "the tweak parameter is reduced to 56 bits,
-    #   in a manner that was subsequently developed by the designers of the method."
 
     def test_encrypt_acvp(self):
         for testVector in testVectors_ACVP_AES_FF3_1:
