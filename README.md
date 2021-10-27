@@ -5,17 +5,17 @@
 
 # ff3 - Format Preserving Encryption in Python
 
-An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 and FF3-1 algorithms in Python.
+An implementation of the NIST approved FF3 and FF3-1 Format Preserving Encryption (FPE) algorithms in Python.
 
-This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_,
+This package implements the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_,
 and revised on February 28th, 2019 with a draft update for FF3-1.
 
 * [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
 * [NIST Recommendation SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
 
-Changes to minimum domain size and revised tweak length have been implemented in this package.
-Tweaks can be 56 or 64 bits, but NIST has only published test vectors for 64-bit tweaks.  It is expected the final
-standard will provide updated test vectors necessary to change the tweak lengths to 56 bits.
+Changes to minimum domain size and revised tweak length have been implemented in this package with
+both 64-bit and 56-bit tweaks are supported. NIST has only published official test vectors for 64-bit tweaks, but draft ACVP test vectors have been used for testing FF3-1. It is expected the final
+NIST standard will provide updated test vectors with 56-bit tweak lengths.
 
 ## Requires
 
@@ -97,7 +97,7 @@ print(f"Encrypted CCN value with formatting: {ccn}")
 
 ## Custom alphabets
 
-To use an alphabet consisting of the uppercase letters A-F (radix=6), we can continue
+Custom alphabets up to 256 characters are supported. To use an alphabet consisting of the uppercase letters A-F (radix=6), we can continue
 from the above code example with:
 
 ```python3
@@ -111,7 +111,8 @@ print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 
 ## Testing
 
-There are official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/ff3samples.pdf) for FF3 provided by NIST, which are used for testing in this package.
+Official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/ff3samples.pdf) for FF3 provided by NIST,
+are used for testing in this package. Also included are draft ACVP test vectors with 56-bit tweaks
 
 To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
 
@@ -150,11 +151,11 @@ This implementation was originally based upon the [Capital One Go implementation
 
 FPE can be used for data tokenization of sensitive data which is cryptographically reversible. This implementation does not provide any guarantees regarding PCI DSS or other validation.
 
-While all NIST standard test vectors pass, this package has not otherwise been extensively tested.
+While all NIST and ACVP test vectors pass, this package has not otherwise been extensively tested.
 
 The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec.
 
-The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status and updated 56-bit test vectors are not yet available.
+The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status.
 
 The tweak is required in the initial `FF3Cipher` constructor, but can optionally be overridden in each `encrypt` and `decrypt` call. This is similar to passing an IV or nonce when creating an encrypter object.
 
