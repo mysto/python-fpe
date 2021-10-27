@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ff3",
-    version="0.9.1",
+    version="1.0.0",
     author="Schoening Consulting, LLC",
     author_email="bschoeni+llc@gmail.com",
     description="Format Preserving Encryption (FPE) with FF3",
@@ -14,7 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/mysto/python-fpe",
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: Financial and Insurance Industry",
         "Intended Audience :: Healthcare Industry",
