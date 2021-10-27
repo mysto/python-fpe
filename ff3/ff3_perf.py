@@ -16,19 +16,19 @@ def timeit(f):
 
 
 @timeit
-def test_encrypt(plaintext):
+def test_encrypt(plaintexts):
     key = "EF4359D8D580AA4F7F036D6F04FC6A94"
     tweak = "D8E7920AFA330A73"
-    for txt in plaintext:
+    for pt in plaintexts:
         c = FF3Cipher(key, tweak, 62)
-        s = c.encrypt(txt)
+        s = c.encrypt(pt)
 
 
 def test_performance(runs=100_000):
-    plaintext = []
+    plaintexts = []
     for i in range(runs):
-        plaintext.append(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
-    test_encrypt(plaintext)
+        plaintexts.append(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
+    test_encrypt(plaintexts)
 
 
 if __name__ == '__main__':
