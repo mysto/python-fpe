@@ -422,7 +422,7 @@ class TestFF3(unittest.TestCase):
     # Check that encryption and decryption are inverses over whole domain
     def test_whole_domain(self):
         TEST_CASES = [
-            # (radix, working_digits, alphabet (None means default))
+            # (radix, plaintext_len, alphabet (None means default))
             (2, 10, None),
             (3, 6, None),
             (10, 3, None),
@@ -431,7 +431,7 @@ class TestFF3(unittest.TestCase):
             (3, 7, "ABC"),
         ]
 
-        max_radix = max(radix for radix, working_digits, alphabet in TEST_CASES)
+        max_radix = max(radix for radix, plaintext_len, alphabet in TEST_CASES)
 
         # Temporarily reduce DOMAIN_MIN to make testing fast
         domain_min_orig = FF3Cipher.DOMAIN_MIN
@@ -439,17 +439,20 @@ class TestFF3(unittest.TestCase):
 
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
         tweak = "D8E7920AFA330A73"
-        for radix, working_digits, alphabet in TEST_CASES:
+        for radix, plaintext_len, alphabet in TEST_CASES:
             if alphabet is None:
                 c = FF3Cipher(key, tweak, radix=radix)
             else:
                 c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet=alphabet)
-            self.subTest(radix=radix, working_digits=working_digits)
-            n = radix ** working_digits
+            self.subTest(radix=radix, plaintext_len=plaintext_len)
 
+            # Integer representations of each possible plaintext
+            plaintexts_as_ints = list(range(radix ** plaintext_len))
+
+            # String representations of each possible plaintext
             all_possible_plaintexts = [
-                encode_int_r(i, alphabet=c.alphabet, length=working_digits)
-                for i in range(n)
+                encode_int_r(i, alphabet=c.alphabet, length=plaintext_len)
+                for i in plaintexts_as_ints
             ]
 
             # Check that plaintexts decode correctly
@@ -458,7 +461,7 @@ class TestFF3(unittest.TestCase):
                     decode_int_r(plaintext, c.alphabet)
                     for plaintext in all_possible_plaintexts
                 ],
-                list(range(n))
+                plaintexts_as_ints
             )
 
             # Check that there are no duplicate plaintexts
@@ -470,7 +473,7 @@ class TestFF3(unittest.TestCase):
             # Check that all plaintexts have the expected length
             self.assertTrue(
                 all(
-                    len(plaintext) == working_digits
+                    len(plaintext) == plaintext_len
                     for plaintext in all_possible_plaintexts
                 )
             )
