@@ -5,7 +5,7 @@
 
 # ff3 - Format Preserving Encryption in Python
 
-An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 and FF3-1 algorithm in Python.
+An implementation of the NIST approved Format Preserving Encryption (FPE) FF3 and FF3-1 algorithms in Python.
 
 This package follows the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_,
 and revised on February 28th, 2019 with a draft update for FF3-1.

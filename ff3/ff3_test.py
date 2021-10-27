@@ -310,6 +310,7 @@ testVectors_ACVP_AES_FF3_1 = [
     },
 ]
 
+
 class TestFF3(unittest.TestCase):
 
     def test_encode_int(self):
@@ -327,7 +328,6 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(101, (decode_int_r("101", string.digits)))
         self.assertEqual(0x02, (decode_int_r("20", hexdigits)))
         self.assertEqual(0xAA, (decode_int_r("aa", hexdigits)))
-
 
     def test_aes_ecb(self):
         # NIST test vector for ECB-AES128
@@ -421,7 +421,7 @@ class TestFF3(unittest.TestCase):
 
     # Check that encryption and decryption are inverses over whole domain
     def test_whole_domain(self):
-        TEST_CASES = [
+        test_cases = [
             # (radix, plaintext_len, alphabet (None means default))
             (2, 10, None),
             (3, 6, None),
@@ -431,7 +431,7 @@ class TestFF3(unittest.TestCase):
             (3, 7, "ABC"),
         ]
 
-        max_radix = max(radix for radix, plaintext_len, alphabet in TEST_CASES)
+        max_radix = max(radix for radix, plaintext_len, alphabet in test_cases)
 
         # Temporarily reduce DOMAIN_MIN to make testing fast
         domain_min_orig = FF3Cipher.DOMAIN_MIN
@@ -439,7 +439,7 @@ class TestFF3(unittest.TestCase):
 
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
         tweak = "D8E7920AFA330A73"
-        for radix, plaintext_len, alphabet in TEST_CASES:
+        for radix, plaintext_len, alphabet in test_cases:
             if alphabet is None:
                 c = FF3Cipher(key, tweak, radix=radix)
             else:

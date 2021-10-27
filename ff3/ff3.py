@@ -222,7 +222,7 @@ class FF3Cipher:
 
             # Tr is T[32..55] + T[28..31] + 0000
             Tr = bytearray(tweakBytes[HALF_TWEAK_LEN:])
-            Tr.append((tweakBytes[3]&0x0F)<<4)
+            Tr.append((tweakBytes[3] & 0x0F) << 4)
             print(f"Tweak:{tweakBytes.hex()} Tl:{Tl.hex()}, Tr:{Tr.hex()}")
         else:
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
