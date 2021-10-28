@@ -58,7 +58,7 @@ The following radix values are typical:
 * radix 62: alphanumeric 0..9, a-z, A-Z
 
 Special characters and international character sets, such as those found in UTF-8, are supported by specifying a custom alphabet.
-Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of a letter followed
+Also, all elements in a plaintext string share the same radix. Thus, an identification number that consists of an initial letter followed
 by 6 digits (e.g. A123456) cannot be correctly encrypted by FPE while preserving this convention.
 
 Input plaintext has maximum length restrictions based upon the chosen radix (2 * floor(96/log2(radix))):
@@ -70,7 +70,7 @@ Input plaintext has maximum length restrictions based upon the chosen radix (2 *
 To work around string length, its possible to encode longer text in chunks.
 
 As with any cryptographic package, managing and protecting the key(s) is crucial. The tweak is generally not kept secret.
-This package does not protect the key in memory.
+This package does not store the key in memory after initializing the cipher.
 
 ## Code Example
 
@@ -112,7 +112,7 @@ print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 ## Testing
 
 Official [test vectors](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/ff3samples.pdf) for FF3 provided by NIST,
-are used for testing in this package. Also included are draft ACVP test vectors with 56-bit tweaks
+are used for testing in this package. Also included are draft ACVP test vectors with 56-bit tweaks.
 
 To run unit tests on this implementation, including all test vectors from the NIST specification, run the command:
 
