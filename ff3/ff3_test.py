@@ -394,7 +394,7 @@ class TestFF3(unittest.TestCase):
                 s = c.decrypt(testVector['ciphertext'])
                 self.assertEqual(s, testVector['plaintext'])
 
-    # experimental test with 56 bit tweak
+    # test with 56 bit tweak
     def test_encrypt_tweak56(self):
         # 56-bit tweak
         tweak = "D8E7920AFA330A"
@@ -414,6 +414,23 @@ class TestFF3(unittest.TestCase):
         plaintext = "⁸⁹⁰¹²¹²³⁴⁵⁶⁷⁸⁹⁰⁰⁰⁰"
         ciphertext = "⁷⁵⁰⁹¹⁸⁸¹⁴⁰⁵⁸⁶⁵⁴⁶⁰⁷"
         c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet)
+        s = c.encrypt(plaintext)
+        self.assertEqual(s, ciphertext)
+        x = c.decrypt(s)
+        self.assertEqual(x, plaintext)
+
+    def test_german(self):
+        """
+        Test the German alphabet with a radix of 70.  German consists of the latin alphabet
+        plus four additional letters, each of which have uppercase and lowercase letters
+        """
+
+        german_alphabet = string.digits + string.ascii_lowercase + string.ascii_uppercase + "ÄäÖöÜüẞß"
+        key = "EF4359D8D580AA4F7F036D6F04FC6A94"
+        tweak = "D8E7920AFA330A73"
+        plaintext = "liebeGrüße"
+        ciphertext = "5kÖQbairXo"
+        c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet=german_alphabet)
         s = c.encrypt(plaintext)
         self.assertEqual(s, ciphertext)
         x = c.decrypt(s)
@@ -499,28 +516,6 @@ class TestFF3(unittest.TestCase):
 
         # Restore original DOMAIN_MIN value
         FF3Cipher.DOMAIN_MIN = domain_min_orig
-
-    def test_german(self):
-        """Test the German alphabet.
-
-        The purpose of this test is to make sure that alphabets larger
-        than the default 62-character alphabet work properly.
-
-        The German alphabet consists of the latin alphabet plus four
-        additional letters, each of which have uppercase and lowercase
-        letters. Thus the radix is 70.
-        """
-
-        german_alphabet = string.digits + string.ascii_lowercase + string.ascii_uppercase + "ÄäÖöÜüẞß"
-        key = "EF4359D8D580AA4F7F036D6F04FC6A94"
-        tweak = "D8E7920AFA330A73"
-        plaintext = "liebeGrüße"
-        ciphertext = "5kÖQbairXo"
-        c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet=german_alphabet)
-        s = c.encrypt(plaintext)
-        self.assertEqual(s, ciphertext)
-        x = c.decrypt(s)
-        self.assertEqual(x, plaintext)
 
 
 if __name__ == '__main__':
