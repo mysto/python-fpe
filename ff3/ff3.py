@@ -118,28 +118,6 @@ class FF3Cipher:
         c.alphabet = alphabet
         return c
 
-    @staticmethod
-    def calculate_p(i, alphabet, W, B):
-        # P is always 16 bytes
-        P = bytearray(BLOCK_SIZE)
-
-        # Calculate P by XORing W, i into the first 4 bytes of P
-        # i only requires 1 byte, rest are 0 padding bytes
-        # Anything XOR 0 is itself, so only need to XOR the last byte
-
-        P[0] = W[0]
-        P[1] = W[1]
-        P[2] = W[2]
-        P[3] = W[3] ^ int(i)
-
-        # The remaining 12 bytes of P are for rev(B) with padding
-
-        BBytes = decode_int_r(B, alphabet).to_bytes(12, "big")
-        # logging.debug(f"B: {B} BBytes: {BBytes.hex()}")
-
-        P[BLOCK_SIZE - len(BBytes):] = BBytes
-        return P
-
     def encrypt(self, plaintext):
         """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
         return self.encrypt_with_tweak(plaintext, self.tweak)
@@ -208,25 +186,15 @@ class FF3Cipher:
         A = plaintext[:u]
         B = plaintext[u:]
 
-        if len(tweakBytes) == TWEAK_LEN:
-            # FF3
-            # Split the tweak
-            Tl = tweakBytes[:HALF_TWEAK_LEN]
-            Tr = tweakBytes[HALF_TWEAK_LEN:]
-        elif len(tweakBytes) == TWEAK_LEN_NEW:
-            # FF3-1
-            # The tweak is partitioned into a 32-bit left tweak and a 32-bit right tweak
-            # Tl is T[0..27] + 0000
-            Tl = bytearray(tweakBytes[:HALF_TWEAK_LEN])
-            Tl[3] &= 0xF0
-
-            # Tr is T[32..55] + T[28..31] + 0000
-            Tr = bytearray(tweakBytes[HALF_TWEAK_LEN:])
-            Tr.append((tweakBytes[3] & 0x0F) << 4)
-            print(f"Tweak:{tweakBytes.hex()} Tl:{Tl.hex()}, Tr:{Tr.hex()}")
-        else:
+        if len(tweakBytes) not in (TWEAK_LEN, TWEAK_LEN_NEW):
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
+        if len(tweakBytes) == TWEAK_LEN_NEW:
+            # FF3-1
+            tweakBytes = calculate_tweak64_ff3_1(tweakBytes)
+
+        Tl = tweakBytes[:HALF_TWEAK_LEN]
+        Tr = tweakBytes[HALF_TWEAK_LEN:]
         logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
 
         # Pre-calculate the modulus since it's only one of 2 values,
@@ -252,7 +220,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculate_p(i, self.alphabet, W, B)
+            P = calculate_p(i, self.alphabet, W, B)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -317,26 +285,15 @@ class FF3Cipher:
         A = ciphertext[:u]
         B = ciphertext[u:]
 
-        # Split the tweak
-        if len(tweakBytes) == TWEAK_LEN:
-            # Split the tweak
-            Tl = tweakBytes[:HALF_TWEAK_LEN]
-            Tr = tweakBytes[HALF_TWEAK_LEN:]
-        elif len(tweakBytes) == TWEAK_LEN_NEW:
-            # FF3-1
-            # The tweak is partitioned into a 32-bit left tweak and a 32-bit right tweak
-            # Tl is T[0..27] + 0000
-            Tl = bytearray(tweakBytes[:4])
-            Tl[3] &= 0xF0
-
-            # Tr is T[32..55] + T[28..31] + 0000
-            Tr = bytearray(tweakBytes[4:])
-            Tr.append((tweakBytes[3]&0x0F)<<4)
-            print(f"Tweak:{tweakBytes.hex()} Tl:{Tl.hex()}, Tr:{Tr.hex()}")
-
-        else:
+        if len(tweakBytes) not in (TWEAK_LEN, TWEAK_LEN_NEW):
             raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
+        if len(tweakBytes) == TWEAK_LEN_NEW:
+            # FF3-1
+            tweakBytes = calculate_tweak64_ff3_1(tweakBytes)
+
+        Tl = tweakBytes[:HALF_TWEAK_LEN]
+        Tr = tweakBytes[HALF_TWEAK_LEN:]
         logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
 
         # Pre-calculate the modulus since it's only one of 2 values,
@@ -360,7 +317,7 @@ class FF3Cipher:
                 W = Tl
 
             # P is fixed-length 16 bytes
-            P = FF3Cipher.calculate_p(i, self.alphabet, W, A)
+            P = calculate_p(i, self.alphabet, W, A)
             revP = reverse_string(P)
 
             S = self.aesCipher.encrypt(bytes(revP))
@@ -391,6 +348,38 @@ class FF3Cipher:
 
         return A + B
 
+def calculate_p(i, alphabet, W, B):
+    # P is always 16 bytes
+    P = bytearray(BLOCK_SIZE)
+
+    # Calculate P by XORing W, i into the first 4 bytes of P
+    # i only requires 1 byte, rest are 0 padding bytes
+    # Anything XOR 0 is itself, so only need to XOR the last byte
+
+    P[0] = W[0]
+    P[1] = W[1]
+    P[2] = W[2]
+    P[3] = W[3] ^ int(i)
+
+    # The remaining 12 bytes of P are for rev(B) with padding
+
+    BBytes = decode_int_r(B, alphabet).to_bytes(12, "big")
+    # logging.debug(f"B: {B} BBytes: {BBytes.hex()}")
+
+    P[BLOCK_SIZE - len(BBytes):] = BBytes
+    return P
+
+def calculate_tweak64_ff3_1(tweak56):
+    tweak64 = bytearray(8)
+    tweak64[0] = tweak56[0]
+    tweak64[1] = tweak56[1]
+    tweak64[2] = tweak56[2]
+    tweak64[3] = (tweak56[3] & 0xF0)
+    tweak64[4] = tweak56[4]
+    tweak64[5] = tweak56[5]
+    tweak64[6] = tweak56[6]
+    tweak64[7] = ((tweak56[3] & 0x0F) << 4)
+    return tweak64
 
 def encode_int_r(n, alphabet, length=0):
     """
@@ -399,12 +388,8 @@ def encode_int_r(n, alphabet, length=0):
     The string is left in a reversed order expected by the calling cryptographic function
 
     examples:
-       encode_int(5)
-        '101'
-       encode_intv(10, base=16)
+       encode_int_r(10, hexdigits)
         'A'
-       encode_int(32, base=16)
-        '20'
     """
     base = len(alphabet)
     if (base > FF3Cipher.RADIX_MAX):

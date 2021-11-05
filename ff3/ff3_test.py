@@ -21,10 +21,11 @@ import unittest
 
 from Crypto.Cipher import AES
 
-from ff3 import FF3Cipher, encode_int_r, decode_int_r
+from ff3 import FF3Cipher, calculate_p, encode_int_r, decode_int_r
 from ff3 import reverse_string
 
 # Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
+
 
 testVectors = [
     # AES-128
@@ -343,7 +344,7 @@ class TestFF3(unittest.TestCase):
         alphabet = string.digits
         b = "567890000"
         w = bytes.fromhex("FA330A73")
-        p = FF3Cipher.calculate_p(i, alphabet, w, b)
+        p = calculate_p(i, alphabet, w, b)
         self.assertEqual(p, bytes([250, 51, 10, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 129, 205]))
 
     def test_encrypt_boundaries(self):
