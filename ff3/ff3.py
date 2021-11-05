@@ -186,9 +186,6 @@ class FF3Cipher:
         A = plaintext[:u]
         B = plaintext[u:]
 
-        if len(tweakBytes) not in (TWEAK_LEN, TWEAK_LEN_NEW):
-            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
-
         if len(tweakBytes) == TWEAK_LEN_NEW:
             # FF3-1
             tweakBytes = calculate_tweak64_ff3_1(tweakBytes)
@@ -284,9 +281,6 @@ class FF3Cipher:
         # Split the message
         A = ciphertext[:u]
         B = ciphertext[u:]
-
-        if len(tweakBytes) not in (TWEAK_LEN, TWEAK_LEN_NEW):
-            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
 
         if len(tweakBytes) == TWEAK_LEN_NEW:
             # FF3-1
