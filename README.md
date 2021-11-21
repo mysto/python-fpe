@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Downloads](https://pepy.tech/badge/ff3)](https://pepy.tech/project/ff3)
 
-# ff3 - Format Preserving Encryption in Python
+# FF3 - Format Preserving Encryption in Python
 
 An implementation of the NIST approved FF3 and FF3-1 Format Preserving Encryption (FPE) algorithms in Python.
 
@@ -14,7 +14,8 @@ and revised on February 28th, 2019 with a draft update for FF3-1.
 * [NIST Recommendation SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
 
 Changes to minimum domain size and revised tweak length have been implemented in this package with
-both 64-bit and 56-bit tweaks are supported. NIST has only published official test vectors for 64-bit tweaks, but draft ACVP test vectors have been used for testing FF3-1. It is expected the final
+support for both 64-bit and 56-bit tweaks. NIST has only published official test vectors for 64-bit tweaks, 
+but draft ACVP test vectors have been used for testing FF3-1. It is expected the final
 NIST standard will provide updated test vectors with 56-bit tweak lengths.
 
 ## Requires
