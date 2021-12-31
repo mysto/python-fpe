@@ -130,7 +130,7 @@ performing 70,000 tokenization per second with random 8 character data input.
 To run the performance tests:
 
 ```bash
-python3 ff3_perf.py
+python3 -m ff3.ff3_perf
 ```
 
 ## The FF3 Algorithm
