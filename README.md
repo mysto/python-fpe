@@ -25,7 +25,7 @@ This project was built and tested with Python 3.6 and later versions.  The only 
 
 ## Installation
 
-For a normal install of the latest PyPI release with pip:
+For a normal installation of the latest PyPI release with pip:
 
 `pip3 install ff3`
 
@@ -82,11 +82,11 @@ The example code below uses the default domain [0-9] and can help you get starte
 
 from ff3 import FF3Cipher
 
-key = "EF4359D8D580AA4F7F036D6F04FC6A94"
-tweak = "D8E7920AFA330A73"
+key = "2DE79D232DF5585D68CE47882AE256D6"
+tweak = "CBD09280979564"
 c = FF3Cipher(key, tweak)
 
-plaintext = "4000001234567899"
+plaintext = "3992520240"
 ciphertext = c.encrypt(plaintext)
 decrypted = c.decrypt(ciphertext)
 
@@ -96,6 +96,19 @@ print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 ccn = f"{ciphertext[:4]} {ciphertext[4:8]} {ciphertext[8:12]} {ciphertext[12:]}"
 print(f"Encrypted CCN value with formatting: {ccn}")
 ```
+## CLI Example
+
+This package installs the command line scripts ff3_encrypt and ff3_decrypt which can be run
+from the Linux or Windows command line.
+
+```bash
+% ff3_encrypt 2DE79D232DF5585D68CE47882AE256D6 CBD09280979564 3992520240
+8901801106
+% ff3_decrypt 2DE79D232DF5585D68CE47882AE256D6 CBD09280979564 8901801106
+3992520240
+
+```
+
 
 ## Custom alphabets
 
@@ -104,7 +117,7 @@ from the above code example with:
 
 ```python3
 c6 = FF3Cipher.withCustomAlphabet(key, tweak, "ABCDEF")
-plaintext = "DEADBEEF"
+plaintext = "BADDCAFE"
 ciphertext = c6.encrypt(plaintext)
 decrypted = c6.decrypt(ciphertext)
 
