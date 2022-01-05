@@ -4,6 +4,15 @@
 [![Downloads](https://pepy.tech/badge/ff3)](https://pepy.tech/project/ff3)
 [![PyPI version](https://badge.fury.io/py/ff3.svg)](https://badge.fury.io/py/ff3)
 
+<p align="center">
+  <a href="https://privacylogistics.com/">
+    <img
+      alt="Mysto"
+      src="https://privacylogistics.com/Mysto-logo.jpg"
+    />
+  </a>
+</p>
+
 # FF3 - Format Preserving Encryption in Python
 
 An implementation of the NIST approved FF3 and FF3-1 Format Preserving Encryption (FPE) algorithms in Python.
