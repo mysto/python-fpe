@@ -28,35 +28,9 @@ support for both 64-bit and 56-bit tweaks. NIST has only published official test
 but draft ACVP test vectors have been used for testing FF3-1. It is expected the final
 NIST standard will provide updated test vectors with 56-bit tweak lengths.
 
-## Requires
-
-This project was built and tested with Python 3.6 and later versions.  The only dependency is [PyCryptodome](https://pycryptodome.readthedocs.io).
-
 ## Installation
 
-For a normal installation of the latest PyPI release with pip:
-
 `pip3 install ff3`
-
-To instead install the development version:
-
-```bash
-git clone https://github.com/mysto/python-fpe.git
-cd python-fpe
-pip3 install --editable .
-```
-
-Before contributing any pull requests, you will need to first fork this repository and change the remote origin to reflect your fork:
-
-```bash
-git remote set-url origin git@github.com:YOUR-GITHUB-USERNAME/python-fpe.git
-```
-
-To uninstall:
-
-```bash
-pip3 uninstall ff3
-```
 
 ## Usage
 
@@ -132,6 +106,9 @@ decrypted = c6.decrypt(ciphertext)
 
 print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 ```
+## Requires
+
+This project was built and tested with Python 3.6 and later versions.  The only dependency is [PyCryptodome](https://pycryptodome.readthedocs.io).
 
 ## Testing
 
@@ -182,6 +159,22 @@ The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryp
 The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status.
 
 The tweak is required in the initial `FF3Cipher` constructor, but can optionally be overridden in each `encrypt` and `decrypt` call. This is similar to passing an IV or nonce when creating an encrypter object.
+
+## Developer Installation
+
+To install the development version:
+
+```bash
+git clone https://github.com/mysto/python-fpe.git
+cd python-fpe
+pip3 install --editable .
+```
+
+Before contributing any pull requests, you will need to first fork this repository and change the remote origin to reflect your fork:
+
+```bash
+git remote set-url origin git@github.com:YOUR-GITHUB-USERNAME/python-fpe.git
+```
 
 ## Author
 
