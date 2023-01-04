@@ -1,7 +1,6 @@
 language: python
 dist: bionic
 python:
-#  - "3.7"       commented out due to setuptools bug/issue
   - "3.7"
   - "3.8"
   - "3.9"
