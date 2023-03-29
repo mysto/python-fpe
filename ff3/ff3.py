@@ -42,7 +42,8 @@ def reverse_string(txt):
 """
 FF3 encodes a string within a range of minLen..maxLen. The spec uses an alternating Feistel
 with the following parameters:
-    128 bit key length
+    A fixed 128 bit block size
+    128, 192 or 256 bit key length
     Cipher Block Chain (CBC-MAC) round function
     64-bit (FF3) or 56-bit (FF3-1)tweak
     eight (8) rounds

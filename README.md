@@ -54,6 +54,8 @@ Input plaintext has maximum length restrictions based upon the chosen radix (2 *
 
 To work around string length, its possible to encode longer text in chunks.
 
+The key length must be 128, 192, or 256 bits in length. The tweak is 7 bytes (FF3-1) or 8 bytes for the origingal FF3.
+
 As with any cryptographic package, managing and protecting the key(s) is crucial. The tweak is generally not kept secret.
 This package does not store the key in memory after initializing the cipher.
 
