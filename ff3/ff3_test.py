@@ -13,7 +13,8 @@ You may obtain a copy of the License at
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and limitations under the License.
+See the License for the specific language governing permissions and limitations
+under the License.
 
 """
 import string
@@ -24,7 +25,8 @@ from Crypto.Cipher import AES
 from ff3 import FF3Cipher, calculate_p, encode_int_r, decode_int_r
 from ff3 import reverse_string
 
-# Test vectors taken from here: http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
+# Test vectors taken from here:
+# http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/FF3samples.pdf
 
 
 testVectors = [
@@ -345,7 +347,8 @@ class TestFF3(unittest.TestCase):
         b = "567890000"
         w = bytes.fromhex("FA330A73")
         p = calculate_p(i, alphabet, w, b)
-        self.assertEqual(p, bytes([250, 51, 10, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 129, 205]))
+        self.assertEqual(p,
+                    bytes([250, 51, 10, 115, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 129, 205]))
 
     def test_encrypt_boundaries(self):
         c = FF3Cipher("EF4359D8D580AA4F7F036D6F04FC6A94", "D8E7920AFA330A73")
@@ -368,11 +371,11 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(plaintext, pt)
 
     def test_encrypt_all(self):
-        for testVector in testVectors:
-            with self.subTest(testVector=testVector):
-                c = FF3Cipher(testVector['key'], testVector['tweak'], testVector['radix'])
-                s = c.encrypt(testVector['plaintext'])
-                self.assertEqual(s, testVector['ciphertext'])
+        for test in testVectors:
+            with self.subTest(testVector=test):
+                c = FF3Cipher(test['key'], test['tweak'], test['radix'])
+                s = c.encrypt(test['plaintext'])
+                self.assertEqual(s, test['ciphertext'])
 
     def test_decrypt_all(self):
         for testVector in testVectors:

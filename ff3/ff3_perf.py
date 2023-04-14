@@ -27,7 +27,8 @@ def test_encrypt(plaintexts):
 def test_performance(runs=100_000):
     plaintexts = []
     for i in range(runs):
-        plaintexts.append(''.join(random.choices(string.ascii_uppercase + string.digits, k=8)))
+        plaintexts.append(''.join(random.choices(string.ascii_uppercase +
+                                                 string.digits, k=8)))
     test_encrypt(plaintexts)
 
 

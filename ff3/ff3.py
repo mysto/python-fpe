@@ -13,7 +13,8 @@ You may obtain a copy of the License at
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and limitations under the License.
+See the License for the specific language governing permissions and limitations under
+the License.
 
 """
 
@@ -24,8 +25,8 @@ import math
 from Crypto.Cipher import AES
 import string
 
-# The recommendation in Draft SP 800-38G was strengthened to a requirement in Draft SP 800-38G Revision 1:
-# the minimum domain size for FF1 and FF3-1 is one million.
+# The recommendation in Draft SP 800-38G was strengthened to a requirement in Draft
+# SP 800-38G Revision 1: the minimum domain size for FF1 and FF3-1 is one million.
 
 NUM_ROUNDS = 8
 BLOCK_SIZE = 16  # aes.BlockSize
@@ -40,8 +41,8 @@ def reverse_string(txt):
 
 
 """
-FF3 encodes a string within a range of minLen..maxLen. The spec uses an alternating Feistel
-with the following parameters:
+FF3 encodes a string within a range of minLen..maxLen. The spec uses an alternating
+Feistel with the following parameters:
     A fixed 128 bit block size
     128, 192 or 256 bit key length
     Cipher Block Chain (CBC-MAC) round function
@@ -49,20 +50,22 @@ with the following parameters:
     eight (8) rounds
     Modulo addition
 
-An encoded string representation of x is in the given integer base, which must be at least 2. The 
-result uses the lower-case letters 'a' to 'z' for digit values 10 to 35 and upper-case letters 'A' to 'Z' for 
-digit values 36 to 61.
+An encoded string representation of x is in the given integer base, which must be at
+least 2. The result uses the lower-case letters 'a' to 'z' for digit values 10 to 35
+and upper-case letters 'A' to 'Z' for digit values 36 to 61.
 
-Instead of specifying the base, an alphabet may be specified as a string of unique characters.
-For bases larger than 62, an explicit alphabet is mandatory.
+Instead of specifying the base, an alphabet may be specified as a string of unique 
+characters. For bases larger than 62, an explicit alphabet is mandatory.
 
-FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with key, tweak and radix parameters. The
-default radix is 10, supporting encryption of decimal numbers.
+FF3Cipher initializes a new FF3 Cipher object for encryption or decryption with key, 
+tweak and radix parameters. The default radix is 10, supporting encryption of decimal 
+numbers.
 
-AES ECB is used as the cipher round value for XORing. ECB has a block size of 128 bits (i.e 16 bytes) and is 
-padded with zeros for blocks smaller than this size. ECB is used only in encrypt mode to generate this XOR value. 
-A Feistel decryption uses the same ECB encrypt value to decrypt the text. XOR is trivially invertible when you 
-know two of the arguments.
+AES ECB is used as the cipher round value for XORing. ECB has a block size of 128 bits
+(i.e 16 bytes) and is padded with zeros for blocks smaller than this size. ECB is used
+only in encrypt mode to generate this XOR value. A Feistel decryption uses the same ECB
+encrypt value to decrypt the text. XOR is trivially invertible when you know two of the
+arguments.
 """
 
 
@@ -75,7 +78,7 @@ class FF3Cipher:
     DOMAIN_MIN = 1_000_000  # 1M required in FF3-1
     BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
     BASE62_LEN = len(BASE62)
-    RADIX_MAX = 256  # Support 8-bit alphabets for now, requires test cases for larger values
+    RADIX_MAX = 256  # Support 8-bit alphabets for now
 
     def __init__(self, key, tweak, radix=10, ):
         keybytes = bytes.fromhex(key)
@@ -90,7 +93,8 @@ class FF3Cipher:
         # per revised spec, radix^minLength >= 1,000,000.
         self.minLen = math.ceil(math.log(FF3Cipher.DOMAIN_MIN) / math.log(radix))
 
-        # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base change rule
+        # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base
+        # change rule
         self.maxLen = 2 * math.floor(96/math.log2(radix))
 
         klen = len(keybytes)
@@ -107,8 +111,9 @@ class FF3Cipher:
         if (self.minLen < 2) or (self.maxLen < self.minLen):
             raise ValueError("minLen or maxLen invalid, adjust your radix")
 
-        # AES block cipher in ECB mode with the block size derived based on the length of the key
-        # Always use the reversed key since Encrypt and Decrypt call ciph expecting that
+        # AES block cipher in ECB mode with the block size derived based on the length
+        # of the key. Always use the reversed key since Encrypt and Decrypt call ciph
+        # expecting that
 
         self.aesCipher = AES.new(reverse_string(keybytes), AES.MODE_ECB)
 
@@ -120,7 +125,8 @@ class FF3Cipher:
         return c
 
     def encrypt(self, plaintext):
-        """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
+        """Encrypts the plaintext string and returns a ciphertext of the same length
+        and format"""
         return self.encrypt_with_tweak(plaintext, self.tweak)
 
     """
@@ -164,18 +170,21 @@ class FF3Cipher:
     # EncryptWithTweak allows a parameter tweak instead of the current Cipher's tweak
 
     def encrypt_with_tweak(self, plaintext, tweak):
-        """Encrypts the plaintext string and returns a ciphertext of the same length and format"""
+        """Encrypts the plaintext string and returns a ciphertext of the same length
+        and format"""
         tweakBytes = bytes.fromhex(tweak)
 
         n = len(plaintext)
 
         # Check if message length is within minLength and maxLength bounds
         if (n < self.minLen) or (n > self.maxLen):
-            raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
+            raise ValueError(f"message length {n} is not within min {self.minLen} and "
+                             f"max {self.maxLen} bounds")
 
         # Make sure the given the length of tweak in bits is 56 or 64
         if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
-            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56 or 64 bits")
+            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 56"
+                             f" or 64 bits")
 
         # Todo: Check message is in current radix
 
@@ -251,27 +260,32 @@ class FF3Cipher:
 
     def decrypt(self, ciphertext):
         """
-        Decrypts the ciphertext string and returns a plaintext of the same length and format.
+        Decrypts the ciphertext string and returns a plaintext of the same length
+        and format.
 
-        The process of decryption is essentially the same as the encryption process. The  differences
-        are  (1)  the  addition  function  is  replaced  by  a  subtraction function that is its
-        inverse, and (2) the order of the round indices (i) is reversed.
+        The process of decryption is essentially the same as the encryption process.
+        The  differences are  (1)  the  addition  function  is  replaced  by  a
+        subtraction function that is its inverse, and (2) the order of the round
+        indices (i) is reversed.
         """
         return self.decrypt_with_tweak(ciphertext, self.tweak)
 
     def decrypt_with_tweak(self, ciphertext, tweak):
-        """Decrypts the ciphertext string and returns a plaintext of the same length and format"""
+        """Decrypts the ciphertext string and returns a plaintext of the same length
+        and format"""
         tweakBytes = bytes.fromhex(tweak)
 
         n = len(ciphertext)
 
         # Check if message length is within minLength and maxLength bounds
         if (n < self.minLen) or (n > self.maxLen):
-            raise ValueError(f"message length {n} is not within min {self.minLen} and max {self.maxLen} bounds")
+            raise ValueError(f"message length {n} is not within min {self.minLen} and "
+                             f"max {self.maxLen} bounds")
 
         # Make sure the given the length of tweak in bits is 56 or 64
         if len(tweakBytes) not in [TWEAK_LEN, TWEAK_LEN_NEW]:
-            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 bytes, or 64 bits")
+            raise ValueError(f"tweak length {len(tweakBytes)} invalid: tweak must be 8 "
+                             f"bytes, or 64 bits")
 
         # Todo: Check message is in current radix
 
@@ -380,7 +394,8 @@ def encode_int_r(n, alphabet, length=0):
     """
     Return a string representation of a number in the given base system for 2..62
 
-    The string is left in a reversed order expected by the calling cryptographic function
+    The string is left in a reversed order expected by the calling cryptographic
+    function
 
     examples:
        encode_int_r(10, hexdigits)
@@ -388,7 +403,8 @@ def encode_int_r(n, alphabet, length=0):
     """
     base = len(alphabet)
     if (base > FF3Cipher.RADIX_MAX):
-        raise ValueError(f"Base {base} is outside range of supported radix 2..{FF3Cipher.RADIX_MAX}")
+        raise ValueError(f"Base {base} is outside range of supported radix "
+                         f"2..{FF3Cipher.RADIX_MAX}")
 
     x = ''
     while n >= base:
