@@ -378,25 +378,27 @@ class TestFF3(unittest.TestCase):
                 self.assertEqual(s, test['ciphertext'])
 
     def test_decrypt_all(self):
-        for testVector in testVectors:
-            with self.subTest(testVector=testVector):
-                c = FF3Cipher(testVector['key'], testVector['tweak'], testVector['radix'])
-                s = c.decrypt(testVector['ciphertext'])
-                self.assertEqual(s, testVector['plaintext'])
+        for test in testVectors:
+            with self.subTest(testVector=test):
+                c = FF3Cipher(test['key'], test['tweak'], test['radix'])
+                s = c.decrypt(test['ciphertext'])
+                self.assertEqual(s, test['plaintext'])
 
     def test_encrypt_acvp(self):
-        for testVector in testVectors_ACVP_AES_FF3_1:
-            with self.subTest(testVector=testVector):
-                c = FF3Cipher.withCustomAlphabet(testVector['key'], testVector['tweak'], testVector['alphabet'])
-                s = c.encrypt(testVector['plaintext'])
-                self.assertEqual(s, testVector['ciphertext'])
+        for test in testVectors_ACVP_AES_FF3_1:
+            with self.subTest(testVector=test):
+                c = FF3Cipher.withCustomAlphabet(test['key'], test['tweak'],
+                                                 test['alphabet'])
+                s = c.encrypt(test['plaintext'])
+                self.assertEqual(s, test['ciphertext'])
 
     def test_decrypt_acvp(self):
-        for testVector in testVectors_ACVP_AES_FF3_1:
-            with self.subTest(testVector=testVector):
-                c = FF3Cipher.withCustomAlphabet(testVector['key'], testVector['tweak'], testVector['alphabet'])
-                s = c.decrypt(testVector['ciphertext'])
-                self.assertEqual(s, testVector['plaintext'])
+        for test in testVectors_ACVP_AES_FF3_1:
+            with self.subTest(testVector=test):
+                c = FF3Cipher.withCustomAlphabet(test['key'], test['tweak'],
+                                                 test['alphabet'])
+                s = c.decrypt(test['ciphertext'])
+                self.assertEqual(s, test['plaintext'])
 
     # test with 56 bit tweak
     def test_encrypt_tweak56(self):
@@ -425,11 +427,13 @@ class TestFF3(unittest.TestCase):
 
     def test_german(self):
         """
-        Test the German alphabet with a radix of 70.  German consists of the latin alphabet
-        plus four additional letters, each of which have uppercase and lowercase letters
+        Test the German alphabet with a radix of 70.  German consists of the latin
+        alphabet plus four additional letters, each of which have uppercase and
+        lowercase letters
         """
 
-        german_alphabet = string.digits + string.ascii_lowercase + string.ascii_uppercase + "ÄäÖöÜüẞß"
+        german_alphabet = string.digits + string.ascii_lowercase + \
+                          string.ascii_uppercase + "ÄäÖöÜüẞß"
         key = "EF4359D8D580AA4F7F036D6F04FC6A94"
         tweak = "D8E7920AFA330A73"
         plaintext = "liebeGrüße"
