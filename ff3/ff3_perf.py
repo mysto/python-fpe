@@ -1,5 +1,6 @@
 from ff3 import FF3Cipher
-import string, random
+import random
+import string
 import time
 
 
@@ -21,7 +22,7 @@ def test_encrypt(plaintexts):
     tweak = "D8E7920AFA330A73"
     for pt in plaintexts:
         c = FF3Cipher(key, tweak, 62)
-        s = c.encrypt(pt)
+        c.encrypt(pt)
 
 
 def test_performance(runs=100_000):

@@ -1,4 +1,3 @@
-import os
 import sys
 from ff3 import FF3Cipher
 
