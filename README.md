@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/mysto/python-fpe.svg?branch=main)](https://travis-ci.com/mysto/python-fpe)
+[![Build Status](https://github.com/mysto/python-fpe/actions/workflows/build-py.yml/badge.svg)](https://github.com/mysto/python-fpe/actions)
 [![Coverage Status](https://coveralls.io/repos/github/mysto/python-fpe/badge.svg?branch=main)](https://coveralls.io/github/mysto/python-fpe?branch=main)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Downloads](https://pepy.tech/badge/ff3)](https://pepy.tech/project/ff3)
