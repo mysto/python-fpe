@@ -34,6 +34,7 @@ TWEAK_LEN = 8  # Original FF3 tweak length
 TWEAK_LEN_NEW = 7  # FF3-1 tweak length
 HALF_TWEAK_LEN = TWEAK_LEN // 2
 
+logger = logging.getLogger(__name__)
 
 def reverse_string(txt):
     """func defined for clarity"""
@@ -202,14 +203,14 @@ class FF3Cipher:
 
         Tl = tweakBytes[:HALF_TWEAK_LEN]
         Tr = tweakBytes[HALF_TWEAK_LEN:]
-        logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
+        logger.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
 
         # Pre-calculate the modulus since it's only one of 2 values,
         # depending on whether i is even or odd
 
         modU = self.radix ** u
         modV = self.radix ** v
-        logging.debug(f"modU: {modU} modV: {modV}")
+        logger.debug(f"modU: {modU} modV: {modV}")
 
         # Main Feistel Round, 8 times
         #
@@ -217,7 +218,7 @@ class FF3Cipher:
         # the block size. Thus, we pad the input to 16 bytes
 
         for i in range(NUM_ROUNDS):
-            # logging.debug(f"-------- Round {i}")
+            # logger.debug(f"-------- Round {i}")
             # Determine alternating Feistel round side
             if i % 2 == 0:
                 m = u
@@ -233,7 +234,7 @@ class FF3Cipher:
             S = self.aesCipher.encrypt(bytes(revP))
 
             S = reverse_string(S)
-            # logging.debug("S:    ", S.hex())
+            # logger.debug("S:    ", S.hex())
 
             y = int.from_bytes(S, byteorder='big')
 
@@ -247,14 +248,14 @@ class FF3Cipher:
             else:
                 c = c % modV
 
-            # logging.debug(f"m: {m} A: {A} c: {c} y: {y}")
+            # logger.debug(f"m: {m} A: {A} c: {c} y: {y}")
             C = encode_int_r(c, self.alphabet, int(m))
 
             # Final steps
             A = B
             B = C
 
-            # logging.debug(f"A: {A} B: {B}")
+            # logger.debug(f"A: {A} B: {B}")
 
         return A + B
 
@@ -303,20 +304,20 @@ class FF3Cipher:
 
         Tl = tweakBytes[:HALF_TWEAK_LEN]
         Tr = tweakBytes[HALF_TWEAK_LEN:]
-        logging.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
+        logger.debug(f"Tweak: {tweak}, tweakBytes:{tweakBytes.hex()}")
 
         # Pre-calculate the modulus since it's only one of 2 values,
         # depending on whether i is even or odd
 
         modU = self.radix ** u
         modV = self.radix ** v
-        logging.debug(f"modU: {modU} modV: {modV}")
+        logger.debug(f"modU: {modU} modV: {modV}")
 
         # Main Feistel Round, 8 times
 
         for i in reversed(range(NUM_ROUNDS)):
 
-            # logging.debug(f"-------- Round {i}")
+            # logger.debug(f"-------- Round {i}")
             # Determine alternating Feistel round side
             if i % 2 == 0:
                 m = u
@@ -332,7 +333,7 @@ class FF3Cipher:
             S = self.aesCipher.encrypt(bytes(revP))
             S = reverse_string(S)
 
-            # logging.debug("S:    ", S.hex())
+            # logger.debug("S:    ", S.hex())
 
             y = int.from_bytes(S, byteorder='big')
 
@@ -346,14 +347,14 @@ class FF3Cipher:
             else:
                 c = c % modV
 
-            # logging.debug(f"m: {m} B: {B} c: {c} y: {y}")
+            # logger.debug(f"m: {m} B: {B} c: {c} y: {y}")
             C = encode_int_r(c, self.alphabet, int(m))
 
             # Final steps
             B = A
             A = C
 
-            # logging.debug(f"A: {A} B: {B}")
+            # logger.debug(f"A: {A} B: {B}")
 
         return A + B
 
@@ -373,7 +374,7 @@ def calculate_p(i, alphabet, W, B):
     # The remaining 12 bytes of P are for rev(B) with padding
 
     BBytes = decode_int_r(B, alphabet).to_bytes(12, "big")
-    # logging.debug(f"B: {B} BBytes: {BBytes.hex()}")
+    # logger.debug(f"B: {B} BBytes: {BBytes.hex()}")
 
     P[BLOCK_SIZE - len(BBytes):] = BBytes
     return P
