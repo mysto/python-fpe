@@ -111,7 +111,7 @@ print(f"{plaintext} -> {ciphertext} -> {decrypted}")
 ```
 ## Requires
 
-This project was built and tested with Python 3.8 and later versions.  The only dependency is [PyCryptodome](https://pycryptodome.readthedocs.io).
+This project was built and tested with Python 3.9 and later versions.  The only dependency is [PyCryptodome](https://pycryptodome.readthedocs.io).
 
 ## Testing
 
