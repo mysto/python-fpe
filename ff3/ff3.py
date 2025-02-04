@@ -76,18 +76,16 @@ class FF3Cipher:
     from the base 62 alphabet (digits + lowercase + uppercase latin) are used.
     """
     DOMAIN_MIN = 1_000_000  # 1M required in FF3-1
-    BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
+    BASE62 = string.digits + string.ascii_uppercase + string.ascii_lowercase
+    NISTTV_BASE62 = string.digits + string.ascii_lowercase + string.ascii_uppercase
     BASE62_LEN = len(BASE62)
     RADIX_MAX = 256  # Support 8-bit alphabets for now
 
-    def __init__(self, key, tweak, radix=10, ):
+    def __init__(self, key : str, tweak : str, alphabet : str ):
         keybytes = bytes.fromhex(key)
         self.tweak = tweak
-        self.radix = radix
-        if radix <= FF3Cipher.BASE62_LEN:
-            self.alphabet = FF3Cipher.BASE62[0:radix]
-        else:
-            self.alphabet = None
+        self.alphabet = alphabet
+        self.radix = len(alphabet)
 
         # Calculate range of supported message lengths [minLen..maxLen]
         # per revised spec, radix^minLength >= 1,000,000.
@@ -120,6 +118,13 @@ class FF3Cipher:
     # factory method to create a FF3Cipher object with a custom alphabet
     @staticmethod
     def withCustomAlphabet(key, tweak, alphabet):
+        c = FF3Cipher(key, tweak, alphabet)
+        return c
+
+    # factory method to create a FF3Cipher object with a radix
+    @staticmethod
+    def withRadix(key, tweak, radix):
+        alphabet = FF3Cipher.BASE62[0:radix]
         c = FF3Cipher(key, tweak, len(alphabet))
         c.alphabet = alphabet
         return c

@@ -373,14 +373,16 @@ class TestFF3(unittest.TestCase):
     def test_encrypt_all(self):
         for test in testVectors:
             with self.subTest(testVector=test):
-                c = FF3Cipher(test['key'], test['tweak'], test['radix'])
+                alphabet = FF3Cipher.NISTTV_BASE62[0:test['radix']]
+                c = FF3Cipher(test['key'], test['tweak'], alphabet)
                 s = c.encrypt(test['plaintext'])
                 self.assertEqual(s, test['ciphertext'])
 
     def test_decrypt_all(self):
         for test in testVectors:
             with self.subTest(testVector=test):
-                c = FF3Cipher(test['key'], test['tweak'], test['radix'])
+                alphabet = FF3Cipher.NISTTV_BASE62[0:test['radix']]
+                c = FF3Cipher(test['key'], test['tweak'], alphabet)
                 s = c.decrypt(test['ciphertext'])
                 self.assertEqual(s, test['plaintext'])
 
@@ -419,7 +421,7 @@ class TestFF3(unittest.TestCase):
         tweak = "D8E7920AFA330A73"
         plaintext = "⁸⁹⁰¹²¹²³⁴⁵⁶⁷⁸⁹⁰⁰⁰⁰"
         ciphertext = "⁷⁵⁰⁹¹⁸⁸¹⁴⁰⁵⁸⁶⁵⁴⁶⁰⁷"
-        c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet)
+        c = FF3Cipher(key, tweak, alphabet)
         s = c.encrypt(plaintext)
         self.assertEqual(s, ciphertext)
         x = c.decrypt(s)
@@ -466,7 +468,7 @@ class TestFF3(unittest.TestCase):
         tweak = "D8E7920AFA330A73"
         for radix, plaintext_len, alphabet in test_cases:
             if alphabet is None:
-                c = FF3Cipher(key, tweak, radix=radix)
+                c = FF3Cipher.withRadix(key, tweak, radix=radix)
             else:
                 c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet=alphabet)
             self.subTest(radix=radix, plaintext_len=plaintext_len)
