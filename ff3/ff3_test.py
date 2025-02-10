@@ -331,6 +331,7 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(101, (decode_int_r("101", string.digits)))
         self.assertEqual(0x02, (decode_int_r("20", hexdigits)))
         self.assertEqual(0xAA, (decode_int_r("aa", hexdigits)))
+        self.assertEqual(44831223490454933899171349985, decode_int_r("p0oModYgk00ZI4S6", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"))
 
     def test_aes_ecb(self):
         # NIST test vector for ECB-AES128
@@ -443,6 +444,19 @@ class TestFF3(unittest.TestCase):
         self.assertEqual(s, ciphertext)
         x = c.decrypt(s)
         self.assertEqual(x, plaintext)
+
+    def test_decodeint_signbyte(self):
+        alphabet = string.ascii_uppercase + string.ascii_lowercase + string.digits
+        key = "2DE79D232DF5585D68CE47882AE256D6"
+        tweak = "CBD09280979564"
+        plaintext = "Ceciestuntestdechiffrement123cet"
+        ciphertext = "0uaTPI9g49f9MMw54OvY8x5rmNcrhydM"
+        c = FF3Cipher.withCustomAlphabet(key, tweak, alphabet)
+        s = c.encrypt(plaintext)
+        self.assertEqual(s, ciphertext)
+        x = c.decrypt(s)
+        self.assertEqual(x, plaintext)
+
 
     # Check that encryption and decryption are inverses over whole domain
     def test_whole_domain(self):
