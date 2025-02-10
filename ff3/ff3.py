@@ -90,6 +90,8 @@ class FF3Cipher:
         else:
             self.alphabet = None
 
+        # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
         # Calculate range of supported message lengths [minLen..maxLen]
         # per revised spec, radix^minLength >= 1,000,000.
         self.minLen = math.ceil(math.log(FF3Cipher.DOMAIN_MIN) / math.log(radix))
@@ -97,7 +99,6 @@ class FF3Cipher:
         # We simplify the specs log[radix](2^96) to 96/log2(radix) using the log base
         # change rule
         self.maxLen = 2 * math.floor(96/math.log2(radix))
-
         klen = len(keybytes)
 
         # Check if the key is 128, 192, or 256 bits = 16, 24, or 32 bytes
@@ -188,7 +189,6 @@ class FF3Cipher:
                              f" or 64 bits")
 
         # Todo: Check message is in current radix
-
         # Calculate split point
         u = math.ceil(n / 2)
         v = n - u
@@ -234,7 +234,7 @@ class FF3Cipher:
             S = self.aesCipher.encrypt(bytes(revP))
 
             S = reverse_string(S)
-            # logger.debug("S:    ", S.hex())
+            # logger.debug(f"S: {S.hex()}")
 
             y = int.from_bytes(S, byteorder='big')
 
@@ -373,10 +373,12 @@ def calculate_p(i, alphabet, W, B):
 
     # The remaining 12 bytes of P are for rev(B) with padding
 
-    BBytes = decode_int_r(B, alphabet).to_bytes(12, "big")
-    # logger.debug(f"B: {B} BBytes: {BBytes.hex()}")
+    val = decode_int_r(B, alphabet)
+    BBytes = val.to_bytes(12, "big")
+    # logger.debug(f"B: {B} val: {val} BBytes: {BBytes.hex()}")
 
     P[BLOCK_SIZE - len(BBytes):] = BBytes
+    # logger.debug(f"[round: {i}] P: {P.hex()} W: {W.hex()} ")
     return P
 
 def calculate_tweak64_ff3_1(tweak56):
@@ -391,7 +393,8 @@ def calculate_tweak64_ff3_1(tweak56):
     tweak64[7] = ((tweak56[3] & 0x0F) << 4)
     return tweak64
 
-def encode_int_r(n, alphabet, length=0):
+
+def encode_int_r(n, alphabet, length=0) -> str:
     """
     Return a string representation of a number in the given base system for 2..62
 
@@ -419,8 +422,10 @@ def encode_int_r(n, alphabet, length=0):
     return x
 
 
-def decode_int_r(astring, alphabet):
+def decode_int_r(astring, alphabet) -> int:
     """Decode a Base X encoded string into the number
+
+    Returns an integer
 
     Arguments:
     - `astring`: The encoded string
