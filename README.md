@@ -4,6 +4,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/ff3)
 [![Downloads](https://pepy.tech/badge/ff3)](https://pepy.tech/project/ff3)
 [![PyPI version](https://badge.fury.io/py/ff3.svg)](https://badge.fury.io/py/ff3)
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/mysto/python-fpe.svg)](http://isitmaintained.com/project/mysto/python-fpe "Percentage of issues still open")
 
 <p align="center">
   <a href="https://privacylogistics.com/">
