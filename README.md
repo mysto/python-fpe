@@ -24,7 +24,7 @@ and revised on February 28th, 2019 with a draft update for FF3-1.
 
 * [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
 * [NIST Recommendation SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
-* [NIST SP 800-38G Rev. 1(2nd Public Draft)(https://csrc.nist.gov/pubs/sp/800/38/g/r1/2pd)]
+* [NIST SP 800-38G Revision 1 (2nd Public Draft)](https://csrc.nist.gov/pubs/sp/800/38/g/r1/2pd)
 
 **NOTE:** NIST's Feburary 2025 Draft 2 has removed FF3 from the NIST standard. Contact me about a licensed version of FF1 in Python.
 
