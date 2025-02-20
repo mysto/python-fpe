@@ -17,13 +17,16 @@
 
 # FF3 - Format Preserving Encryption in Python
 
-An implementation of the NIST approved FF3 and FF3-1 Format Preserving Encryption (FPE) algorithms in Python.
+An implementation of the NIST FF3 and draft FF3-1 Format Preserving Encryption (FPE) algorithms in Python.
 
 This package implements the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_,
 and revised on February 28th, 2019 with a draft update for FF3-1.
 
 * [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
 * [NIST Recommendation SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
+* [NIST SP 800-38G Rev. 1(2nd Public Draft)(https://csrc.nist.gov/pubs/sp/800/38/g/r1/2pd)]
+
+**NOTE:** NIST's Feburary 2025 Draft 2 has removed FF3 from the NIST standard. Contact me about a licensed version of FF1 in Python.
 
 Changes to minimum domain size and revised tweak length have been implemented in this package with
 support for both 64-bit and 56-bit tweaks. NIST has only published official test vectors for 64-bit tweaks, 
