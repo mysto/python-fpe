@@ -169,6 +169,8 @@ The tweak is required in the initial `FF3Cipher` constructor, but can optionally
 
 ## Developer Installation
 
+Use `python -m build` to build the project.
+
 To install the development version:
 
 ```bash
@@ -177,11 +179,7 @@ cd python-fpe
 pip3 install --editable .
 ```
 
-Before contributing any pull requests, you will need to first fork this repository and change the remote origin to reflect your fork:
-
-```bash
-git remote set-url origin git@github.com:YOUR-GITHUB-USERNAME/python-fpe.git
-```
+Before contributing any pull requests, you will need to first fork this repository. 
 
 ## Author
 
