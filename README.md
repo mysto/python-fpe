@@ -15,9 +15,13 @@
   </a>
 </p>
 
+**NOTE:** NIST's February 2025 Draft 2 has removed FF3 from the NIST standard. 
+
+This software is provided for educational and experimental use and comes with no warranty of any kind. 
+
 # FF3 - Format Preserving Encryption in Python
 
-An implementation of the NIST FF3 and draft FF3-1 Format Preserving Encryption (FPE) algorithms in Python.
+An implementation of the NIST FF3 and draft FF3-1 Format Preserving Encryption (FPE) algorithms in Python. FF1 implementations are outside the scope of this open source project. 
 
 This package implements the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_,
 and revised on February 28th, 2019 with a draft update for FF3-1.
@@ -25,8 +29,6 @@ and revised on February 28th, 2019 with a draft update for FF3-1.
 * [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
 * [NIST Recommendation SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
 * [NIST SP 800-38G Revision 1 (2nd Public Draft)](https://csrc.nist.gov/pubs/sp/800/38/g/r1/2pd)
-
-**NOTE:** NIST's Feburary 2025 Draft 2 has removed FF3 from the NIST standard. Contact me about a licensed version of FF1 in Python.
 
 Changes to minimum domain size and revised tweak length have been implemented in this package with
 support for both 64-bit and 56-bit tweaks. NIST has only published official test vectors for 64-bit tweaks, 
@@ -57,12 +59,12 @@ Input plaintext has maximum length restrictions based upon the chosen radix (2 *
 * radix 36: 36
 * radix 62: 32
 
-To work around string length, its possible to encode longer text in chunks.
+To work around string length, it's possible to encode longer text in chunks.
 
-The key length must be 128, 192, or 256 bits in length. The tweak is 7 bytes (FF3-1) or 8 bytes for the origingal FF3.
+The key length must be 128, 192, or 256 bits in length. The tweak is 7 bytes (FF3-1) or 8 bytes for the original FF3.
 
 As with any cryptographic package, managing and protecting the key(s) is crucial. The tweak is generally not kept secret.
-This package does not store the key in memory after initializing the cipher.
+This implementation does not intentionally retain key material beyond cipher initialization.
 
 ## Code Example
 
@@ -131,7 +133,8 @@ python3 -m ff3.ff3_test
 ## Performance Benchmarks
 
 The Mysto FF3 was benchmarked on a MacBook Air (1.1 GHz Quad-Core Intel Core i5)
-performing 70,000 tokenization per second with random 8 character data input.
+performing 70,000 tokenization per second with random 8 character data input. Performance 
+results are indicative only and depend on hardware, workload, and configuration
 
 To run the performance tests:
 
@@ -159,9 +162,9 @@ This implementation was originally based upon the [Capital One Go implementation
 
 FPE can be used for data tokenization of sensitive data which is cryptographically reversible. This implementation does not provide any guarantees regarding PCI DSS or other validation.
 
-While all NIST and ACVP test vectors pass, this package has not otherwise been extensively tested.
+While all NIST and ACVP test vectors pass, this package has not undergone independent security review or formal cryptographic validation.
 
-The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec.
+The cryptographic library used is [PyCryptodome](https://pypi.org/project/pycryptodome/) for AES encryption. FF3 uses a single-block with an IV of 0, which is effectively ECB mode. AES ECB is the only block cipher function which matches the requirement of the FF3 spec. This does not imply that ECB mode is safe for general-purpose encryption; it is used here solely because it is required by the FF3 specification
 
 The domain size was revised in FF3-1 to radix<sup>minLen</sup> >= 1,000,000 and is represented by the constant `DOMAIN_MIN` in `ff3.py`. FF3-1 is in draft status.
 
