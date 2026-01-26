@@ -15,16 +15,16 @@
   </a>
 </p>
 
-**NOTE:** NIST's February 2025 Draft 2 has entirely removed FF3 from the NIST standard due to published vulnerabilities. 
+**NOTE:** NIST's February 2025 Draft 2 has entirely withdrawn FF3 from the NIST standard due to published vulnerabilities. 
 
-This software is provided for educational and experimental use and comes with no warranty of any kind. 
+This software is provided for educational and experimental use and comes with no warranty of any kind.
+It is intended for developers and researchers familiar with cryptographic standards.
 
 # FF3 - Format Preserving Encryption in Python
 
-An implementation of the NIST FF3 and draft FF3-1 Format Preserving Encryption (FPE) algorithms in Python. FF1 implementations are outside the scope of this open source project. 
+An implementation of the draft NIST FF3 and FF3-1 Format Preserving Encryption (FPE) algorithms in Python. FF1 implementations are outside the scope of this open source project. 
 
-This package implements the FF3 algorithm for Format Preserving Encryption as described in the March 2016 NIST publication 800-38G _Methods for Format-Preserving Encryption_,
-and revised on February 28th, 2019 with a draft update for FF3-1.
+This package implements the FF3 and FF3-1 algorithms as specified in NIST Special Publication 800-38G _Methods for Format-Preserving Encryption_ (now withdrawn), and includes the revisions on February 28th, 2019 with a draft update for FF3-1 (now withdrawn).
 
 * [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
 * [NIST Recommendation SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
@@ -32,8 +32,7 @@ and revised on February 28th, 2019 with a draft update for FF3-1.
 
 Changes to minimum domain size and revised tweak length have been implemented in this package with
 support for both 64-bit and 56-bit tweaks. NIST has only published official test vectors for 64-bit tweaks, 
-but draft ACVP test vectors have been used for testing FF3-1. It is expected the final
-NIST standard will provide updated test vectors with 56-bit tweak lengths.
+but draft ACVP test vectors have been used for testing FF3-1. x
 
 ## Installation
 
@@ -155,6 +154,13 @@ the *tweak* is used together with the intermediate encrypted text as input to th
 ## Other FPE Algorithms
 
 Only FF1 and FF3 have been approved by NIST for format preserving encryption. There are patent claims on FF1 which allegedly include open source implementations. Given the issues raised in ["The Curse of Small Domains: New Attacks on Format-Preserving Encryption"](https://eprint.iacr.org/2018/556.pdf) by Hoang, Tessaro and Trieu in 2018, it is prudent to be very cautious about using any FPE that isn't a standard and hasn't stood up to public scrutiny.
+
+## Reporting Issues and Contributing
+
+Bug reports, feature requests, and pull requests are welcome.  Please use the GitHub Issues page to report problems or ask questions:
+https://github.com/mysto/python-fpe/issues.
+
+By contributing, you agree that your contributions are provided under the Apache 2.0 license. All documentation and issue discussions are conducted in English.
 
 ## Implementation Notes
 
