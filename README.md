@@ -17,7 +17,7 @@
 
 **⚠️ WARNING**
  
- **NOTE:** NIST's February 2025 Draft 2 has entirely withdrawn FF3 from the NIST standard due to published vulnerabilities. 
+ **NOTE:** NIST's February 2025 Draft 2 has entirely withdrawn FF3 and FF3-1 from the NIST standard due to published vulnerabilities. 
 
 This software is provided for educational and experimental use and comes with no warranty of any kind.
 It is intended for developers and researchers familiar with cryptographic standards.
@@ -28,13 +28,13 @@ An implementation of the draft NIST FF3 and FF3-1 Format Preserving Encryption (
 
 This package implements the FF3 and FF3-1 algorithms as specified in NIST Special Publication 800-38G _Methods for Format-Preserving Encryption_ (now withdrawn), and includes the revisions on February 28th, 2019 with a draft update for FF3-1 (now withdrawn).
 
-* [NIST Recommendation SP 800-38G (FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)
-* [NIST Recommendation SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)
-* [NIST SP 800-38G Revision 1 (2nd Public Draft)](https://csrc.nist.gov/pubs/sp/800/38/g/r1/2pd)
+-  **[NIST SP 800-38G (FF1 & FF3)](http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38G.pdf)** — *Withdrawn due to published vulnerabilities in FF3*
+-  **[NIST SP 800-38G Revision 1 (FF3-1)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38Gr1-draft.pdf)** — *Withdrawn due to published vulnerabilities in FF3-1*
+-  **[NIST SP 800-38G Revision 1 (2nd Public Draft)](https://csrc.nist.gov/pubs/sp/800/38/g/r1/2pd)** — *Current draft; FF1 only (does not define FF3/FF3-1)*
 
 Changes to minimum domain size and revised tweak length have been implemented in this package with
 support for both 64-bit and 56-bit tweaks. NIST has only published official test vectors for 64-bit tweaks, 
-but draft ACVP test vectors have been used for testing FF3-1. x
+but draft ACVP test vectors have been used for testing FF3-1.
 
 ## Installation
 
